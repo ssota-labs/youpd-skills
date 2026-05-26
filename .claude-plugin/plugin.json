@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "youpd-skills",
+  "version": "0.1.0-dev.0",
+  "description": "콘텐츠 기획·제작 워크플로 자동화 스킬 킷. YouTube 키워드 입력 → 채널·영상 수집 → 레퍼런스 큐레이션 → 제목·썸네일·도입부 분석을 로컬 SQLite 워크스페이스에 누적합니다. BYOK + 로컬 완결, 사설 백엔드 없음.",
+  "author": {
+    "name": "ssota-labs"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/ssota-labs/youpd-skills",
+  "repository": "https://github.com/ssota-labs/youpd-skills",
+  "keywords": [
+    "youtube",
+    "content-creation",
+    "research",
+    "agent-skills",
+    "byok",
+    "sqlite",
+    "claude-code"
+  ]
+}

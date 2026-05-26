@@ -1,0 +1,39 @@
+{
+  "name": "@ssota-labs/youpd-skills",
+  "version": "0.1.0-dev.0",
+  "description": "콘텐츠 기획·제작 워크플로 에이전트 스킬 킷. YouTube/Threads/TikTok/Instagram Shorts/카드뉴스 다채널 리서치·분석·기획·제작을 로컬 SQLite 워크스페이스에 누적. BYOK + 로컬 완결.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "author": {
+    "name": "ssota-labs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ssota-labs/youpd-skills"
+  },
+  "engines": {
+    "node": ">=24.0.0",
+    "pnpm": ">=10.0.0"
+  },
+  "packageManager": "pnpm@10.33.2",
+  "scripts": {
+    "init": "tsx skills/youpd-skills/scripts/workspace/init.ts",
+    "test": "node --test --experimental-test-coverage --import tsx/esm skills/youpd-skills/scripts/__tests__/*.test.ts",
+    "test:smoke": "node --test --import tsx/esm skills/youpd-skills/scripts/__tests__/smoke.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.7.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
+}

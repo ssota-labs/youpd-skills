@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "ssota-labs-youpd",
+  "description": "ssota-labs 공식 마켓플레이스. 콘텐츠 기획·제작 워크플로 자동화 스킬 킷을 배포합니다.",
+  "version": "0.1.0",
+  "owner": {
+    "name": "ssota-labs"
+  },
+  "plugins": [
+    {
+      "name": "youpd-skills",
+      "source": ".",
+      "category": "content-workflow",
+      "tags": ["youtube", "content-creation", "research", "skills", "byok"]
+    }
+  ]
+}
