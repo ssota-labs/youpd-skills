@@ -69,8 +69,9 @@ add-keyword
 
 ## 구현 상태 (P1.0 시점)
 
-- ✅ DB 스키마: `010_youtube_content`, `011_youtube_snapshots`, `012_youtube_keywords`, `013_youtube_trending`, `014_youtube_credits`, `015_youtube_references`, `016_youtube_comments` 마이그레이션은 P1.0 에서 모두 적용됨.
+- ✅ P1.0 workspace: `schema_migrations`, `workspace_meta` migration만 적용됨.
+- 📋 Phase 1 domain schema (YouTube content, keywords, snapshots, references, glossary, comments 등)는 [Phase 1 Technical Blueprint](https://www.notion.so/36d346dac456813daa20e054198e3a8c)에 정의되어 있으며, P1.1+ milestone D3에서 migration으로 도입.
 - 🚧 스크립트 (`scripts/research/youtube/*.ts`): P1.1+ 에서 구현. 현재는 stub. 호출 시 "P1.x 에서 구현 예정" 안내만 출력.
 - 🚧 reference 본문: 스킬 사용자 인터페이스 계약은 P1.x 진입 시 본 폴더의 각 `<route>.md` 에 채워진다.
 
-> 사용자가 P1.1+ 라우트를 요청해도 P1.0 단계에서는 거절 + "현재 P1.0 까지만 구현됨" 안내. 단, DB 는 이미 모든 테이블이 만들어져 있으므로 데이터 구조 검증·테스트 INSERT 는 가능.
+> 사용자가 P1.1+ 라우트를 요청하면 P1.0 단계에서는 "아직 구현되지 않음" 안내. domain table은 Blueprint에 설계되어 있으나 P1.0 DB에는 아직 생성되지 않음.

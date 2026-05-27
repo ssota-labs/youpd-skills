@@ -95,4 +95,5 @@ interface WorkspaceInitError {
 
 ## 변경 이력
 
-- 2026-05-26: P1.0 초기 작성. 마이그레이션 10개 (000-002, 010-016) 적용.
+- 2026-05-27: P1.0 scope 정리 — migration은 `000_bootstrap.sql`, `001_workspace.sql` 2개만 적용. YouTube/glossary domain schema는 Phase 1 Blueprint 및 후속 milestone D3에서 도입.
+- 2026-05-26: P1.0 초기 작성.
