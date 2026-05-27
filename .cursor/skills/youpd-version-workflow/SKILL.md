@@ -10,18 +10,26 @@ Use this skill to select and execute the next **youpd-skills** development unit 
 Notion task database:
 `https://www.notion.so/paxhumana/55eda245160f43eba0ebe28b71604f89?v=c58d8705594d4e7c8844ab7d98354513`
 
+## Progressive References
+
+Before classifying a task as PRD, 설계, 스펙, or 구현, read:
+
+- [references/documentation-workflow.md](references/documentation-workflow.md) — document types, dependency order, and per-type deliverables (from [제품 문서화 가이드](https://www.notion.so/ada346dac45682dca9f001cfff8ae0fc))
+
 ## Core Rule
 
-The implementation unit is a **version under a phase**. Do not start implementation until all required predecessor tasks are complete and the relevant PRD/design context has been read.
+The work unit may be **documentation** (Blueprint, Policy, PRD, D3, Spec, release notes, ADR) or **implementation** (code/scripts/migrations). Do not start implementation until roadmap, PRD, and D3 are complete or explicitly accepted.
 
 Normal sequence:
 
-1. Phase roadmap
-2. Phase-version PRD
-3. Phase-version design
-4. Phase-version development
+1. Phase roadmap / Blueprint
+2. Cumulative Policy (when recurring rules emerge)
+3. Phase-version PRD (D2)
+4. Phase-version design (D3)
+5. Phase-version development
+6. Topic Spec updates and release notes (after or alongside implementation)
 
-If a predecessor is missing, blocked, or ambiguous, stop and report the dependency gap instead of implementing.
+If a predecessor is missing, blocked, or ambiguous, stop and report the dependency gap instead of proceeding.
 
 ## Workflow
 
@@ -42,23 +50,33 @@ If the database schema is unclear, fetch the database/source schema first, then 
 
 ### 2. Determine The Next Work Unit
 
+Read [references/documentation-workflow.md](references/documentation-workflow.md) and classify the task type before proceeding.
+
 Choose the next work unit by dependency order, not by convenience.
 
 Rules:
 
-- A **development** task can start only if its roadmap, PRD, and design tasks are complete or explicitly accepted.
-- A **design** task can start only if its phase-version PRD is complete or explicitly accepted.
-- A **PRD** task can start only if the phase roadmap exists or the user explicitly asks to draft the roadmap first.
+- A **development** task can start only if its roadmap, PRD, and D3 design tasks are complete or explicitly accepted.
+- A **D3 design** task can start only if its phase-version PRD is complete or explicitly accepted.
+- A **PRD** task can start only if the phase roadmap/Blueprint exists or the user explicitly asks to draft the roadmap first.
+- A **Spec** task updates topic-level current contracts from implemented code — it is not a substitute for PRD or D3. Read migrations, route references, and tests on `main`.
+- A **Blueprint** or **Policy** task may precede or run parallel to version PRD/D3 when phase-wide context or recurring rules are needed.
 - If multiple eligible tasks exist, prefer the lowest unfinished phase-version number.
 - If the current version is already in progress, continue it before starting a new version unless the user says otherwise.
 
 ### 3. Read The Required Context
 
-Before creating an implementation plan, read:
+Before creating a plan, read documents matching the classified work type (see [references/documentation-workflow.md](references/documentation-workflow.md)):
 
-- The phase roadmap
-- The phase-version PRD
-- The phase-version design
+| Work type | Read |
+|---|---|
+| PRD | Phase roadmap/Blueprint, D1 product overview |
+| D3 design | Version PRD, Blueprint, applicable Policy |
+| Spec | Current code on `main`, migrations, route references, tests |
+| Implementation | Roadmap, PRD, D3, plus repo docs below |
+
+Always read for implementation and spec work:
+
 - `AGENTS.md`
 - `README.md`
 - Relevant current code on `main`
@@ -70,26 +88,26 @@ For `youpd-skills`, also read relevant route contracts:
 - Relevant `skills/youpd-skills/scripts/**`
 - Relevant migrations in `skills/youpd-skills/scripts/lib/migrations/`
 
-Do not plan from Notion alone. The implementation plan must reflect the current code on `main`.
+Do not plan from Notion alone. Plans for implementation and spec work must reflect the current code on `main`.
 
-### 4. Produce A Concrete Implementation Plan
+### 4. Produce A Concrete Plan
 
-Before editing code, summarize:
+Before editing code or Notion docs, summarize:
 
-- Selected phase-version
+- Selected phase-version and **task type** (PRD / D3 / Spec / implementation / other)
 - Notion task row(s) used
 - Dependency status
 - Documents read
-- Current-code findings
-- Files likely to change
-- Verification commands
+- Current-code findings (for Spec and implementation)
+- Deliverables or files likely to change
+- Verification commands (for implementation)
 - Risks or open questions
 
 Keep the plan specific enough that another agent could execute it.
 
-### 5. Implement Conservatively
+### 5. Execute Conservatively
 
-Follow project rules:
+For **implementation**, follow project rules:
 
 - Single SKILL + `references/<route>.md` progressive disclosure
 - Do not create per-route `SKILL.md` files
@@ -100,6 +118,8 @@ Follow project rules:
 - For `COALESCE` unique constraints, use `CREATE UNIQUE INDEX`, not inline `UNIQUE(...)`
 - Keep all runtime files under `skills/youpd-skills/`
 - Never commit secrets, `.env*`, `.youpd/`, or `*.db`
+
+For **PRD, D3, Spec, Policy, Blueprint**, follow the deliverable guidance in [references/documentation-workflow.md](references/documentation-workflow.md). Do not mix document types (e.g. implementation detail in PRD, unimplemented Blueprint items in Spec).
 
 ### 6. Verify
 
@@ -137,6 +157,6 @@ Blocked by:
 - [missing PRD/design link, if any]
 
 Next recommended action:
-[roadmap/PRD/design task to do first]
+[roadmap/Blueprint/PRD/D3/Spec task to do first — see references/documentation-workflow.md]
 ```
 
