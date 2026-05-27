@@ -1,31 +1,51 @@
 # Route: `research/youtube/search-by-keyword`
 
-> **상태**: 🚧 P1.1 — 스크립트 stub.
+키워드로 YouTube `search.list` 를 호출하고, 결과 영상 상세를 `videos.list` 로 보강해 `youtube_videos`, `youtube_channels`, `youtube_search_sessions`, `youtube_keyword_video_results` 에 적재한다.
 
-`add-keyword` 으로 등록된 키워드(`keywordId`) 를 받아 YouTube `search.list` 를 호출, 결과 영상들을 `youtube_videos` 마스터에 적재하고 `youtube_keyword_video_results` 에 N:M 관계로 기록한다. 호출 단위는 1 검색 세션 = `youtube_search_sessions` 1행.
+## 입력
 
-## 계획된 입력
+스크립트: `skills/youpd-skills/scripts/research/youtube/search-by-keyword.ts`
 
-| 인수 | 형태 | 설명 |
-|---|---|---|
-| `--keyword-id` | uuid | `add-keyword` 가 반환한 ID |
-| `--max-results` | number | 페이지 크기 (default 50, max 50 per page) |
-| `--pages` | number | 페이지 수 (1~5 권장; 1 페이지 = 100 unit) |
-| `--published-after` | ISO 8601 | (선택) 검색 윈도우 |
-| `--published-before` | ISO 8601 | (선택) |
+| 인수 | 형태 | 설명 | 기본값 |
+|---|---|---|---|
+| `--keyword`, `-k` | string | 키워드를 등록한 뒤 즉시 검색 | `--keyword-id` 없으면 필수 |
+| `--keyword-id` | uuid | 기존 `youtube_keywords.id` | `--keyword` 없으면 필수 |
+| `--region`, `-r` | string | `--keyword` 사용 시 등록 region | `KR` |
+| `--order`, `-o` | enum | `--keyword` 사용 시 검색 정렬 | `relevance` |
+| `--max`, `-m` | number | 총 검색 결과 수, 최대 200 | `50` |
+| `--force`, `-f` | boolean | 1시간 캐시 무시 | `false` |
+
+## 실행
+
+```bash
+pnpm tsx skills/youpd-skills/scripts/research/youtube/search-by-keyword.ts --keyword "AI 트렌드" --max 50
+pnpm tsx skills/youpd-skills/scripts/research/youtube/search-by-keyword.ts --keyword-id <uuid> --force
+```
 
 ## DB 영향
 
-- write: `youtube_search_sessions`, `youtube_videos` (UPSERT), `youtube_channels` (UPSERT, 영상의 채널 마스터 미리 채움), `youtube_keyword_video_results`, `api_call_audits`, `youtube_api_key_daily_usage`, `daily_quota_usage`
-- read: `youtube_keywords` (검증 + last_search_session_id 갱신)
+- read/write: `youtube_keywords`, `youtube_search_sessions`
+- write: `youtube_channels`, `youtube_videos`, `youtube_keyword_video_results`
+- audit: `api_call_audits`, `youtube_api_key_daily_usage`, `daily_quota_usage`
 
 ## 외부 의존
 
-YouTube Data API v3 — `search.list` (1 페이지 = 100 unit)
+`YOUTUBE_API_KEY` 또는 `youtube_api_keys` 활성 키가 필요하다. `search.list` 는 호출당 100 unit, `videos.list` 는 배치당 1 unit 으로 기록된다.
 
-## 미결 결정 사항
+## 출력
 
-- 동일 keyword 를 N시간 내 재호출 시 새 세션을 만들지, 기존 세션을 reuse 하고 결과만 union 할지.
-- search.list 결과의 `videoId` 만 가지고 `videos.list` 를 추가 호출해 stats 도 채울지, 아니면 본 라우트는 검색 결과만 적재하고 stats 는 별도 `fetch-videos` 라우트로 분리할지.
+```typescript
+interface SearchByKeywordResult {
+  ok: true;
+  searchSessionId: string;
+  keywordId: string;
+  cacheHit: boolean;
+  resultCount: number;
+  videoIds: string[];
+  unitsConsumed: number;
+}
+```
 
-> P1.1 D2 PRD 에서 확정.
+## 결과 보고
+
+성공 시 "`<keyword>` 검색 결과 N개 영상을 DB에 모았어요. 1시간 안에 같은 조건으로 다시 부르면 캐시를 씁니다." 정도로 요약한다. `cacheHit: true` 이면 "최근 검색 결과를 그대로 보여드렸어요"라고 말한다.

@@ -35,12 +35,12 @@ description: YouTube/Threads/TikTok/Instagram/카드뉴스 콘텐츠 기획·제
 |---|---|---|
 | 워크스페이스 생성 · 마이그레이션 적용 | `references/workspace/init.md` | ✅ P1.0 |
 | YouTube 라우트 인덱스 · 권장 호출 순서 | `references/research/youtube/INDEX.md` | ✅ |
-| 키워드 마스터 등록 · 정규화 | `references/research/youtube/add-keyword.md` | 🚧 P1.1 |
-| 등록된 키워드로 영상 검색 + N:M 적재 | `references/research/youtube/search-by-keyword.md` | 🚧 P1.1 |
-| 키워드로 채널 검색 | `references/research/youtube/search-channels.md` | 🚧 P1.1 |
-| 채널 ID/핸들로 채널 정보 fetch | `references/research/youtube/fetch-channel.md` | 🚧 P1.1 |
-| 채널의 업로드 영상 일괄 fetch | `references/research/youtube/fetch-channel-videos.md` | 🚧 P1.1 |
-| 트렌딩 (mostPopular) fetch | `references/research/youtube/fetch-trending.md` | 🚧 P1.1 |
+| 키워드 마스터 등록 · 정규화 | `references/research/youtube/add-keyword.md` | ✅ P1.1 |
+| 등록된 키워드로 영상 검색 + N:M 적재 | `references/research/youtube/search-by-keyword.md` | ✅ P1.1 |
+| 키워드로 채널 검색 | `references/research/youtube/search-channels.md` | ✅ P1.1 |
+| 채널 ID/핸들로 채널 정보 fetch | `references/research/youtube/fetch-channel.md` | ✅ P1.1 |
+| 채널의 업로드 영상 일괄 fetch | `references/research/youtube/fetch-channel-videos.md` | ✅ P1.1 |
+| 트렌딩 (mostPopular) fetch | `references/research/youtube/fetch-trending.md` | ✅ P1.1 |
 | 채널 시점 수치 스냅샷 | `references/research/youtube/snapshot-channel.md` | 🚧 P1.2 |
 | 영상 시점 수치 스냅샷 | `references/research/youtube/snapshot-video.md` | 🚧 P1.2 |
 | 영상을 레퍼런스로 마킹 | `references/research/youtube/curate-references.md` | 🚧 P1.3 |
@@ -75,4 +75,4 @@ pnpm tsx skills/youpd-skills/scripts/<domain>/<action>.ts [args...]
 - `references/workspace/init.md` — 워크스페이스 생성·마이그레이션 적용 (P1.0)
 - `references/research/youtube/INDEX.md` — YouTube 도메인 라우트 묶음 + 권장 호출 순서 (Phase 1)
 
-> **Phase 1 진행 상태**: P1.0 (workspace/init + DB 스키마 부트스트래핑) 구현 완료. P1.1+ YouTube 라우트는 reference 파일에 계약 초안만 있고 스크립트는 stub. 호출 시 "구현 예정" 안내만 제공한다.
+> **Phase 1 진행 상태**: P1.1 (YouTube 데이터 수집) 구현 완료. P1.2+ 라우트는 이후 마일스톤에서 구현한다.

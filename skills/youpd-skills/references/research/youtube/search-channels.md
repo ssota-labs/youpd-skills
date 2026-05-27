@@ -1,27 +1,45 @@
 # Route: `research/youtube/search-channels`
 
-> **상태**: 🚧 P1.1 — 스크립트 stub.
+키워드로 YouTube 채널을 검색하고, 결과 채널 ID를 `channels.list` 로 상세 보강한 뒤 `youtube_channels` 에 적재한다.
 
-키워드로 YouTube 채널을 검색해 `youtube_channels` 마스터에 적재한다. 영상 검색과 분리되어 있으므로 같은 키워드로 영상·채널 양쪽을 찾고 싶다면 두 라우트를 모두 호출.
+## 입력
 
-## 계획된 입력
+스크립트: `skills/youpd-skills/scripts/research/youtube/search-channels.ts`
 
-| 인수 | 형태 | 설명 |
-|---|---|---|
-| `--keyword` | string | 검색어 (raw or normalized) |
-| `--region` | string | (선택) regionCode |
-| `--max-results` | number | 페이지 크기 |
-| `--pages` | number | 페이지 수 |
+| 인수 | 형태 | 설명 | 기본값 |
+|---|---|---|---|
+| `--keyword`, `-k` | string | 채널 검색어 | 필수 |
+| `--region`, `-r` | string | regionCode | `KR` |
+| `--max`, `-m` | number | 검색 결과 수, 최대 50 | `25` |
+
+## 실행
+
+```bash
+pnpm tsx skills/youpd-skills/scripts/research/youtube/search-channels.ts --keyword "AI 뉴스"
+```
 
 ## DB 영향
 
-- write: `youtube_channels` (UPSERT, snippet 만 — 상세 채우기는 `fetch-channel` 의 일이다), `api_call_audits`
-- read: 없음
+- write: `youtube_channels`
+- audit: `api_call_audits`, `youtube_api_key_daily_usage`, `daily_quota_usage`
 
 ## 외부 의존
 
-YouTube Data API v3 — `search.list?type=channel` (1 페이지 = 100 unit)
+`YOUTUBE_API_KEY` 또는 `youtube_api_keys` 활성 키가 필요하다. `search.list?type=channel` 은 100 unit, 후속 `channels.list` 배치는 1 unit 으로 기록된다.
 
-## 노트
+## 출력
 
-채널 행은 snippet 수준만 채워지고, `subscriber_count` 등 상세는 비어 있을 수 있다. 후속으로 `fetch-channel` 을 채널 ID 배치로 호출해 보강.
+```typescript
+interface SearchChannelsResult {
+  ok: true;
+  keyword: string;
+  region: string;
+  resultCount: number;
+  channelIds: string[];
+  unitsConsumed: number;
+}
+```
+
+## 다음 단계
+
+특정 채널의 영상 목록을 모으려면 `fetch-channel-videos.md` 로 이어간다.
