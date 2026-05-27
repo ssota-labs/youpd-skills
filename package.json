@@ -20,6 +20,7 @@
   "scripts": {
     "init": "tsx skills/youpd-skills/scripts/workspace/init.ts",
     "test": "node --test --experimental-test-coverage --import tsx/esm skills/youpd-skills/scripts/__tests__/*.test.ts",
+    "test:e2e": "YOUPD_E2E=1 node --test --import tsx/esm skills/youpd-skills/scripts/__tests__/p1_1_e2e.test.ts",
     "test:smoke": "node --test --import tsx/esm skills/youpd-skills/scripts/__tests__/smoke.test.ts",
     "typecheck": "tsc --noEmit",
     "worktree:env": "bash scripts/link-env-from-main.sh",
