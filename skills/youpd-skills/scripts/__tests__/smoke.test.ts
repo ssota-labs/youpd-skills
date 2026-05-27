@@ -71,23 +71,10 @@ test('runMigrations: applies all migrations on a fresh DB and reports them', () 
     );
     assert.equal(result.totalLedgerCount, expected.length);
 
-    // Spot-check a few core tables exist
+    // P1.0 core tables only
     assert.ok(tableExists(db, 'schema_migrations'));
     assert.ok(tableExists(db, 'workspace_meta'));
-    assert.ok(tableExists(db, 'glossary_axes'));
-    assert.ok(tableExists(db, 'youtube_channels'));
-    assert.ok(tableExists(db, 'youtube_videos'));
-    assert.ok(tableExists(db, 'youtube_keywords'));
-    assert.ok(tableExists(db, 'youtube_search_sessions'));
-    assert.ok(tableExists(db, 'youtube_keyword_video_results'));
-    assert.ok(tableExists(db, 'youtube_trending'));
-    assert.ok(tableExists(db, 'youtube_video_snapshots'));
-    assert.ok(tableExists(db, 'youtube_channel_snapshots'));
-    assert.ok(tableExists(db, 'youtube_api_keys'));
-    assert.ok(tableExists(db, 'api_call_audits'));
-    assert.ok(tableExists(db, 'youtube_references'));
-    assert.ok(tableExists(db, 'youtube_reference_classifications'));
-    assert.ok(tableExists(db, 'youtube_comments'));
+    assert.equal(expected.length, 2, 'P1.0 ships bootstrap + workspace migrations only');
 
     db.close();
   } finally {
@@ -143,31 +130,7 @@ test('ensureWorkspaceMeta: inserts on first call, no-ops thereafter', () => {
   }
 });
 
-test('foreign keys are enforced', () => {
-  const ws = makeTempWorkspace();
-  try {
-    const { db } = openDb({ path: ws.dbPath });
-    runMigrations(db);
-
-    assert.throws(
-      () => {
-        // youtube_videos.channel_id has ON DELETE SET NULL but the FK still
-        // exists; INSERT with a non-existent channel_id should fail.
-        db.prepare(
-          `INSERT INTO youtube_videos (video_id, channel_id, is_short)
-           VALUES ('vid-bad', 'UC-does-not-exist', 0)`,
-        ).run();
-      },
-      /FOREIGN KEY constraint failed/,
-    );
-
-    db.close();
-  } finally {
-    cleanup(ws);
-  }
-});
-
-test('CHECK constraints reject invalid status enums', () => {
+test('workspace_meta CHECK enforces id = 1', () => {
   const ws = makeTempWorkspace();
   try {
     const { db } = openDb({ path: ws.dbPath });
@@ -176,7 +139,7 @@ test('CHECK constraints reject invalid status enums', () => {
     assert.throws(
       () => {
         db.prepare(
-          `INSERT INTO youtube_search_sessions (id, status) VALUES ('s1', 'bogus')`,
+          `INSERT INTO workspace_meta (id, schema_version_label) VALUES (2, 'invalid')`,
         ).run();
       },
       /CHECK constraint failed/,

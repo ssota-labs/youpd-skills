@@ -35,8 +35,8 @@ skills/youpd-skills/
     research/youtube/   # P1.1+ stubs
     lib/
       db/               # client.ts, migrate.ts
-      migrations/       # 000–002, 010–016 .sql files
-      types/            # workspace.ts, youtube.ts, glossary.ts
+      migrations/       # P1.0: 000_bootstrap.sql, 001_workspace.sql
+      types/            # workspace.ts (P1.1+ domain types per milestone)
     __tests__/          # node:test smoke tests
 ```
 
@@ -51,11 +51,11 @@ skills/youpd-skills/
 
 | Milestone | Status |
 |---|---|
-| **P1.0** — DB bootstrap, migrations, `workspace/init` | ✅ Done |
+| **P1.0** — DB bootstrap, migrations, `workspace/init` | ✅ Done (`schema_migrations`, `workspace_meta` only) |
 | **P1.1** — YouTube fetch routes (6 scripts) | 🚧 Reference stubs only |
 | **P1.2–P1.5** — Snapshots, curation, analysis | 🚧 Reference stubs only |
 
-Design SSOT (Notion, internal): [Phase 1 D3](https://www.notion.so/36c346dac45681189060de1561a83f2d).
+Design SSOT (Notion, internal): [P1.0 D3](https://www.notion.so/36d346dac45681faa27fdfb0b39ef9fe), [Phase 1 Blueprint](https://www.notion.so/36d346dac456813daa20e054198e3a8c).
 
 ---
 
@@ -137,7 +137,7 @@ pnpm test               # all tests under scripts/__tests__/
 pnpm typecheck && pnpm test:smoke
 ```
 
-Smoke tests use temp SQLite files under the system temp dir; they do not touch `./.youpd/`.
+Smoke tests use temp SQLite files under the system temp dir; they do not touch `./.youpd/`. P1.0 smoke asserts **2** migrations (`000_bootstrap`, `001_workspace`), `schema_migrations` + `workspace_meta` tables, idempotent re-run, and `workspace_meta.id = 1` CHECK constraint.
 
 Test location: `skills/youpd-skills/scripts/__tests__/*.test.ts` (Node built-in `node:test` + `tsx/esm`).
 
@@ -235,4 +235,4 @@ sqlite3 .youpd/workspace.db "SELECT filename FROM schema_migrations ORDER BY fil
 | `skills/youpd-skills/scripts/lib/db/migrate.ts` | Migration runner logic |
 | `README.md` | Human-oriented overview (Korean) |
 
-When in doubt about schema or naming (`youtube_search_sessions` vs `api_call_audits`, etc.), follow the Phase 1 D3 design document on Notion.
+When in doubt about schema or naming, follow the [Phase 1 Blueprint](https://www.notion.so/36d346dac456813daa20e054198e3a8c) for domain design and the milestone D3 (e.g. [P1.0 D3](https://www.notion.so/36c346dac45681faa27fdfb0b39ef9fe)) for what is implemented in code.
