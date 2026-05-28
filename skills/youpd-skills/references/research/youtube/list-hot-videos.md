@@ -45,7 +45,7 @@ pnpm tsx skills/youpd-skills/scripts/research/youtube/list-hot-videos.ts --limit
         "performanceGrade": "Good",
         "contributionGrade": "Great",
         "videoSnapshotCollectedAt": "...",
-        "scorePolicyVersion": "youpd-score-v1.0-p1.1"
+        "scorePolicyVersion": "youpd-score-v1.1-p1.1"
       }
     ]
   }

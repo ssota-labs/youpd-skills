@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 import { openDb } from '../lib/db/client.ts';
 import { runMigrations } from '../lib/db/migrate.ts';
 import { normalizeKeyword } from '../lib/youtube/common.ts';
-import { computeScore, ratioGrade } from '../lib/youtube/scoring.ts';
+import { applyViewCountGate, computeScore, ratioGrade } from '../lib/youtube/scoring.ts';
 import { upsertKeyword, persistVideoBundle, insertVideoScore } from '../lib/youtube/write.ts';
 import { channelFromApiItem, videoFromApiItem, setFetchImpl, resetFetchImpl } from '../lib/youtube/api.ts';
 import { SCORE_POLICY_VERSION } from '../lib/types/youtube.ts';
@@ -115,6 +115,29 @@ test('scoring: ratio grades and length-adjusted score', () => {
   assert.equal(score.contributionGrade, 'Good');
   assert.ok(score.lengthAdjustedScore != null && score.lengthAdjustedScore > 0);
   assert.equal(score.policyVersion, SCORE_POLICY_VERSION);
+});
+
+test('scoring: view count gate downgrades high ratio with low absolute views', () => {
+  assert.equal(applyViewCountGate('Good', 3_000), 'Bad');
+  assert.equal(applyViewCountGate('Great', 30_000), 'Good');
+  assert.equal(applyViewCountGate('Good', 15_000), 'Good');
+  assert.equal(applyViewCountGate('Unknown', 1_000), 'Unknown');
+
+  const score = computeScore({
+    videoId: 'v-small',
+    channelId: 'c-small',
+    videoViewCount: 3_000,
+    channelSubscriberCount: 100,
+    channelAverageViewCount: 200,
+    durationSec: 600,
+    videoSnapshotCollectedAt: '2026-05-28T00:00:00.000Z',
+    channelSnapshotCollectedAt: '2026-05-28T00:00:00.000Z',
+  });
+
+  assert.equal(ratioGrade(score.performanceRatio), 'Good');
+  assert.equal(score.performanceGrade, 'Bad');
+  assert.equal(ratioGrade(score.contributionRatio), 'Good');
+  assert.equal(score.contributionGrade, 'Bad');
 });
 
 test('score idempotency: same snapshot + policy inserts once', () => {

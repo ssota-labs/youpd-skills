@@ -34,7 +34,7 @@ export type YoutubeBoolean = 0 | 1;
 
 export type ScoreGrade = 'Worst' | 'Bad' | 'Normal' | 'Good' | 'Great' | 'Unknown';
 
-export const SCORE_POLICY_VERSION = 'youpd-score-v1.0-p1.1' as const;
+export const SCORE_POLICY_VERSION = 'youpd-score-v1.1-p1.1' as const;
 
 export type SearchSessionRoute =
   | 'search-by-keyword'

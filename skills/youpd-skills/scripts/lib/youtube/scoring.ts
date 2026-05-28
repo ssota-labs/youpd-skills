@@ -40,6 +40,29 @@ export function ratioGrade(ratio: number | null): ScoreGrade {
   return 'Great';
 }
 
+const GRADE_ORDER = ['Worst', 'Bad', 'Normal', 'Good', 'Great'] as const satisfies readonly ScoreGrade[];
+
+const MIN_VIEW_COUNT_BY_GRADE: Record<(typeof GRADE_ORDER)[number], number> = {
+  Worst: 0,
+  Bad: 2_500,
+  Normal: 5_000,
+  Good: 10_000,
+  Great: 50_000,
+};
+
+export function applyViewCountGate(baseGrade: ScoreGrade, viewCount: number | null): ScoreGrade {
+  if (viewCount == null || baseGrade === 'Unknown') return baseGrade;
+
+  let idx = GRADE_ORDER.indexOf(baseGrade as (typeof GRADE_ORDER)[number]);
+  if (idx < 0) return baseGrade;
+
+  while (idx >= 0 && viewCount < MIN_VIEW_COUNT_BY_GRADE[GRADE_ORDER[idx]!]) {
+    idx -= 1;
+  }
+
+  return GRADE_ORDER[Math.max(0, idx)] ?? 'Worst';
+}
+
 export function computeLengthWeight(durationSec: number | null): number {
   if (durationSec == null || durationSec <= 0) return 1;
   const numerator = Math.log(1 + 600);
@@ -63,8 +86,14 @@ export function computeScore(inputs: ScoreSnapshotInputs): ComputedScore {
       ? inputs.videoViewCount / inputs.channelAverageViewCount
       : null;
 
-  const performanceGrade = ratioGrade(performanceRatio);
-  const contributionGrade = ratioGrade(contributionRatio);
+  const performanceGrade = applyViewCountGate(
+    ratioGrade(performanceRatio),
+    inputs.videoViewCount,
+  );
+  const contributionGrade = applyViewCountGate(
+    ratioGrade(contributionRatio),
+    inputs.videoViewCount,
+  );
 
   const lengthWeight = computeLengthWeight(inputs.durationSec);
 
