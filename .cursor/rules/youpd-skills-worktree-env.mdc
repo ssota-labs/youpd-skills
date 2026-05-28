@@ -1,0 +1,19 @@
+---
+description: youpd-skills — after creating a git worktree, run pnpm worktree:env
+alwaysApply: true
+---
+
+# youpd-skills worktree environment
+
+When working in **youpd-skills** inside a **git worktree** (e.g. under `.cursor/worktrees/youpd-skills/`), after the worktree is created and before YouTube route scripts or tests that need BYOK keys:
+
+```bash
+pnpm install
+pnpm worktree:env
+```
+
+Links `.env.local` from the main clone (`YOUPD_SKILLS_MAIN_WORKTREE` or branch `main`). Keys stay on the main worktree only; linked worktrees share the same file via symlink.
+
+Copy instead of link (worktree-specific overrides): `pnpm worktree:env -- --copy`
+
+If env is missing, suggest `pnpm worktree:env` — do not paste production secrets into chat.

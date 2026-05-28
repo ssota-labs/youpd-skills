@@ -68,9 +68,12 @@ pnpm --version
 
 pnpm install
 
-# Optional: copy BYOK keys (never commit .env.local)
+# Git worktree (e.g. .cursor/worktrees/...): link BYOK from main clone
+pnpm worktree:env
+
+# Main clone first-time only (never commit .env.local)
 cp .env.example .env.local
-# export YOUTUBE_API_KEY=... when testing P1.1+ routes
+# fill YOUTUBE_API_KEY etc.; worktrees reuse it via pnpm worktree:env
 ```
 
 **Workspace init** (creates `./.youpd/workspace.db` in cwd):

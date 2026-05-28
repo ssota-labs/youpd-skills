@@ -71,10 +71,11 @@ test('runMigrations: applies all migrations on a fresh DB and reports them', () 
     );
     assert.equal(result.totalLedgerCount, expected.length);
 
-    // P1.0 core tables only
+    // P1.0 + P1.1 migrations
     assert.ok(tableExists(db, 'schema_migrations'));
     assert.ok(tableExists(db, 'workspace_meta'));
-    assert.equal(expected.length, 2, 'P1.0 ships bootstrap + workspace migrations only');
+    assert.ok(tableExists(db, 'youtube_keywords'));
+    assert.equal(expected.length, 3, 'P1.1 adds 010_youtube_collection.sql');
 
     db.close();
   } finally {
