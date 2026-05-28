@@ -19,7 +19,7 @@ description: YouTube/Threads/TikTok/Instagram/카드뉴스 콘텐츠 기획·제
 다음 의도가 보이면 이 스킬을 사용한다:
 
 - **워크스페이스**: "youpd 시작", "workspace 만들어줘", "DB 초기화", "스키마 마이그레이션 적용"
-- **YouTube 리서치 (Phase 1)**: 키워드 등록·검색, 채널 검색·수집, 영상 수집, 트렌딩 수집, 스냅샷, 레퍼런스 마킹·조회, 제목/썸네일/도입부 분석
+- **YouTube 리서치 (Phase 1)**: 키워드 등록·date-only 수집, hot video 조회, 채널 검색·수집, 스냅샷·점수, 레퍼런스 마킹·조회, 제목/썸네일/도입부 분석
 
 다음 의도는 **본 스킬의 범위 밖**이다 → 사용자에게 "Phase X 에서 도입 예정" 이라고 안내하고 본 스킬을 사용하지 말 것:
 
@@ -35,12 +35,13 @@ description: YouTube/Threads/TikTok/Instagram/카드뉴스 콘텐츠 기획·제
 |---|---|---|
 | 워크스페이스 생성 · 마이그레이션 적용 | `references/workspace/init.md` | ✅ P1.0 |
 | YouTube 라우트 인덱스 · 권장 호출 순서 | `references/research/youtube/INDEX.md` | ✅ |
-| 키워드 마스터 등록 · 정규화 | `references/research/youtube/add-keyword.md` | 🚧 P1.1 |
-| 등록된 키워드로 영상 검색 + N:M 적재 | `references/research/youtube/search-by-keyword.md` | 🚧 P1.1 |
-| 키워드로 채널 검색 | `references/research/youtube/search-channels.md` | 🚧 P1.1 |
-| 채널 ID/핸들로 채널 정보 fetch | `references/research/youtube/fetch-channel.md` | 🚧 P1.1 |
-| 채널의 업로드 영상 일괄 fetch | `references/research/youtube/fetch-channel-videos.md` | 🚧 P1.1 |
-| 트렌딩 (mostPopular) fetch | `references/research/youtube/fetch-trending.md` | 🚧 P1.1 |
+| 키워드 마스터 등록 · 정규화 | `references/research/youtube/add-keyword.md` | ✅ P1.1 |
+| 등록된 키워드로 영상 date-only 수집 | `references/research/youtube/search-by-keyword.md` | ✅ P1.1 |
+| 수집 pool 기반 hot video (Good+) | `references/research/youtube/list-hot-videos.md` | ✅ P1.1 |
+| 키워드로 채널 검색 | `references/research/youtube/search-channels.md` | ✅ P1.1 |
+| 채널 ID/핸들로 채널 정보 fetch | `references/research/youtube/fetch-channel.md` | ✅ P1.1 |
+| 채널의 업로드 영상 일괄 fetch | `references/research/youtube/fetch-channel-videos.md` | ✅ P1.1 |
+| 트렌딩 (mostPopular) fetch | `references/research/youtube/fetch-trending.md` | ⏭ P1.1 out-of-scope |
 | 채널 시점 수치 스냅샷 | `references/research/youtube/snapshot-channel.md` | 🚧 P1.2 |
 | 영상 시점 수치 스냅샷 | `references/research/youtube/snapshot-video.md` | 🚧 P1.2 |
 | 영상을 레퍼런스로 마킹 | `references/research/youtube/curate-references.md` | 🚧 P1.3 |
@@ -75,4 +76,4 @@ pnpm tsx skills/youpd-skills/scripts/<domain>/<action>.ts [args...]
 - `references/workspace/init.md` — 워크스페이스 생성·마이그레이션 적용 (P1.0)
 - `references/research/youtube/INDEX.md` — YouTube 도메인 라우트 묶음 + 권장 호출 순서 (Phase 1)
 
-> **Phase 1 진행 상태**: P1.0 (workspace/init + DB 스키마 부트스트래핑) 구현 완료. P1.1+ YouTube 라우트는 reference 파일에 계약 초안만 있고 스크립트는 stub. 호출 시 "구현 예정" 안내만 제공한다.
+> **Phase 1 진행 상태**: P1.0 (workspace/init) 완료. P1.1 YouTube 6 routes 구현 완료. P1.2+ 는 reference 계약만 존재.

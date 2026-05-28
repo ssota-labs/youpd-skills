@@ -1,31 +1,76 @@
 # Route: `research/youtube/search-by-keyword`
 
-> **상태**: 🚧 P1.1 — 스크립트 stub.
+등록된 키워드로 YouTube 영상을 **date-only** 수집한다. `order=date` 고정. 최초 500개, 이후 `publishedAfter` watermark 증분. 신규/강제 refresh 영상만 detail fetch 후 snapshot-linked score 저장.
 
-`add-keyword` 으로 등록된 키워드(`keywordId`) 를 받아 YouTube `search.list` 를 호출, 결과 영상들을 `youtube_videos` 마스터에 적재하고 `youtube_keyword_video_results` 에 N:M 관계로 기록한다. 호출 단위는 1 검색 세션 = `youtube_search_sessions` 1행.
+## 사전 조건
 
-## 계획된 입력
+- workspace DB 존재
+- `YOUTUBE_API_KEY` 설정
+- 키워드 등록 (`add-keyword`) 또는 `--keyword-id`
 
-| 인수 | 형태 | 설명 |
-|---|---|---|
-| `--keyword-id` | uuid | `add-keyword` 가 반환한 ID |
-| `--max-results` | number | 페이지 크기 (default 50, max 50 per page) |
-| `--pages` | number | 페이지 수 (1~5 권장; 1 페이지 = 100 unit) |
-| `--published-after` | ISO 8601 | (선택) 검색 윈도우 |
-| `--published-before` | ISO 8601 | (선택) |
+## 입력
 
-## DB 영향
+| 인수 | 형태 | 기본 | 설명 |
+|---|---|---|---|
+| `--keyword`, `-k` | string | — | 키워드 (없으면 `--keyword-id` 필수) |
+| `--keyword-id` | uuid | — | 기존 keyword ID |
+| `--region`, `-r` | string | `KR` | region (keyword 자동 등록 시) |
+| `--initial-target-count` | number | `500` | initial mode 목표 |
+| `--incremental-pages` | number | `1` | incremental mode page 수 |
+| `--published-before` | ISO 8601 | — | optional upper bound |
+| `--force`, `-f` | flag | false | 캐시 무시 + 기존 영상 metadata refresh |
+| `--db`, `-d` | path | — | DB override |
 
-- write: `youtube_search_sessions`, `youtube_videos` (UPSERT), `youtube_channels` (UPSERT, 영상의 채널 마스터 미리 채움), `youtube_keyword_video_results`, `api_call_audits`, `youtube_api_key_daily_usage`, `daily_quota_usage`
-- read: `youtube_keywords` (검증 + last_search_session_id 갱신)
+## 동작
 
-## 외부 의존
+1. keyword row 확보
+2. cache hit (`cache_expires_at > now`, result >= target, `!force`) → API 0 unit
+3. mode: `initial` (미완료) / `incremental`
+4. `search.list` `order=date`
+5. overlap dedupe, existing video skip (`!force`)
+6. `videos.list` + `channels.list` for targets
+7. snapshots + snapshot-linked scores
+8. keyword watermark/cache 갱신
 
-YouTube Data API v3 — `search.list` (1 페이지 = 100 unit)
+## 실행
 
-## 미결 결정 사항
+```bash
+export YOUTUBE_API_KEY=...
+pnpm tsx skills/youpd-skills/scripts/research/youtube/search-by-keyword.ts --keyword "AI 트렌드"
+```
 
-- 동일 keyword 를 N시간 내 재호출 시 새 세션을 만들지, 기존 세션을 reuse 하고 결과만 union 할지.
-- search.list 결과의 `videoId` 만 가지고 `videos.list` 를 추가 호출해 stats 도 채울지, 아니면 본 라우트는 검색 결과만 적재하고 stats 는 별도 `fetch-videos` 라우트로 분리할지.
+## stdout (성공)
 
-> P1.1 D2 PRD 에서 확정.
+```json
+{
+  "ok": true,
+  "route": "search-by-keyword",
+  "dbPath": "...",
+  "unitsConsumed": 1020,
+  "result": {
+    "sessionId": "uuid",
+    "keywordId": "uuid",
+    "mode": "initial",
+    "cacheHit": false,
+    "resultCount": 500,
+    "newVideoCount": 480,
+    "skippedExistingVideoCount": 20,
+    "videoIds": ["..."]
+  }
+}
+```
+
+## 에러 코드
+
+| code | 조건 |
+|---|---|
+| `missing_api_key` | `YOUTUBE_API_KEY` 없음 |
+| `quota_exceeded` | 일일 quota precheck 초과 |
+| `validation_error` | keyword 인수 누락 |
+| `not_found` | keyword_id 없음 |
+
+## 사용자 보고
+
+- mode(initial/incremental), cache hit, new/skipped count, unitsConsumed
+- initial 500개 ≈ 1,020+ units quota 안내
+- "인기 영상" 요청 시 `list-hot-videos` 로 안내 (API viewCount 정렬 아님)

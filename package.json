@@ -21,7 +21,9 @@
     "init": "tsx skills/youpd-skills/scripts/workspace/init.ts",
     "test": "node --test --experimental-test-coverage --import tsx/esm skills/youpd-skills/scripts/__tests__/*.test.ts",
     "test:smoke": "node --test --import tsx/esm skills/youpd-skills/scripts/__tests__/smoke.test.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "worktree:env": "bash scripts/link-env-from-main.sh",
+    "worktree:add": "bash scripts/worktree-add.sh"
   },
   "dependencies": {
     "zod": "^4.4.3"

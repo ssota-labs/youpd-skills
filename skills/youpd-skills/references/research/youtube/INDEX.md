@@ -1,77 +1,90 @@
 # YouTube 리서치 라우트 인덱스 (Phase 1)
 
-> Phase 1 의 YouTube 도메인 라우트 14개를 한눈에 본다. 사용자 의도 → 라우트 매핑 + 권장 호출 순서.
+> Phase 1 YouTube 도메인 라우트를 한눈에 본다. 사용자 의도 → 라우트 매핑 + 권장 호출 순서.
 > 개별 라우트 상세는 같은 폴더의 `<route>.md` 파일을 추가 Read 로 진입한다.
 
-## Phase 1 의 의미 흐름
+## Phase 1 의미 흐름
 
 ```
-add-keyword                    [P1.1]  키워드 마스터 등록
+add-keyword                    [P1.1]  키워드 마스터 등록 (date-only 수집 전제)
        │
        ▼
-search-by-keyword              [P1.1]  search.list → 영상·검색세션·결과 N:M 적재
+search-by-keyword              [P1.1]  order=date 고정, 최초 500개 → 이후 publishedAfter 증분
+       │
+       ├─ list-hot-videos       [P1.1]  DB score 기반 Good+ 인기 영상 (API 정렬 없음)
+       │
+       ▼
 search-channels                [P1.1]  search.list?type=channel
 fetch-channel                  [P1.1]  channels.list 단건/배치
 fetch-channel-videos           [P1.1]  playlistItems + videos.list 일괄
-fetch-trending                 [P1.1]  videos.list?chart=mostPopular
        │
        ▼
-snapshot-channel / snapshot-video  [P1.2]  시점별 수치 스냅샷
+snapshot-channel / snapshot-video  [P1.2]  (P1.1 search/fetch 경로에 흡수됨)
        │
        ▼
-curate-references / list-references [P1.3]  좋은 레퍼런스 마킹
+curate-references / list-references [P1.3]
        │
        ▼
-analyze-title / analyze-thumbnail   [P1.4]  멀티모달 LLM 분석
+analyze-title / analyze-thumbnail   [P1.4]
        │
        ▼
-fetch-transcript / analyze-intro    [P1.5]  자막 + 도입부 후크 분석
+fetch-transcript / analyze-intro    [P1.5]
 ```
+
+> **인기 영상 의도**: YouTube `search.list order=viewCount` 를 쓰지 않는다. `list-hot-videos` 로 라우팅한다.
+> **트렌딩 의도**: `fetch-trending` 은 P1.1 out-of-scope. 인기/핫 영상은 `list-hot-videos`.
 
 ## 라우트 매핑
 
 | 라우트 | 사용자 의도 (예시) | 의존 (DB) | 외부 의존 |
 |---|---|---|---|
 | `add-keyword.md` | "트래블블로그 키워드 등록해줘" | `youtube_keywords` | none |
-| `search-by-keyword.md` | "트래블블로그로 영상 50개 찾아줘" | keywords + sessions + videos + results | YouTube Data API (search) |
-| `search-channels.md` | "트래블블로그 관련 채널 찾아줘" | channels | YouTube Data API (search?type=channel) |
-| `fetch-channel.md` | "이 채널 정보 다 가져와줘" | channels | YouTube Data API (channels) |
-| `fetch-channel-videos.md` | "이 채널 영상 100개 다 가져와줘" | channels + videos | YouTube Data API (playlistItems + videos) |
-| `fetch-trending.md` | "오늘 한국 게임 카테고리 트렌딩 가져와줘" | trending + videos | YouTube Data API (videos?chart=mostPopular) |
-| `snapshot-channel.md` | "이 채널 구독자 수 지금 찍어둬" | channel_snapshots | YouTube Data API (channels) |
-| `snapshot-video.md` | "이 영상 조회수 지금 찍어둬" | video_snapshots | YouTube Data API (videos) |
-| `curate-references.md` | "이 영상들 레퍼런스로 추가해줘" | references | none |
-| `list-references.md` | "이 키워드 레퍼런스 목록 보여줘" | references (read) | none |
-| `analyze-title.md` | "레퍼런스 제목 분석해줘" | (P1.4 신규 테이블) | LLM |
-| `analyze-thumbnail.md` | "썸네일 시각 구성 분류해줘" | (P1.4 신규 테이블) | LLM (멀티모달) |
-| `fetch-transcript.md` | "이 영상 자막 가져와줘" | (P1.5 신규 테이블) | YouTube transcript / ASR |
-| `analyze-intro.md` | "도입부 후크 분석해줘" | (P1.5 신규 테이블) | LLM |
+| `search-by-keyword.md` | "트래블블로그 영상 수집해줘" | keywords + sessions + videos + snapshots + scores | YouTube Data API |
+| `list-hot-videos.md` | "이 키워드 인기 영상 보여줘" | keyword results + scores + hot_videos | none |
+| `search-channels.md` | "트래블블로그 관련 채널 찾아줘" | channels + snapshots | YouTube Data API |
+| `fetch-channel.md` | "이 채널 정보 가져와줘" | channels + snapshots | YouTube Data API |
+| `fetch-channel-videos.md` | "이 채널 영상 100개 가져와줘" | channels + videos + snapshots + scores | YouTube Data API |
+| `fetch-trending.md` | "오늘 트렌딩 가져와줘" | — | **P1.1 미구현** |
 
-## 모든 라우트 공통 규약
+## P1.1 keyword collection 정책
 
-- **API 키**: 외부 의존 컬럼이 있는 라우트는 진입 직전 `YOUTUBE_API_KEY` (또는 LLM 키) 환경변수를 검증한다. 없으면 즉시 거절.
-- **API 호출 감사**: YouTube Data API 호출은 **반드시** `youtube_credits` 도메인의 `api_call_audits` 테이블에 1행씩 기록한다 (operation, units_consumed, status). 이 기록 없이 API 를 부르면 안 된다.
-- **원본 보존**: 외부 API 응답의 raw payload 는 반드시 `raw` (TEXT, JSON 직렬화) 컬럼에 그대로 보존한다. 구조화 컬럼은 raw 의 derived view 일 뿐이다.
-- **시간**: 모든 timestamp 컬럼은 ISO 8601 UTC 문자열 (`2026-05-26T05:00:00.000Z`).
-- **UUID**: PK 가 UUID 인 행은 앱에서 `crypto.randomUUID()` 로 생성해 넣는다 (SQLite 내장 X).
+- `search-by-keyword` 는 **date-only incremental collector** 다. `order=date` 고정.
+- 최초 수집: 기본 **500개** (10 page × 50).
+- 이후 수집: `last_incremental_published_at` watermark + 60초 overlap, 기본 1 page.
+- `viewCount` / `relevance` / `rating` 정렬 옵션은 제공하지 않는다.
+- 캐시 TTL 기본 24시간. cache hit 시 API 0 unit.
 
-## 권장 호출 순서 (사용자가 "이 키워드 분석 시작해줘" 라고만 했을 때)
+## 공통 stdout 계약
+
+```typescript
+interface RouteOk<T> {
+  ok: true;
+  route: string;
+  dbPath: string;
+  result: T;
+  unitsConsumed: number;
+}
+
+interface RouteError {
+  ok: false;
+  route: string;
+  code: 'validation_error' | 'missing_api_key' | 'quota_exceeded' | 'invalid_key'
+    | 'not_found' | 'network_error' | 'db_error' | 'dangerous_scope' | 'unknown';
+  message: string;
+  detail?: unknown;
+}
+```
+
+## 권장 호출 순서
 
 ```
-add-keyword
-  → search-by-keyword           (영상 풀 확보)
-  → fetch-channel + fetch-channel-videos (필요 시 채널 깊이 파기)
-  → snapshot-{video,channel}    (현 시점 수치 캡쳐)
-  → curate-references           (사용자가 좋은 영상 선별)
-  → analyze-title + analyze-thumbnail
-  → fetch-transcript + analyze-intro
+add-keyword → search-by-keyword → list-hot-videos
+  (필요 시) search-channels / fetch-channel / fetch-channel-videos
+  (P1.3+) curate-references → analyze-*
 ```
 
-## 구현 상태 (P1.0 시점)
+## 구현 상태
 
-- ✅ P1.0 workspace: `schema_migrations`, `workspace_meta` migration만 적용됨.
-- 📋 Phase 1 domain schema (YouTube content, keywords, snapshots, references, glossary, comments 등)는 [Phase 1 Technical Blueprint](https://www.notion.so/36d346dac456813daa20e054198e3a8c)에 정의되어 있으며, P1.1+ milestone D3에서 migration으로 도입.
-- 🚧 스크립트 (`scripts/research/youtube/*.ts`): P1.1+ 에서 구현. 현재는 stub. 호출 시 "P1.x 에서 구현 예정" 안내만 출력.
-- 🚧 reference 본문: 스킬 사용자 인터페이스 계약은 P1.x 진입 시 본 폴더의 각 `<route>.md` 에 채워진다.
-
-> 사용자가 P1.1+ 라우트를 요청하면 P1.0 단계에서는 "아직 구현되지 않음" 안내. domain table은 Blueprint에 설계되어 있으나 P1.0 DB에는 아직 생성되지 않음.
+- ✅ P1.0: workspace bootstrap
+- ✅ P1.1: 6 routes (`add-keyword`, `search-by-keyword`, `search-channels`, `fetch-channel`, `fetch-channel-videos`, `list-hot-videos`)
+- 🚧 P1.2+: snapshot standalone routes, curation, analysis

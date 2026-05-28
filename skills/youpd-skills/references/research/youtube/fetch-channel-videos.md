@@ -1,26 +1,31 @@
 # Route: `research/youtube/fetch-channel-videos`
 
-> **상태**: 🚧 P1.1 — 스크립트 stub.
+채널 uploads playlist 기반 영상 수집 → video/channel snapshots + snapshot-linked scores.
 
-채널의 `uploads` 플레이리스트를 따라가 영상 목록을 일괄 적재한다. `playlistItems.list` 로 ID 수집 → `videos.list` (50개 배치) 로 stats 까지 채움.
+## 사전 조건
 
-## 계획된 입력
+- workspace DB, `YOUTUBE_API_KEY`
+- 채널 없거나 uploads playlist 없으면 선행 `fetch-channel` 자동 수행
 
-| 인수 | 형태 | 설명 |
+## 입력
+
+| 인수 | 기본 | 설명 |
 |---|---|---|
-| `--channel-id` | string | UC 로 시작 |
-| `--max-videos` | number | 가져올 영상 수 상한 (기본 100) |
-| `--published-after` | ISO 8601 | (선택) 이 시점 이후 영상만 |
+| `--channel-id` | (필수) | channel ID |
+| `--max-videos` | `100` | 최대 수집 수 |
+| `--published-after` | — | ISO cutoff |
+| `--db`, `-d` | — | DB override |
 
-## DB 영향
+## 실행
 
-- write: `youtube_videos` (UPSERT), `api_call_audits`
-- read: `youtube_channels.uploads_playlist_id`
+```bash
+pnpm tsx skills/youpd-skills/scripts/research/youtube/fetch-channel-videos.ts --channel-id UCxxxx --max-videos 50
+```
 
-## 외부 의존
+## stdout
 
-YouTube Data API v3 — `playlistItems.list` (1 unit) + `videos.list` (1 unit, 50 ID/batch)
+`result.sessionId`, `result.videoIds`, `unitsConsumed`
 
-## 노트
+## 에러
 
-`playlistItems.list` 는 시간 역순(신영상 먼저) 으로 페이지네이션. `--max-videos` 도달하거나 `--published-after` 미만으로 떨어지면 중단.
+`missing_api_key`, `not_found`, `quota_exceeded`
