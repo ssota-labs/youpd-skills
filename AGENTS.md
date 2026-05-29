@@ -304,3 +304,46 @@ sqlite3 .youpd/workspace.db "SELECT filename FROM schema_migrations ORDER BY fil
 | `README.md` | Human-oriented overview (Korean) |
 
 When in doubt about schema or naming, follow the [Phase 1 Blueprint](https://www.notion.so/36d346dac456813daa20e054198e3a8c) for domain design and the milestone D3 (e.g. [P1.0 D3](https://www.notion.so/36c346dac45681faa27fdfb0b39ef9fe)) for what is implemented in code.
+
+---
+
+## Cursor Cloud specific instructions
+
+### Node.js version
+
+The project requires **Node 24+** for `node:sqlite` (`DatabaseSync`). The Cloud VM ships with Node 22 at `/exec-daemon/node`, which takes PATH priority over nvm. The update script installs Node 24 via nvm and prepends it to PATH so all subsequent commands use v24.
+
+### No dev server
+
+There is no dev server or web UI. All functionality is invoked via `pnpm tsx` scripts that emit one JSON line to stdout. The "hello world" verification is:
+
+```bash
+pnpm tsx skills/youpd-skills/scripts/workspace/init.ts --db /tmp/test.db --label test
+```
+
+### pnpm init caveat
+
+`pnpm init` (the `package.json` script alias for `workspace/init.ts`) conflicts with pnpm's built-in `init` command when `package.json` already exists. Use the full command instead:
+
+```bash
+pnpm tsx skills/youpd-skills/scripts/workspace/init.ts
+```
+
+### Key commands
+
+Refer to **Setup Commands** and **Testing Instructions** sections above. Summary:
+
+| Task | Command |
+|---|---|
+| Type check | `pnpm typecheck` |
+| Smoke tests | `pnpm test:smoke` |
+| All tests | `pnpm test` |
+| Workspace init | `pnpm tsx skills/youpd-skills/scripts/workspace/init.ts` |
+
+### SQLite experimental warning
+
+`ExperimentalWarning: SQLite is an experimental feature` on Node 24 is expected and safe to ignore.
+
+### BYOK keys
+
+YouTube API and LLM keys are not needed for P1.0 tests or workspace init. They are only required for P1.1+ YouTube routes and P1.4+ analysis routes. Tests for those routes mock external APIs and do not require real keys.
