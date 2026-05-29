@@ -1,27 +1,36 @@
 # Route: `research/youtube/analyze-title`
 
-> **상태**: 🚧 P1.4 — 스크립트 stub. **선행 작업**: 분류 축 v0 ADR 확정 + `glossary_axes`/`glossary_axis_values` seed 마이그레이션.
+> **상태**: 🚧 P1.4 — agent procedure (Notion PRD/D3). **제목 = `hook-type` 분석만** — `title-shape` / `title-tone` 축 없음.
 
-레퍼런스 영상의 제목을 LLM 으로 분석해 분류 축에 매핑. 후크 유형, 길이, 숫자 사용, 감정 어조, 키워드 밀도 등.
+레퍼런스 영상 제목을 PRD §2 **후크 유형**으로 분류한다. 형식·어조는 별도 enum이 아니라 후크 선택 **근거**를 `reasoning`에 적는다.
 
-## 계획된 입력
+## 선행 조건
 
-| 인수 | 형태 | 설명 |
-|---|---|---|
-| `--reference-id` | uuid (repeatable) | 분석할 레퍼런스 ID |
-| `--llm-provider` | enum | `anthropic` / `openai` (BYOK) |
-| `--model` | string | (선택) 모델 ID 명시 override |
+- P1.2: `reference_folder_videos`에 대상 영상 존재
+- Migration seed: `hook-type` axis ([ADR-006](https://www.notion.so/36f346dac45681e1a028e8f9681ac589))
+
+## 에이전트 절차
+
+1. `references/research/youtube/INDEX.md` 및 Notion P1.4 PRD §2·§3 Read.
+2. `list-analysis-candidates --kind title` 로 미분석 `video_id` 목록 (또는 폴더 지정).
+3. 각 제목에 대해 `hook_primary` + optional `hook_secondary` + `reasoning` 결정.
+4. `save-title-analysis` 또는 `db/exec`로 `youtube_title_analyses` INSERT.
+
+## 계획된 저장 필드
+
+| 필드 | 설명 |
+|---|---|
+| `hook_primary` | `hook-type` code (필수) |
+| `hook_secondary` | 보조 후크 또는 NULL |
+| `reasoning` | 1~2문장 근거 |
+| `free_tags_json` | enum 밖 뉘앙스만 |
+| `framework_version` | `youpd-classification-framework-v0` |
 
 ## DB 영향
 
-- write: `youtube_title_analyses` (P1.4 신규 테이블 — 015 이후 마이그레이션에서 추가), `youtube_reference_classifications` (분류 축 매핑)
-- read: `youtube_references` JOIN `youtube_videos.title`, `glossary_axes`, `glossary_axis_values`
+- write: `youtube_title_analyses`
+- read: `youtube_videos.title`, `reference_folder_videos`, `glossary_axis_values` (`hook-type`)
 
 ## 외부 의존
 
-LLM (멀티모달 불필요). BYOK.
-
-## 미결 결정
-
-- 분류 축 v0: 후크 유형은 몇 개 enum 으로 시작할지 (D5 ADR).
-- LLM 응답을 그대로 저장할지, 정규화·검증해서 분류 축 ID 만 저장할지.
+없음 (에이전트 reasoning). BYOK LLM 라우트 **아님**.

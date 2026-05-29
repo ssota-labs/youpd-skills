@@ -49,8 +49,8 @@ description: YouTube/Threads/TikTok/Instagram/카드뉴스 콘텐츠 기획·제
 | 큐레이션된 레퍼런스 조회·필터 | `references/research/youtube/list-references.md` | ✅ P1.2 |
 | 폴더에서 레퍼런스 제거 | `references/research/youtube/remove-reference.md` | ✅ P1.2 |
 | 레퍼런스 영상 댓글 수집 | `references/research/youtube/fetch-comments.md` | ✅ P1.2 |
-| 제목 LLM 분석 · 축 매핑 | `references/research/youtube/analyze-title.md` | 🚧 P1.4 |
-| 썸네일 LLM 분석 · 축 매핑 | `references/research/youtube/analyze-thumbnail.md` | 🚧 P1.4 |
+| 제목 후크 분석 (`hook-type`) | `references/research/youtube/analyze-title.md` | 🚧 P1.4 |
+| 썸네일 분석 (시각 축 + 느껴지는 감정) | `references/research/youtube/analyze-thumbnail.md` | 🚧 P1.4 |
 | 자막/스크립트 추출 | `references/research/youtube/fetch-transcript.md` | 🚧 P1.5 |
 | 도입부 후크 · 구조 분석 | `references/research/youtube/analyze-intro.md` | 🚧 P1.5 |
 
