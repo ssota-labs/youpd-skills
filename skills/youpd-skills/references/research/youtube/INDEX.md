@@ -19,10 +19,10 @@ fetch-channel                  [P1.1]  channels.list 단건/배치
 fetch-channel-videos           [P1.1]  playlistItems + videos.list 일괄
        │
        ▼
-snapshot-channel / snapshot-video  [P1.2]  (P1.1 search/fetch 경로에 흡수됨)
+discover-references            [P1.2]  agent procedure: keyword probe → P1.1 routes → score curation
        │
        ▼
-curate-references / list-references [P1.3]
+create-reference-folder / curate-references / list-references / fetch-comments [P1.2]
        │
        ▼
 analyze-title / analyze-thumbnail   [P1.4]
@@ -45,6 +45,13 @@ fetch-transcript / analyze-intro    [P1.5]
 | `fetch-channel.md` | "이 채널 정보 가져와줘" | channels + snapshots | YouTube Data API |
 | `fetch-channel-videos.md` | "이 채널 영상 100개 가져와줘" | channels + videos + snapshots + scores | YouTube Data API |
 | `fetch-trending.md` | "오늘 트렌딩 가져와줘" | — | **P1.1 미구현** |
+| `discover-references.md` | "30대 직장인 AI 생산성 레퍼런스 찾아줘" | agent procedure + P1.1 routes + P1.2 curation | route 조합 |
+| `create-reference-folder.md` | "AI 생산성 레퍼런스 폴더 만들어줘" | reference_folder_groups + reference_folders | none |
+| `record-discovery-run.md` | "이번 탐색 이력 기록해줘" | reference_discovery_runs | none |
+| `curate-references.md` | "이 검색 결과에서 성과 좋은 영상 넣어줘" | reference_folder_videos + scores | none |
+| `list-references.md` | "이 폴더 레퍼런스 보여줘" | reference folders + videos + scores | none |
+| `remove-reference.md` | "이 영상 폴더에서 빼줘" | reference_folder_videos | none |
+| `fetch-comments.md` | "성과 좋은 영상 댓글도 보고 고객 언어 뽑아줘" | youtube_comments + comment fetch sessions | YouTube Data API |
 
 ## P1.1 keyword collection 정책
 
@@ -80,11 +87,14 @@ interface RouteError {
 ```
 add-keyword → search-by-keyword → list-hot-videos
   (필요 시) search-channels / fetch-channel / fetch-channel-videos
-  (P1.3+) curate-references → analyze-*
+  (P1.2) create-reference-folder → record-discovery-run → curate-references → fetch-comments → list-references
+  (P1.4+) analyze-*
 ```
 
 ## 구현 상태
 
 - ✅ P1.0: workspace bootstrap
 - ✅ P1.1: 6 routes (`add-keyword`, `search-by-keyword`, `search-channels`, `fetch-channel`, `fetch-channel-videos`, `list-hot-videos`)
-- 🚧 P1.2+: snapshot standalone routes, curation, analysis
+- ✅ P1.2: reference folder groups, score-based curation, capped comment fetch
+- ⏭ standalone snapshot routes: P1.1 search/fetch 경로에 흡수됨
+- 🚧 P1.3+: title/thumbnail/intro analysis

@@ -1,26 +1,40 @@
 # Route: `research/youtube/curate-references`
 
-> **상태**: 🚧 P1.3 — 스크립트 stub.
+> **상태**: ✅ P1.2
 
-DB 에 적재된 영상들 중 "이 기획에 도움이 되는" 것을 레퍼런스로 마킹한다. 평면 구조 (프로젝트 스코프 없음). 출처 검색 세션을 함께 기록해 추적 가능하게.
+P1.1 search/hot result 또는 명시 video id를 reference child folder에 저장한다. 선별 기준은 P1.1 score다. 제목/썸네일/각도 분석은 하지 않는다.
 
-## 계획된 입력
+## 실행
 
-| 인수 | 형태 | 설명 |
-|---|---|---|
-| `--video-id` | string (repeatable) | 마킹할 영상 ID |
-| `--source-search-session-id` | uuid | (선택) 어느 검색 세션에서 발굴됐는지 |
-| `--reason` | string | (선택) 이 영상이 좋은 이유 (자유 텍스트) |
+```bash
+pnpm tsx skills/youpd-skills/scripts/research/youtube/curate-references.ts \
+  --folder-id <uuid> \
+  --search-session-id <uuid> \
+  --stage plan \
+  --limit 10
+```
+
+## 입력
+
+| 인수 | 형태 | 기본 | 설명 |
+|---|---|---|---|
+| `--folder-id` | uuid | — | 대상 child folder |
+| `--search-session-id` | uuid | — | P1.1 검색 세션에서 후보 선택 |
+| `--hot-date` | YYYY-MM-DD | — | `youtube_hot_videos`에서 후보 선택 |
+| `--region`, `-r` | string | `KR` | hot-date 조회 region |
+| `--video-id` | repeatable string | — | 명시 영상 추가 |
+| `--stage` | enum | `unspecified` | 소비자심리 단계 |
+| `--discovery-run-id` | uuid | — | 실행 이력 연결 |
+| `--min-grade` | grade | `Good` | search/hot source의 Good+ 필터 |
+| `--limit`, `-l` | number | `10` | 추가 후보 수 |
+| `--reason` | string | — | 저장 사유 |
+| `--db`, `-d` | path | — | DB override |
+
+`--search-session-id`, `--hot-date`, `--video-id` 중 정확히 하나의 source mode만 사용한다.
 
 ## DB 영향
 
-- write: `youtube_references` (UPSERT on `unique(video_id, source_search_session_id)`)
-- read: `youtube_videos` (존재 검증)
-
-## 외부 의존
-
-없음 (DB write only).
-
-## 노트
-
-같은 영상을 다른 검색 세션에서 또 마킹하면 별도 행이 된다 (`source_search_session_id` 가 다르므로). 분류 축 매핑은 별도 라우트(`analyze-title`/`analyze-thumbnail`) 에서.
+- read: `youtube_keyword_video_results`, `youtube_hot_videos`, `youtube_video_scores`
+- write: `reference_folder_videos`
+- score 값은 중복 저장하지 않고 `video_snapshot_collected_at` + `score_policy_version` identity만 저장
+- 외부 API 없음

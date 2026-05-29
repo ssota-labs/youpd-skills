@@ -42,10 +42,13 @@ description: YouTube/Threads/TikTok/Instagram/카드뉴스 콘텐츠 기획·제
 | 채널 ID/핸들로 채널 정보 fetch | `references/research/youtube/fetch-channel.md` | ✅ P1.1 |
 | 채널의 업로드 영상 일괄 fetch | `references/research/youtube/fetch-channel-videos.md` | ✅ P1.1 |
 | 트렌딩 (mostPopular) fetch | `references/research/youtube/fetch-trending.md` | ⏭ P1.1 out-of-scope |
-| 채널 시점 수치 스냅샷 | `references/research/youtube/snapshot-channel.md` | 🚧 P1.2 |
-| 영상 시점 수치 스냅샷 | `references/research/youtube/snapshot-video.md` | 🚧 P1.2 |
-| 영상을 레퍼런스로 마킹 | `references/research/youtube/curate-references.md` | 🚧 P1.3 |
-| 마킹된 레퍼런스 조회·필터 | `references/research/youtube/list-references.md` | 🚧 P1.3 |
+| 고객군·키워드 기반 레퍼런스 발견 절차 | `references/research/youtube/discover-references.md` | ✅ P1.2 |
+| 레퍼런스 폴더 그룹·자식 폴더 생성 | `references/research/youtube/create-reference-folder.md` | ✅ P1.2 |
+| discovery 실행 이력 기록 | `references/research/youtube/record-discovery-run.md` | ✅ P1.2 |
+| 성과 기반 레퍼런스 큐레이션 | `references/research/youtube/curate-references.md` | ✅ P1.2 |
+| 큐레이션된 레퍼런스 조회·필터 | `references/research/youtube/list-references.md` | ✅ P1.2 |
+| 폴더에서 레퍼런스 제거 | `references/research/youtube/remove-reference.md` | ✅ P1.2 |
+| 레퍼런스 영상 댓글 수집 | `references/research/youtube/fetch-comments.md` | ✅ P1.2 |
 | 제목 LLM 분석 · 축 매핑 | `references/research/youtube/analyze-title.md` | 🚧 P1.4 |
 | 썸네일 LLM 분석 · 축 매핑 | `references/research/youtube/analyze-thumbnail.md` | 🚧 P1.4 |
 | 자막/스크립트 추출 | `references/research/youtube/fetch-transcript.md` | 🚧 P1.5 |
@@ -76,4 +79,4 @@ pnpm tsx skills/youpd-skills/scripts/<domain>/<action>.ts [args...]
 - `references/workspace/init.md` — 워크스페이스 생성·마이그레이션 적용 (P1.0)
 - `references/research/youtube/INDEX.md` — YouTube 도메인 라우트 묶음 + 권장 호출 순서 (Phase 1)
 
-> **Phase 1 진행 상태**: P1.0 (workspace/init) 완료. P1.1 YouTube 6 routes 구현 완료. P1.2+ 는 reference 계약만 존재.
+> **Phase 1 진행 상태**: P1.0 (workspace/init) 완료. P1.1 YouTube 6 routes 구현 완료. P1.2 성과 기반 레퍼런스 큐레이션 구현 완료. P1.3+ 는 reference 계약만 존재.

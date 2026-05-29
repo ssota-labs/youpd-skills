@@ -71,11 +71,13 @@ test('runMigrations: applies all migrations on a fresh DB and reports them', () 
     );
     assert.equal(result.totalLedgerCount, expected.length);
 
-    // P1.0 + P1.1 migrations
+    // P1.0 + P1.1 + P1.2 migrations
     assert.ok(tableExists(db, 'schema_migrations'));
     assert.ok(tableExists(db, 'workspace_meta'));
     assert.ok(tableExists(db, 'youtube_keywords'));
-    assert.equal(expected.length, 3, 'P1.1 adds 010_youtube_collection.sql');
+    assert.ok(tableExists(db, 'reference_folder_groups'));
+    assert.ok(tableExists(db, 'youtube_comments'));
+    assert.equal(expected.length, 4, 'P1.2 adds 011_reference_curation.sql');
 
     db.close();
   } finally {
