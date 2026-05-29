@@ -8,9 +8,9 @@ Instructions for AI coding agents working in **ssota-labs/youpd-skills**.
 
 | Principle | Detail |
 |---|---|
-| **Local-first SSOT** | User workspace at `./.youpd/workspace.db` (single SQLite file) |
+| **Local-first SSOT (runtime)** | User workspace at `./.youpd/workspace.db` (single SQLite file) — this is the SSOT for the *shipped product*, not for our development process (see [Development SSOT: Notion](#development-ssot-notion)) |
 | **BYOK** | User supplies `YOUTUBE_API_KEY`, LLM keys, etc. Never commit secrets |
-| **No hosted backend** | No SaaS, MCP server, CLI binary, or Notion dependency in this product |
+| **No hosted backend (in the product)** | The shipped plugin has no SaaS, MCP server, CLI binary, or Notion dependency. This constraint is about *runtime*; our *development workflow* uses Notion as SSOT (see below) |
 | **Single package** | Not a monorepo. One semver, one plugin, one marketplace skill |
 | **Phase 4 = public** | Currently private/internal. MIT license at public launch |
 
@@ -56,6 +56,58 @@ skills/youpd-skills/
 | **P1.2–P1.5** — Snapshots, curation, analysis | 🚧 Reference stubs only |
 
 Design SSOT (Notion, internal): [P1.0 D3](https://www.notion.so/36d346dac45681faa27fdfb0b39ef9fe), [Phase 1 Blueprint](https://www.notion.so/36d346dac456813daa20e054198e3a8c).
+
+---
+
+## Development SSOT: Notion
+
+**Notion is the source of truth for how we build this project.** The repository holds the code; Notion holds the *why* — decisions, specs, policies, guides, and task state. Git history alone loses the reasoning, so durable knowledge about the project must live in Notion where it persists across versions and contributors. (This is separate from the product runtime, whose SSOT is the local `./.youpd/workspace.db`. The shipped plugin still has no Notion dependency.)
+
+### Start every non-trivial task by connecting to Notion
+
+Before doing meaningful work (planning, design, implementation, spec/policy changes), **request and confirm the Notion MCP connection first.** If the Notion MCP is unavailable, say so explicitly and do not pretend the SSOT was read or updated — surface it as a blocker rather than proceeding blind.
+
+The development task database is:
+`https://www.notion.so/paxhumana/55eda245160f43eba0ebe28b71604f89?v=c58d8705594d4e7c8844ab7d98354513`
+
+### Search before you build — without being asked
+
+Always assume relevant material may already exist. Before creating anything, search Notion for related tasks, ADRs, specs, policies, guides, and prior decisions, then reason about what you found. The goal is to think with the existing context, not to generate duplicates. Update or supersede an existing page when one fits; create a new page only when there is genuinely no suitable home.
+
+This is proactive behavior: do it on your own initiative whenever the work plausibly touches existing knowledge, even if the user did not explicitly ask you to check Notion.
+
+### What to record, and where
+
+Durable docs live in the shared **유PD 프로덕트 팀 문서** database (`https://www.notion.so/5ac346dac45682cf98ed815c25b32d38`). The document *type* is the `태그` (multi-select) property — set the correct tag so the SSOT stays queryable — and each doc is linked back to its task via the task's `관련 문서` relation. The full document system (lifetimes, dependency order, per-type deliverables, naming) is defined in the **`youpd-version-workflow`** skill — read [`.cursor/skills/youpd-version-workflow/references/documentation-workflow.md`](.cursor/skills/youpd-version-workflow/references/documentation-workflow.md) before classifying or writing a document.
+
+| What happened | `태그` to set | Notes |
+|---|---|---|
+| A technical/architectural decision was made (driver, schema strategy, trade-off) | `ADR` | Treat as immutable. The docs DB has no status field yet, so express lifecycle in the title/first line: prefix `[ADR-NNNN] <decision>`, and when a later decision replaces it add a `Superseded by [ADR-MMMM]` line instead of editing the original |
+| A current implementation contract changed (DB schema, route/CLI I/O, error codes, env vars) | `스펙` | Living, topic-based (e.g. `youpd-skills 스펙 — DB 스키마`) |
+| A rule now recurs across versions (migration policy, naming, BYOK, error-code conventions) | `정책` | Cumulative |
+| Version intent / user value / scope was defined | `PRD` | Use the **신제품 스펙 문서(PRD)** page template |
+| Version implementation design (data model, API, algorithms for one version) | `설계` | Use the **신기술 스펙 문서** page template |
+| A version shipped | `릴리즈 노트` | Plan vs actual, known issues |
+| Phase-wide route map / domain model / milestone plan | `제품 로드맵` | a.k.a. Blueprint |
+| Reusable how-to / runbook | `가이드` | |
+| Exploratory investigation | `리서치` | |
+
+After creating or updating any of these, link it to the originating task via that task's `관련 문서` relation so the board and the SSOT stay connected.
+
+Use judgment about what is *durable*: record decisions, contract changes, policies, guides, root-cause/resolution of significant bugs, and test strategy. Skip ephemera like typo fixes, trivial refactors, or one-off command output — logging noise dilutes the SSOT.
+
+### Keep the task board in sync
+
+The development task DB uses `상태` = `대기` / `진행중` / `보류` / `완료` / `취소` and `작업 유형` = `상세 로드맵 작성` / `PRD 작성` / `설계 작성` / `구현` / `검증`. When you pick up a task, move it to `진행중`; if it's waiting on a dependency, set `보류` and note the blocker. Do **not** set `완료` unless the user asked you to update task status — propose the change and let the user confirm. Link any docs you produced via `관련 문서`.
+
+### Order of operations for a typical change
+
+1. Confirm Notion MCP is connected.
+2. Search Notion + repo for related tasks, ADRs, specs, policies, prior decisions.
+3. Classify the work type via `documentation-workflow.md` and check dependencies (roadmap → PRD → D3 → implementation).
+4. Do the work in the repo.
+5. Record durable outcomes in Notion (ADR / Spec / Policy / Release Notes as applicable) and update the task board.
+6. Report what changed in both the repo and Notion, flagging any status update that needs user confirmation.
 
 ---
 
@@ -190,7 +242,7 @@ Reject and point to `.env.example` if a required key is missing — do not proce
 
 - Threads / TikTok / Instagram / card news (Phase 2–3)
 - `plan` / `produce` domains (Phase 2+)
-- Hosted server, MCP server, Notion integration (main **youpd** product line)
+- Hosted server, MCP server, or Notion integration **as a product/runtime feature** (those belong to the main **youpd** product line). Note: Notion is still our *development* SSOT — see [Development SSOT: Notion](#development-ssot-notion) — that is a workflow practice, not a shipped dependency.
 - CLI binary distribution
 - Down migrations or automatic DB repair
 - Project-scoped DB rows (`project_id`) — one task = one DB file
@@ -236,6 +288,7 @@ sqlite3 .youpd/workspace.db "SELECT filename FROM schema_migrations ORDER BY fil
 | `skills/youpd-skills/references/workspace/init.md` | P1.0 route contract |
 | `skills/youpd-skills/references/research/youtube/INDEX.md` | YouTube route index |
 | `skills/youpd-skills/scripts/lib/db/migrate.ts` | Migration runner logic |
+| `.cursor/skills/youpd-version-workflow/references/documentation-workflow.md` | Notion document system (ADR/Spec/Policy/PRD/D3/Release Notes) and dependency order |
 | `README.md` | Human-oriented overview (Korean) |
 
 When in doubt about schema or naming, follow the [Phase 1 Blueprint](https://www.notion.so/36d346dac456813daa20e054198e3a8c) for domain design and the milestone D3 (e.g. [P1.0 D3](https://www.notion.so/36c346dac45681faa27fdfb0b39ef9fe)) for what is implemented in code.

@@ -145,18 +145,39 @@ flowchart LR
 
 ## Notion Task Database Mapping
 
-When inspecting the development task database, map task labels/links to work types:
+When inspecting the development task database, map the task's `작업 유형` to work types:
 
-| Notion task kind | Follow section |
+| `작업 유형` (task DB) | Follow section |
 |---|---|
-| Roadmap / Blueprint task | Blueprint |
-| PRD / 기획 task | D2 PRD |
-| Design / D3 / 설계 task | D3 Tech Spec |
-| Spec / 스펙 task | Topic Spec |
-| Development / 구현 task | Implementation |
-| Release / 릴리즈 task | D4 Release Notes |
+| 상세 로드맵 작성 | Blueprint |
+| PRD 작성 | D2 PRD |
+| 설계 작성 | D3 Tech Spec |
+| 구현 | Implementation |
+| 검증 | Implementation verification (tests/smoke) |
+
+Topic Spec, Policy, and ADR work usually has no dedicated `작업 유형`; it emerges from 설계/구현 tasks. Classify by the document being produced, not only by `작업 유형`.
+
+Task status lives in `상태` = `대기` / `진행중` / `보류` / `완료` / `취소`. Move a task to `진행중` when starting, `보류` when blocked, and only to `완료` when the user asks to update status.
 
 If the task type is ambiguous, read linked documents and use the classification cues above before proceeding.
+
+## Notion Document Tags
+
+Durable docs live in the shared **유PD 프로덕트 팀 문서** database (`https://www.notion.so/5ac346dac45682cf98ed815c25b32d38`). Set the document type via the `태그` (multi-select) property, and link each doc back to its task through the task's `관련 문서` relation so the board and the SSOT stay connected.
+
+| Work type (this reference) | `태그` to set | Page template (if any) |
+|---|---|---|
+| Blueprint | `제품 로드맵` | — |
+| Policy | `정책` | — |
+| D2 PRD | `PRD` | 신제품 스펙 문서(PRD) |
+| D3 Tech Spec | `설계` | 신기술 스펙 문서 |
+| Topic Spec | `스펙` | — |
+| D4 Release Notes | `릴리즈 노트` | — |
+| D5 ADR | `ADR` | — |
+| Guide / runbook | `가이드` | — |
+| Research / exploration | `리서치` | — |
+
+**ADR lifecycle without a status field:** the docs DB currently has no status/supersede property, so encode ADR immutability in text — prefix the title `[ADR-NNNN] <decision>`, and when a later decision replaces it, add a `Superseded by [ADR-MMMM]` line to the original rather than editing its body.
 
 ## Anti-Patterns
 

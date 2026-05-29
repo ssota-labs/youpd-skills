@@ -10,6 +10,11 @@ Use this skill to select and execute the next **youpd-skills** development unit 
 Notion task database:
 `https://www.notion.so/paxhumana/55eda245160f43eba0ebe28b71604f89?v=c58d8705594d4e7c8844ab7d98354513`
 
+Notion document database (shared **유PD 프로덕트 팀 문서**, tagged via `태그`):
+`https://www.notion.so/5ac346dac45682cf98ed815c25b32d38`
+
+Link every doc you create to its task via the task's `관련 문서` relation. For the tag-per-document-type mapping, see [references/documentation-workflow.md](references/documentation-workflow.md#notion-document-tags).
+
 ## Progressive References
 
 Before classifying a task as PRD, 설계, 스펙, or 구현, read:
