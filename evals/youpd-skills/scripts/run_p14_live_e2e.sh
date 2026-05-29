@@ -31,9 +31,12 @@ echo "DB=$DB"
 run_json() {
   local label=$1
   shift
-  echo ""
-  echo ">> $label"
-  pnpm tsx "$@" | tee -a "$EVAL_DIR/last.json" | tail -1
+  echo "" >&2
+  echo ">> $label" >&2
+  local out
+  out=$(pnpm tsx "$@" 2>&1 | tail -1)
+  printf '%s\n' "$out" > "$EVAL_DIR/last.json"
+  printf '%s\n' "$out"
 }
 
 run_json "init" skills/youpd-skills/scripts/workspace/init.ts --db "$DB" --label p14-eval
@@ -62,13 +65,14 @@ run_json "curate-references" skills/youpd-skills/scripts/research/youtube/curate
 CAND_JSON=$(run_json "list-analysis-candidates" skills/youpd-skills/scripts/research/youtube/list-analysis-candidates.ts \
   --db "$DB" --kind title --folder-id "$FOLDER_ID" --limit 5)
 
-node <<'NODE' "$CAND_JSON" "$DB" "$EVAL_DIR"
+export CAND_JSON DB EVAL_DIR
+node <<'NODE'
 const fs = require('fs');
 const { spawnSync } = require('child_process');
 
-const cand = JSON.parse(process.argv[1]);
-const db = process.argv[2];
-const evalDir = process.argv[3];
+const cand = JSON.parse(process.env.CAND_JSON);
+const db = process.env.DB;
+const evalDir = process.env.EVAL_DIR;
 const items = cand.result?.candidates ?? [];
 const saves = [];
 
