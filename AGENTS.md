@@ -100,6 +100,33 @@ Use judgment about what is *durable*: record decisions, contract changes, polici
 
 The development task DB uses `상태` = `대기` / `진행중` / `보류` / `완료` / `취소` and `작업 유형` = `상세 로드맵 작성` / `PRD 작성` / `설계 작성` / `구현` / `검증`. When you pick up a task, move it to `진행중`; if it's waiting on a dependency, set `보류` and note the blocker. Do **not** set `완료` unless the user asked you to update task status — propose the change and let the user confirm. Link any docs you produced via `관련 문서`.
 
+### Implementation gate (applies even when the user asks to implement)
+
+A direct user request such as “P1.4 구현해줘” does **not** bypass Notion dependencies or documentation gates. Treat “implement” as **implementation work** and run this checklist **before** editing migrations, scripts, or route references:
+
+1. **Locate the milestone task** in the [development task database](https://www.notion.so/paxhumana/55eda245160f43eba0ebe28b71604f89?v=c58d8705594d4e7c8844ab7d98354513) (e.g. `YPDS-P1.4-IMPL`) and read `Blocked by`, `Blocking`, `종속성`, `상태`, and `관련 문서`.
+2. **Verify documentation exists and is linked** — for implementation, the version **PRD** and **D3 (설계)** must exist in **유PD 프로덕트 팀 문서** (or be explicitly accepted in chat after you report a gap). Empty task pages with no `관련 문서` do not count as PRD/D3.
+3. **Verify predecessor milestones** — e.g. P1.4 analysis requires a curated reference pool (P1.2 in the current roadmap numbering); confirm in Notion and in `main` code, not only in stale references.
+4. **If any gate fails** — stop coding, report the blocker using the template below, and propose the next doc task (PRD → D3 → IMPL). Do not open a feature PR for partial implementation “to get started.”
+5. **Explicit override only** — continue implementation without PRD/D3 only if the user, **after** seeing the gap report, explicitly accepts the risk (e.g. “PRD 없이 진행”). Record what was skipped in the PR/commit message.
+
+**Blocker response template** (use in chat when stopping):
+
+```markdown
+Cannot start implementation yet.
+
+Selected candidate: [task ID / milestone]
+Blocked by:
+- [missing or blank PRD / D3 / ADR]
+- [Notion Blocked by relation or incomplete predecessor]
+- [repo vs Notion contract mismatch, if any]
+
+Next recommended action:
+- [YPDS-Px.x-PRD / DSGN / ADR task or doc to complete first]
+```
+
+This gate exists because implementation without accepted design loses the “why” and often duplicates or contradicts the repo (e.g. LLM-route stubs vs agent-reasoning PRD). The 2026-05-29 P1.4 attempt is the reference incident: IMPL was requested while `YPDS-P1.4-DSGN` and task-board PRD were still empty.
+
 ### Order of operations for a typical change
 
 1. Confirm Notion MCP is connected.
