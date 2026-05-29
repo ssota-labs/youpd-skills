@@ -10,6 +10,12 @@ These are not TypeScript unit tests. They are scenario definitions for subagent/
 ## Current suites
 
 - [`p1_2_reference_discovery.cases.json`](./p1_2_reference_discovery.cases.json)
+- [`p1_4_title_thumbnail_analysis.cases.json`](./p1_4_title_thumbnail_analysis.cases.json)
+
+## Harness scripts
+
+- [`scripts/run_p14_live_e2e.sh`](./scripts/run_p14_live_e2e.sh) — live YouTube API + P1.4 classify (needs `YOUTUBE_API_KEY`)
+- [`scripts/run_p14_fixture_e2e.sh`](./scripts/run_p14_fixture_e2e.sh) — no API; fixture DB seed + save routes
 
 ## Recorded runs
 
@@ -18,6 +24,7 @@ Executed subagent eval results live under [`runs/`](./runs/).
 | Run | Model | Suite | Result |
 |---|---|---|---|
 | [`2026-05-29_composer-2.5-fast_p1_2_reference_discovery`](./runs/2026-05-29_composer-2.5-fast_p1_2_reference_discovery.md) | `composer-2.5-fast` | `p1_2_reference_discovery` | 6/6 pass |
+| [`2026-05-29_composer-2.5-fast_p1_4_title_thumbnail_analysis`](./runs/2026-05-29_composer-2.5-fast_p1_4_title_thumbnail_analysis.md) | `composer-2.5-fast` | `p1_4_title_thumbnail_analysis` | 6/6 pass (fixture API fallback) |
 
 Each run includes:
 
