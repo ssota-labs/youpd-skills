@@ -78,24 +78,27 @@ This is proactive behavior: do it on your own initiative whenever the work plaus
 
 ### What to record, and where
 
-Capture durable knowledge as the right document type. The full document system (lifetimes, dependency order, per-type deliverables, naming) is defined in the **`youpd-version-workflow`** skill — read [`.cursor/skills/youpd-version-workflow/references/documentation-workflow.md`](.cursor/skills/youpd-version-workflow/references/documentation-workflow.md) before classifying or writing a document.
+Durable docs live in the shared **유PD 프로덕트 팀 문서** database (`https://www.notion.so/5ac346dac45682cf98ed815c25b32d38`). The document *type* is the `태그` (multi-select) property — set the correct tag so the SSOT stays queryable — and each doc is linked back to its task via the task's `관련 문서` relation. The full document system (lifetimes, dependency order, per-type deliverables, naming) is defined in the **`youpd-version-workflow`** skill — read [`.cursor/skills/youpd-version-workflow/references/documentation-workflow.md`](.cursor/skills/youpd-version-workflow/references/documentation-workflow.md) before classifying or writing a document.
 
-| What happened | Where it goes in Notion |
-|---|---|
-| A technical/architectural decision was made (driver, schema strategy, trade-off) | **ADR (D5)** — immutable; supersede with a new ADR, never edit retroactively |
-| A current implementation contract changed (DB schema, route/CLI I/O, error codes, env vars) | **Topic Spec** — living, topic-based |
-| A rule now recurs across versions (migration policy, naming, BYOK, error-code conventions) | **Policy** — cumulative |
-| Version intent / user value / scope was defined | **D2 PRD** |
-| Version implementation design (data model, API, algorithms for one version) | **D3 Tech Spec** |
-| A version shipped | **D4 Release Notes** |
-| Phase-wide route map / domain model / milestone plan | **Blueprint** |
-| Task started, progressed, blocked, or finished | **Task board** row status update |
+| What happened | `태그` to set | Notes |
+|---|---|---|
+| A technical/architectural decision was made (driver, schema strategy, trade-off) | `ADR` | Treat as immutable. The docs DB has no status field yet, so express lifecycle in the title/first line: prefix `[ADR-NNNN] <decision>`, and when a later decision replaces it add a `Superseded by [ADR-MMMM]` line instead of editing the original |
+| A current implementation contract changed (DB schema, route/CLI I/O, error codes, env vars) | `스펙` | Living, topic-based (e.g. `youpd-skills 스펙 — DB 스키마`) |
+| A rule now recurs across versions (migration policy, naming, BYOK, error-code conventions) | `정책` | Cumulative |
+| Version intent / user value / scope was defined | `PRD` | Use the **신제품 스펙 문서(PRD)** page template |
+| Version implementation design (data model, API, algorithms for one version) | `설계` | Use the **신기술 스펙 문서** page template |
+| A version shipped | `릴리즈 노트` | Plan vs actual, known issues |
+| Phase-wide route map / domain model / milestone plan | `제품 로드맵` | a.k.a. Blueprint |
+| Reusable how-to / runbook | `가이드` | |
+| Exploratory investigation | `리서치` | |
+
+After creating or updating any of these, link it to the originating task via that task's `관련 문서` relation so the board and the SSOT stay connected.
 
 Use judgment about what is *durable*: record decisions, contract changes, policies, guides, root-cause/resolution of significant bugs, and test strategy. Skip ephemera like typo fixes, trivial refactors, or one-off command output — logging noise dilutes the SSOT.
 
 ### Keep the task board in sync
 
-When you pick up a task, reflect its real state on the board (in progress → done/blocked). Do **not** mark a Notion task complete unless the user asked you to update task status — propose the status change and let the user confirm if there's any doubt.
+The development task DB uses `상태` = `대기` / `진행중` / `보류` / `완료` / `취소` and `작업 유형` = `상세 로드맵 작성` / `PRD 작성` / `설계 작성` / `구현` / `검증`. When you pick up a task, move it to `진행중`; if it's waiting on a dependency, set `보류` and note the blocker. Do **not** set `완료` unless the user asked you to update task status — propose the change and let the user confirm. Link any docs you produced via `관련 문서`.
 
 ### Order of operations for a typical change
 
