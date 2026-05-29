@@ -345,3 +345,14 @@ export type FetchCommentsResult = {
     commentText: string;
   }>;
 };
+
+export type ViewWorkspaceMode = 'static' | 'serve';
+
+export type ViewWorkspaceResult = {
+  mode: ViewWorkspaceMode;
+  htmlPath?: string;
+  url?: string;
+  port?: number;
+  host?: string;
+  byteLength: number;
+};

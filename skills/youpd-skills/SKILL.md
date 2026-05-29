@@ -49,6 +49,7 @@ description: YouTube/Threads/TikTok/Instagram/카드뉴스 콘텐츠 기획·제
 | 큐레이션된 레퍼런스 조회·필터 | `references/research/youtube/list-references.md` | ✅ P1.2 |
 | 폴더에서 레퍼런스 제거 | `references/research/youtube/remove-reference.md` | ✅ P1.2 |
 | 레퍼런스 영상 댓글 수집 | `references/research/youtube/fetch-comments.md` | ✅ P1.2 |
+| 워크스페이스 DB 로컬 뷰어 (읽기 전용) | `references/research/youtube/view-workspace.md` | ✅ P1.3 |
 | 제목 분류 · 후크/shape/tone (에이전트 reasoning) | `references/research/youtube/analyze-title.md` | ✅ P1.4 |
 | 썸네일 분류 · 감정/정합성 (에이전트 reasoning) | `references/research/youtube/analyze-thumbnail.md` | ✅ P1.4 |
 | 제목 분석 저장 | `references/research/youtube/save-title-analysis.md` | ✅ P1.4 |
@@ -83,4 +84,4 @@ pnpm tsx skills/youpd-skills/scripts/<domain>/<action>.ts [args...]
 - `references/workspace/init.md` — 워크스페이스 생성·마이그레이션 적용 (P1.0)
 - `references/research/youtube/INDEX.md` — YouTube 도메인 라우트 묶음 + 권장 호출 순서 (Phase 1)
 
-> **Phase 1 진행 상태**: P1.0–P1.2 완료. P1.4 제목/썸네일 분류·저장 완료. P1.3 로컬 뷰어·P1.5 도입부는 reference stub.
+> **Phase 1 진행 상태**: P1.0–P1.3 완료. P1.4 제목/썸네일 분류·저장 완료. P1.5 도입부·자막은 reference stub.
