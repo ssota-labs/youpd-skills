@@ -207,3 +207,5 @@ For implementation PRs that affect skill behavior, include:
 - subagent eval cases run
 - notable failures or skipped evals
 - residual risk, especially around API quota, missing keys, and milestone boundaries
+
+Recorded subagent eval runs are stored under [`evals/youpd-skills/runs/`](../evals/youpd-skills/runs/) as paired `.json` + `.md` files.

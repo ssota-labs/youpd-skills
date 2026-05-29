@@ -1,0 +1,236 @@
+{
+  "runId": "2026-05-29_composer-2.5-fast_p1_2_reference_discovery",
+  "suite": "p1_2_reference_discovery",
+  "suiteVersion": 1,
+  "executedAt": "2026-05-29T07:00:00.000Z",
+  "repoCommit": "632c571906b03cfeb0b6935122c4fa7de857995d",
+  "repoCommitMessage": "Merge pull request #8 from ssota-labs/cursor/p1-2-reference-curation-be1e",
+  "agentModel": "composer-2.5-fast",
+  "executionMode": "subagent-clean-context",
+  "environment": {
+    "nodeVersion": "24.16.0",
+    "workspaceDb": "temp-per-case",
+    "youtubeApiKey": "present-from-env-local-for-live-cases",
+    "youtubeApi": "live-for-collection-and-comment-cases"
+  },
+  "summary": {
+    "totalCases": 6,
+    "passed": 6,
+    "failed": 0,
+    "skipped": 0,
+    "passRate": 1
+  },
+  "globalGraders": {
+    "deterministic": "pass",
+    "trajectory": "pass",
+    "llmJudge": "not-run-separately"
+  },
+  "cases": [
+    {
+      "id": "p1_2_01_phenomenon_discovery",
+      "title": "Phenomenon-stage reference discovery",
+      "userPrompt": "부모님 케어 관련해서 문제 인식 단계 레퍼런스 찾아줘.",
+      "passDeterministic": true,
+      "passTrajectory": true,
+      "passOverall": true,
+      "referencesRead": [
+        "skills/youpd-skills/SKILL.md",
+        "skills/youpd-skills/references/research/youtube/INDEX.md",
+        "skills/youpd-skills/references/research/youtube/discover-references.md",
+        "skills/youpd-skills/references/research/youtube/create-reference-folder.md",
+        "skills/youpd-skills/references/research/youtube/curate-references.md",
+        "skills/youpd-skills/references/research/youtube/record-discovery-run.md",
+        "skills/youpd-skills/references/research/youtube/list-references.md",
+        "skills/youpd-skills/references/research/youtube/add-keyword.md",
+        "skills/youpd-skills/references/research/youtube/search-by-keyword.md"
+      ],
+      "scriptsInvoked": [
+        "workspace/init",
+        "research/youtube/add-keyword",
+        "research/youtube/search-by-keyword",
+        "research/youtube/create-reference-folder",
+        "research/youtube/record-discovery-run",
+        "research/youtube/curate-references",
+        "research/youtube/list-references"
+      ],
+      "forbiddenScriptsInvoked": [],
+      "outcome": {
+        "consumerStage": "phenomenon",
+        "folderGroupName": "부모님 케어 레퍼런스",
+        "curatedCount": 0,
+        "videosCollected": 55,
+        "keywordProbes": [
+          "부모님 건강 걱정",
+          "독거 부모님 불안",
+          "부모님 연락 두려움",
+          "부모님 기억력 떨어짐",
+          "부모님 혼자 계세요"
+        ]
+      },
+      "notes": "Good+ filter applied; no phenomenon-folder candidates met threshold. analyze-title/thumbnail/intro not invoked."
+    },
+    {
+      "id": "p1_2_02_conversion_discovery",
+      "title": "Plan/action discovery for conversion-oriented references",
+      "userPrompt": "AI 자동화 강의 구매 직전 고객에게 먹힌 레퍼런스 찾아줘.",
+      "passDeterministic": true,
+      "passTrajectory": true,
+      "passOverall": true,
+      "referencesRead": [
+        "skills/youpd-skills/references/research/youtube/discover-references.md",
+        "skills/youpd-skills/references/research/youtube/curate-references.md",
+        "skills/youpd-skills/references/research/youtube/list-references.md"
+      ],
+      "scriptsInvoked": [
+        "workspace/init",
+        "add-keyword",
+        "search-by-keyword",
+        "create-reference-folder",
+        "curate-references",
+        "list-references"
+      ],
+      "forbiddenScriptsInvoked": [],
+      "outcome": {
+        "stagesUsed": ["plan", "action"],
+        "folderGroupName": "AI 자동화 강의 구매 직전 레퍼런스",
+        "curatedCount": 12,
+        "planFolderCount": 6,
+        "actionFolderCount": 6,
+        "keywordProbes": [
+          "AI 자동화 강의 추천",
+          "AI 자동화 강의 비교",
+          "AI 자동화 강의 가격",
+          "AI 자동화 강의 후기"
+        ]
+      },
+      "notes": "Conversion-oriented request mapped to plan/action folders. analyze-title/analyze-thumbnail not invoked."
+    },
+    {
+      "id": "p1_2_03_multi_stage_folder_group",
+      "title": "Multi-stage folder group creation",
+      "userPrompt": "30대 직장인 AI 생산성 레퍼런스를 현상, 욕구, 계획으로 나눠서 찾아줘.",
+      "passDeterministic": true,
+      "passTrajectory": true,
+      "passOverall": true,
+      "referencesRead": [
+        "skills/youpd-skills/SKILL.md",
+        "skills/youpd-skills/references/research/youtube/INDEX.md",
+        "skills/youpd-skills/references/research/youtube/discover-references.md",
+        "skills/youpd-skills/references/research/youtube/create-reference-folder.md",
+        "skills/youpd-skills/references/research/youtube/record-discovery-run.md",
+        "skills/youpd-skills/references/research/youtube/curate-references.md"
+      ],
+      "scriptsInvoked": [
+        "skills/youpd-skills/scripts/workspace/init.ts",
+        "skills/youpd-skills/scripts/research/youtube/create-reference-folder.ts",
+        "skills/youpd-skills/scripts/research/youtube/add-keyword.ts",
+        "skills/youpd-skills/scripts/research/youtube/search-by-keyword.ts",
+        "skills/youpd-skills/scripts/research/youtube/record-discovery-run.ts",
+        "skills/youpd-skills/scripts/research/youtube/curate-references.ts",
+        "skills/youpd-skills/scripts/research/youtube/list-references.ts"
+      ],
+      "forbiddenScriptsInvoked": [],
+      "outcome": {
+        "folderGroupCreated": true,
+        "childFolderStages": ["phenomenon", "desire", "plan"],
+        "discoveryRunRecorded": true,
+        "curatedCountByStage": {
+          "phenomenon": 0,
+          "desire": 0,
+          "plan": 6
+        }
+      },
+      "notes": "Phenomenon search returned 0 API results; desire had 42 videos but none met Good+; plan curated 6 videos."
+    },
+    {
+      "id": "p1_2_04_comment_language_recovery",
+      "title": "Customer-language recovery from comments",
+      "userPrompt": "성과 좋은 영상 댓글도 보고 다음 키워드 후보 뽑아줘.",
+      "passDeterministic": true,
+      "passTrajectory": true,
+      "passOverall": true,
+      "referencesRead": [
+        "skills/youpd-skills/references/research/youtube/fetch-comments.md",
+        "skills/youpd-skills/references/research/youtube/list-references.md"
+      ],
+      "scriptsInvoked": [
+        "workspace/init",
+        "add-keyword",
+        "search-by-keyword",
+        "create-reference-folder",
+        "curate-references",
+        "list-references",
+        "fetch-comments"
+      ],
+      "forbiddenScriptsInvoked": [],
+      "outcome": {
+        "commentCount": 2,
+        "fetchedVideoCount": 5,
+        "languagePhrases": [
+          "who tf does this",
+          "Nope, no thanks....",
+          "AI 생산성 도구 추천",
+          "유튜브 영상 AI 노트",
+          "NotebookLM",
+          "AI에 돈 쏟아붓고도 망하는 회사",
+          "구글 검색 결과 지연",
+          "ai productivity app"
+        ],
+        "nextKeywordProbes": [
+          "NotebookLM 유튜브 요약",
+          "AI 생산성 도구 실제 후기",
+          "유튜브 AI 노트 자동화",
+          "회사 AI 도입 실패 사례",
+          "AI 생산성 앱 개발",
+          "구글 검색 AI 대체"
+        ],
+        "storageTable": "youtube_comments"
+      },
+      "notes": "fetch-comments stored 2 comments via live API. No sentiment analysis or comment reaction report. reference_comment_language_samples not used."
+    },
+    {
+      "id": "p1_2_05_negative_title_thumbnail_request",
+      "title": "Negative routing for title/thumbnail analysis request",
+      "userPrompt": "이 레퍼런스들의 썸네일 각도를 분석해줘.",
+      "passDeterministic": true,
+      "passTrajectory": true,
+      "passOverall": true,
+      "referencesRead": [
+        "skills/youpd-skills/SKILL.md",
+        "references/research/youtube/INDEX.md",
+        "references/research/youtube/analyze-thumbnail.md",
+        "references/research/youtube/curate-references.md",
+        "references/research/youtube/list-references.md"
+      ],
+      "scriptsInvoked": [],
+      "forbiddenScriptsInvoked": [],
+      "outcome": {
+        "identifiedScope": "P1.4",
+        "routedTo": "analyze-thumbnail",
+        "inventedThumbnailJudgments": false
+      },
+      "notes": "Correctly rejected P1.2 curation as primary workflow; explained analyze-thumbnail is P1.4 stub."
+    },
+    {
+      "id": "p1_2_06_missing_youtube_api_key",
+      "title": "Missing YouTube API key before discovery search",
+      "userPrompt": "이 키워드로 유튜브 레퍼런스 찾아줘.",
+      "passDeterministic": true,
+      "passTrajectory": true,
+      "passOverall": true,
+      "referencesRead": [
+        "skills/youpd-skills/SKILL.md",
+        "skills/youpd-skills/references/research/youtube/INDEX.md",
+        "skills/youpd-skills/references/research/youtube/discover-references.md"
+      ],
+      "scriptsInvoked": ["workspace/init"],
+      "forbiddenScriptsInvoked": [],
+      "outcome": {
+        "detectedMissingKey": true,
+        "mentionedEnvExample": true,
+        "incompleteDiscoveryPollution": false
+      },
+      "notes": "Only workspace/init ran; forbidden search routes not invoked; DB had 0 discovery rows."
+    }
+  ]
+}

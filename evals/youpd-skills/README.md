@@ -11,6 +11,19 @@ These are not TypeScript unit tests. They are scenario definitions for subagent/
 
 - [`p1_2_reference_discovery.cases.json`](./p1_2_reference_discovery.cases.json)
 
+## Recorded runs
+
+Executed subagent eval results live under [`runs/`](./runs/).
+
+| Run | Model | Suite | Result |
+|---|---|---|---|
+| [`2026-05-29_composer-2.5-fast_p1_2_reference_discovery`](./runs/2026-05-29_composer-2.5-fast_p1_2_reference_discovery.md) | `composer-2.5-fast` | `p1_2_reference_discovery` | 6/6 pass |
+
+Each run includes:
+
+- `.json` — machine-readable case outcomes, scripts invoked, graders
+- `.md` — human-readable summary and residual risk
+
 ## Intended execution model
 
 Each case should be run in an isolated agent context with:
