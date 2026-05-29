@@ -25,6 +25,9 @@ discover-references            [P1.2]  agent procedure: keyword probe → P1.1 r
 create-reference-folder / curate-references / list-references / fetch-comments [P1.2]
        │
        ▼
+view-workspace                     [P1.3]  로컬 읽기 전용 HTML 뷰어
+       │
+       ▼
 analyze-title / analyze-thumbnail   [P1.4]
        │
        ▼
@@ -52,6 +55,7 @@ fetch-transcript / analyze-intro    [P1.5]
 | `list-references.md` | "이 폴더 레퍼런스 보여줘" | reference folders + videos + scores | none |
 | `remove-reference.md` | "이 영상 폴더에서 빼줘" | reference_folder_videos | none |
 | `fetch-comments.md` | "성과 좋은 영상 댓글도 보고 고객 언어 뽑아줘" | youtube_comments + comment fetch sessions | YouTube Data API |
+| `view-workspace.md` | "워크스페이스 DB 브라우저로 보여줘" | read-only 전 테이블 스냅샷 | none (local HTML) |
 
 ## P1.1 keyword collection 정책
 
@@ -88,6 +92,7 @@ interface RouteError {
 add-keyword → search-by-keyword → list-hot-videos
   (필요 시) search-channels / fetch-channel / fetch-channel-videos
   (P1.2) create-reference-folder → record-discovery-run → curate-references → fetch-comments → list-references
+  (P1.3) view-workspace
   (P1.4+) analyze-*
 ```
 
@@ -96,5 +101,6 @@ add-keyword → search-by-keyword → list-hot-videos
 - ✅ P1.0: workspace bootstrap
 - ✅ P1.1: 6 routes (`add-keyword`, `search-by-keyword`, `search-channels`, `fetch-channel`, `fetch-channel-videos`, `list-hot-videos`)
 - ✅ P1.2: reference folder groups, score-based curation, capped comment fetch
+- ✅ P1.3: local read-only workspace viewer (`view.ts` static HTML + optional serve)
 - ⏭ standalone snapshot routes: P1.1 search/fetch 경로에 흡수됨
-- 🚧 P1.3+: title/thumbnail/intro analysis
+- 🚧 P1.4+: title/thumbnail analysis; P1.5 intro analysis
