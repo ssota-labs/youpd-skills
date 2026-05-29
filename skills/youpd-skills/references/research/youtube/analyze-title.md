@@ -1,27 +1,60 @@
 # Route: `research/youtube/analyze-title`
 
-> **상태**: 🚧 P1.4 — 스크립트 stub. **선행 작업**: 분류 축 v0 ADR 확정 + `glossary_axes`/`glossary_axis_values` seed 마이그레이션.
+> **상태**: ✅ P1.4 — 에이전트 reasoning + `save-title-analysis` 영속화. **외부 LLM API 없음.**
 
-레퍼런스 영상의 제목을 LLM 으로 분석해 분류 축에 매핑. 후크 유형, 길이, 숫자 사용, 감정 어조, 키워드 밀도 등.
+레퍼런스 영상 제목을 PRD §2·§3 프레임워크(`hook-type` + `title-shape` + `title-tone`)로 분류한다.
 
-## 계획된 입력
+## 선행 조건
 
-| 인수 | 형태 | 설명 |
-|---|---|---|
-| `--reference-id` | uuid (repeatable) | 분석할 레퍼런스 ID |
-| `--llm-provider` | enum | `anthropic` / `openai` (BYOK) |
-| `--model` | string | (선택) 모델 ID 명시 override |
+- P1.2: `reference_folder_videos`에 큐레이션된 영상
+- Glossary seed: 마이그레이션 `014_seed_glossary_axes_v0` 적용됨 ([ADR-006](https://www.notion.so/36f346dac45681e1a028e8f9681ac589))
 
-## DB 영향
+## 에이전트 절차
 
-- write: `youtube_title_analyses` (P1.4 신규 테이블 — 015 이후 마이그레이션에서 추가), `youtube_reference_classifications` (분류 축 매핑)
-- read: `youtube_references` JOIN `youtube_videos.title`, `glossary_axes`, `glossary_axis_values`
+1. Notion P1.4 PRD §2·§3 Read (후크·shape·tone 정의).
+2. 미분석 후보 조회:
+
+```bash
+pnpm tsx skills/youpd-skills/scripts/research/youtube/list-analysis-candidates.ts \
+  --kind title --folder-id <uuid> --limit 50
+```
+
+3. 각 `youtube_videos.title`에 대해 분류:
+   - `hook_primary` (+ optional `hook_secondary`) — `hook-type` 16값
+   - `title_shapes[]` — `title-shape` (0+)
+   - `title_tone` — `title-tone` (1)
+   - `reasoning`, 필요 시 `free_tags`
+4. 저장:
+
+```bash
+pnpm tsx skills/youpd-skills/scripts/research/youtube/save-title-analysis.ts \
+  --video-id <id> \
+  --hook-primary vicarious \
+  --hook-secondary authority \
+  --title-shape medium --title-shape with-bracket \
+  --title-tone intimate-conversational \
+  --reasoning "1인칭 체험 + 권위 인용"
+```
+
+재분석: `--reanalyze` (기존 row DELETE 후 INSERT).
+
+## 저장 필드
+
+| 필드 | 축 |
+|---|---|
+| `hook_primary`, `hook_secondary` | `hook-type` |
+| `title_shapes_json` | `title-shape` |
+| `title_tone` | `title-tone` |
+| `reasoning`, `free_tags_json` | — |
+
+## 제목·썸네일 조합
+
+제목만 저장. 썸네일 분석 후 **§5-6 `title-thumbnail-alignment`** 는 `save-thumbnail-analysis`에서 기록.
+
+## 집계 (폴더 보고)
+
+`db/exec`로 D3 §9-3 패턴 실행 (단일 SELECT만).
 
 ## 외부 의존
 
-LLM (멀티모달 불필요). BYOK.
-
-## 미결 결정
-
-- 분류 축 v0: 후크 유형은 몇 개 enum 으로 시작할지 (D5 ADR).
-- LLM 응답을 그대로 저장할지, 정규화·검증해서 분류 축 ID 만 저장할지.
+없음 (에이전트 reasoning).

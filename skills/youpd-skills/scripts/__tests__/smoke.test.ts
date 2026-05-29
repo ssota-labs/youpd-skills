@@ -77,7 +77,10 @@ test('runMigrations: applies all migrations on a fresh DB and reports them', () 
     assert.ok(tableExists(db, 'youtube_keywords'));
     assert.ok(tableExists(db, 'reference_folder_groups'));
     assert.ok(tableExists(db, 'youtube_comments'));
-    assert.equal(expected.length, 4, 'P1.2 adds 011_reference_curation.sql');
+    assert.ok(tableExists(db, 'glossary_axes'));
+    assert.ok(tableExists(db, 'youtube_title_analyses'));
+    assert.ok(tableExists(db, 'youtube_thumbnail_analyses'));
+    assert.equal(expected.length, 7, 'P1.4 adds 012–014 glossary + analysis migrations');
 
     db.close();
   } finally {

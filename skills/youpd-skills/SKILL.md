@@ -49,8 +49,12 @@ description: YouTube/Threads/TikTok/Instagram/카드뉴스 콘텐츠 기획·제
 | 큐레이션된 레퍼런스 조회·필터 | `references/research/youtube/list-references.md` | ✅ P1.2 |
 | 폴더에서 레퍼런스 제거 | `references/research/youtube/remove-reference.md` | ✅ P1.2 |
 | 레퍼런스 영상 댓글 수집 | `references/research/youtube/fetch-comments.md` | ✅ P1.2 |
-| 제목 LLM 분석 · 축 매핑 | `references/research/youtube/analyze-title.md` | 🚧 P1.4 |
-| 썸네일 LLM 분석 · 축 매핑 | `references/research/youtube/analyze-thumbnail.md` | 🚧 P1.4 |
+| 제목 분류 · 후크/shape/tone (에이전트 reasoning) | `references/research/youtube/analyze-title.md` | ✅ P1.4 |
+| 썸네일 분류 · 감정/정합성 (에이전트 reasoning) | `references/research/youtube/analyze-thumbnail.md` | ✅ P1.4 |
+| 제목 분석 저장 | `references/research/youtube/save-title-analysis.md` | ✅ P1.4 |
+| 썸네일 분석 저장 | `references/research/youtube/save-thumbnail-analysis.md` | ✅ P1.4 |
+| 분석 후보 목록 | `references/research/youtube/list-analysis-candidates.md` | ✅ P1.4 |
+| DB 단일 SQL (집계) | `references/db/exec.md` | ✅ P1.4 |
 | 자막/스크립트 추출 | `references/research/youtube/fetch-transcript.md` | 🚧 P1.5 |
 | 도입부 후크 · 구조 분석 | `references/research/youtube/analyze-intro.md` | 🚧 P1.5 |
 
@@ -62,7 +66,7 @@ description: YouTube/Threads/TikTok/Instagram/카드뉴스 콘텐츠 기획·제
 
 1. **Node 24 + 의존성 설치 완료** — `pnpm install` 완료 여부 확인. SQLite는 Node 내장 `node:sqlite` 사용 (별도 네이티브 모듈 불필요).
 2. **워크스페이스 존재 여부** — 의도가 `workspace/init` 외 라우트인데 `./.youpd/workspace.db` 가 없으면 먼저 init 을 권유.
-3. **BYOK 키** — YouTube API 호출 라우트는 `YOUTUBE_API_KEY` 환경변수 확인. LLM 호출 라우트는 `ANTHROPIC_API_KEY` 또는 `OPENAI_API_KEY`. 없으면 즉시 거절 + `.env.example` 참고 안내.
+3. **BYOK 키** — YouTube API 호출 라우트는 `YOUTUBE_API_KEY` 확인. P1.4 제목/썸네일 분석은 **에이전트 reasoning** (외부 LLM API 없음). P1.5+ LLM 라우트만 `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` 확인.
 
 ## 호출 패턴
 
@@ -79,4 +83,4 @@ pnpm tsx skills/youpd-skills/scripts/<domain>/<action>.ts [args...]
 - `references/workspace/init.md` — 워크스페이스 생성·마이그레이션 적용 (P1.0)
 - `references/research/youtube/INDEX.md` — YouTube 도메인 라우트 묶음 + 권장 호출 순서 (Phase 1)
 
-> **Phase 1 진행 상태**: P1.0 (workspace/init) 완료. P1.1 YouTube 6 routes 구현 완료. P1.2 성과 기반 레퍼런스 큐레이션 구현 완료. P1.3+ 는 reference 계약만 존재.
+> **Phase 1 진행 상태**: P1.0–P1.2 완료. P1.4 제목/썸네일 분류·저장 완료. P1.3 로컬 뷰어·P1.5 도입부는 reference stub.

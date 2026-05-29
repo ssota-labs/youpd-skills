@@ -52,6 +52,12 @@ fetch-transcript / analyze-intro    [P1.5]
 | `list-references.md` | "이 폴더 레퍼런스 보여줘" | reference folders + videos + scores | none |
 | `remove-reference.md` | "이 영상 폴더에서 빼줘" | reference_folder_videos | none |
 | `fetch-comments.md` | "성과 좋은 영상 댓글도 보고 고객 언어 뽑아줘" | youtube_comments + comment fetch sessions | YouTube Data API |
+| `analyze-title.md` | "레퍼런스 제목 후크 분포 봐줘" | youtube_title_analyses | agent reasoning |
+| `analyze-thumbnail.md` | "썸네일 공통점이 뭐야?" | youtube_thumbnail_analyses | agent reasoning |
+| `list-analysis-candidates.md` | (내부) 미분석 레퍼런스 목록 | reference_folder_videos | none |
+| `save-title-analysis.md` | (내부) 제목 분류 저장 | youtube_title_analyses | none |
+| `save-thumbnail-analysis.md` | (내부) 썸네일 분류 저장 | youtube_thumbnail_analyses | none |
+| `db/exec.md` | (내부) 폴더 집계 SQL | read-only SELECT | none |
 
 ## P1.1 keyword collection 정책
 
@@ -97,4 +103,5 @@ add-keyword → search-by-keyword → list-hot-videos
 - ✅ P1.1: 6 routes (`add-keyword`, `search-by-keyword`, `search-channels`, `fetch-channel`, `fetch-channel-videos`, `list-hot-videos`)
 - ✅ P1.2: reference folder groups, score-based curation, capped comment fetch
 - ⏭ standalone snapshot routes: P1.1 search/fetch 경로에 흡수됨
-- 🚧 P1.3+: title/thumbnail/intro analysis
+- ✅ P1.4: title/thumbnail classification (agent reasoning + save routes)
+- 🚧 P1.5: transcript + intro analysis
