@@ -26,8 +26,14 @@
 | `text_density` | `text-density` |
 | `face_treatment` | `face-treatment` (선택) |
 | `felt_emotion` | **`thumbnail-emotion`** (필수) |
-| `reasoning` | 근거 문장 |
+| `alignment_with_title` | **`title-thumbnail-alignment`** (제목 분석이 있을 때 필수) |
+| `alignment_reasoning` | 정합성 1문장 (선택) |
+| `reasoning` | 썸네일 분류 근거 |
 | `free_tags_json` | 색상·구도·보조 감정 등 |
+
+## 제목·썸네일 조합 (§5-6)
+
+같은 `video_id`에 `youtube_title_analyses`가 있으면, 저장 전에 후크·tone·shape vs 시각·`felt_emotion`을 비교해 `alignment_with_title`을 부여한다 (`aligned` / `partial` / `mismatched` / `title-led` / `thumbnail-led`). S5·폴더 교차표 보고는 PRD §7.
 
 ## DB 영향
 
