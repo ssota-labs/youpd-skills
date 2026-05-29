@@ -198,6 +198,18 @@ Test location: `skills/youpd-skills/scripts/__tests__/*.test.ts` (Node built-in 
 
 When adding P1.1+ scripts, add focused tests for: happy path, idempotency, missing env key rejection, and FK/CHECK constraint behavior where relevant.
 
+### Skill evaluation policy
+
+Code-level tests are necessary but not sufficient because **youpd-skills ships as an agent skill**. Substantive route/reference changes must also consider skill-level evals: trigger accuracy, reference selection, tool/script sequence, boundary correctness, and final user reporting.
+
+- Local summary: `docs/testing/skill-evaluation.md`
+- Notion SSOT: [정책 — youpd-skills 스킬 테스트/평가 전략](https://www.notion.so/36f346dac456816084c0cea2d78e8827)
+
+Minimum testing layers:
+1. **Code-level tests** — `pnpm typecheck`, `pnpm test:smoke`, `pnpm test`.
+2. **Route/reference contract checks** — `SKILL.md`, route references, script inputs, stdout contracts, and milestone labels stay aligned.
+3. **Subagent skill evals** — independent clean-context agents execute representative user workflows and are graded on trajectory plus final output.
+
 ---
 
 ## Code Style
