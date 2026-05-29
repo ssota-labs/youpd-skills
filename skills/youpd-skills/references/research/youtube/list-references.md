@@ -1,23 +1,29 @@
 # Route: `research/youtube/list-references`
 
-> **상태**: 🚧 P1.3 — 스크립트 stub.
+> **상태**: ✅ P1.2
 
-마킹된 레퍼런스를 조건으로 조회. 키워드/검색세션/기간 등 필터 + 정렬.
+Folder group 또는 child folder에 큐레이션된 레퍼런스를 조회한다. score 정렬은 `youtube_video_scores` JOIN으로 수행한다.
 
-## 계획된 입력
+## 실행
 
-| 인수 | 형태 | 설명 |
-|---|---|---|
-| `--keyword-id` | uuid | (선택) 이 키워드 검색에서 발굴된 레퍼런스만 |
-| `--search-session-id` | uuid | (선택) 특정 검색 세션 |
-| `--marked-after` | ISO 8601 | (선택) |
-| `--limit` | number | 기본 50 |
-| `--order` | enum | `marked_desc` / `view_desc` / `subscriber_ratio_desc` |
+```bash
+pnpm tsx skills/youpd-skills/scripts/research/youtube/list-references.ts --folder-group-id <uuid>
+```
+
+## 입력
+
+| 인수 | 형태 | 기본 | 설명 |
+|---|---|---|---|
+| `--folder-id` | uuid | — | 특정 child folder |
+| `--folder-group-id` | uuid | — | folder group 전체 |
+| `--stage` | enum | — | 단계 필터 |
+| `--limit`, `-l` | number | `50` | 반환 수 |
+| `--order` | enum | `score` | `score` / `added_at` / `published_at` |
+| `--db`, `-d` | path | — | DB override |
+
+`--folder-id` 또는 `--folder-group-id` 중 하나는 필요하다.
 
 ## DB 영향
 
-- read only: `youtube_references` JOIN `youtube_videos` JOIN `youtube_channels`
-
-## 외부 의존
-
-없음.
+- read: `reference_folder_videos`, `reference_folders`, `reference_folder_groups`, `youtube_videos`, `youtube_channels`, `youtube_video_scores`
+- 외부 API 없음

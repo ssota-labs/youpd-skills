@@ -36,6 +36,15 @@ export type ScoreGrade = 'Worst' | 'Bad' | 'Normal' | 'Good' | 'Great' | 'Unknow
 
 export const SCORE_POLICY_VERSION = 'youpd-score-v1.1-p1.1' as const;
 
+export type ConsumerStage =
+  | 'phenomenon'
+  | 'desire'
+  | 'plan'
+  | 'action'
+  | 'reward'
+  | 'mixed'
+  | 'unspecified';
+
 export type SearchSessionRoute =
   | 'search-by-keyword'
   | 'search-channels'
@@ -211,4 +220,128 @@ export type ListHotVideosResult = {
   regionCode: string;
   minGrade: ScoreGrade;
   videos: HotVideoItem[];
+};
+
+export const ConsumerStageSchema = z.enum([
+  'phenomenon',
+  'desire',
+  'plan',
+  'action',
+  'reward',
+  'mixed',
+  'unspecified',
+]);
+
+export const CreateReferenceFolderInputSchema = z.object({
+  groupName: z.string().min(1),
+  folders: z.array(z.string().min(1)).default([]),
+  audience: z.string().optional(),
+  seedTheme: z.string().optional(),
+  intentSummary: z.string().optional(),
+  description: z.string().optional(),
+  defaultStageFolders: z.boolean().default(false),
+});
+
+export const RecordDiscoveryRunInputSchema = z.object({
+  folderGroupId: z.string().uuid().optional(),
+  requestText: z.string().optional(),
+  audience: z.string().optional(),
+  seedTheme: z.string().optional(),
+  stages: z.array(ConsumerStageSchema).default([]),
+  keywordProbeSummary: z.string().optional(),
+  searchSessionIds: z.array(z.string().uuid()).default([]),
+  complete: z.boolean().default(false),
+});
+
+export const CurateReferencesInputSchema = z.object({
+  folderId: z.string().uuid(),
+  searchSessionId: z.string().uuid().optional(),
+  hotDate: z.string().optional(),
+  region: z.string().min(2).max(2).default('KR'),
+  videoIds: z.array(z.string().min(1)).default([]),
+  stage: ConsumerStageSchema.default('unspecified'),
+  discoveryRunId: z.string().uuid().optional(),
+  minGrade: z.enum(['Worst', 'Bad', 'Normal', 'Good', 'Great']).default('Good'),
+  limit: z.number().int().positive().default(10),
+  reason: z.string().optional(),
+});
+
+export const ListReferencesInputSchema = z.object({
+  folderId: z.string().uuid().optional(),
+  folderGroupId: z.string().uuid().optional(),
+  stage: ConsumerStageSchema.optional(),
+  limit: z.number().int().positive().default(50),
+  order: z.enum(['score', 'added_at', 'published_at']).default('score'),
+});
+
+export const RemoveReferenceInputSchema = z.object({
+  folderId: z.string().uuid(),
+  videoIds: z.array(z.string().min(1)).min(1),
+});
+
+export const FetchCommentsInputSchema = z.object({
+  videoIds: z.array(z.string().min(1)).default([]),
+  folderId: z.string().uuid().optional(),
+  discoveryRunId: z.string().uuid().optional(),
+  maxCommentsPerVideo: z.number().int().positive().max(50).default(20),
+  order: z.enum(['relevance', 'time']).default('relevance'),
+});
+
+export type CreateReferenceFolderResult = {
+  folderGroupId: string;
+  folderIds: string[];
+  createdGroup: boolean;
+  createdFolderCount: number;
+};
+
+export type RecordDiscoveryRunResult = {
+  discoveryRunId: string;
+  folderGroupId: string | null;
+  selectedStages: ConsumerStage[];
+  searchSessionIds: string[];
+};
+
+export type CurateReferencesResult = {
+  folderId: string;
+  addedCount: number;
+  skippedExistingCount: number;
+  videoIds: string[];
+};
+
+export type ReferenceVideoItem = {
+  folderId: string;
+  folderName: string;
+  folderGroupId: string;
+  folderGroupName: string;
+  consumerStage: ConsumerStage;
+  videoId: string;
+  title: string;
+  channelTitle: string;
+  publishedAt: string | null;
+  performanceGrade: ScoreGrade | null;
+  contributionGrade: ScoreGrade | null;
+  lengthAdjustedScore: number | null;
+  addedAt: string;
+  reason: string | null;
+};
+
+export type ListReferencesResult = {
+  videos: ReferenceVideoItem[];
+};
+
+export type RemoveReferenceResult = {
+  folderId: string;
+  removedCount: number;
+  videoIds: string[];
+};
+
+export type FetchCommentsResult = {
+  fetchedVideoCount: number;
+  insertedCommentCount: number;
+  skippedExistingCount: number;
+  fetchSessionIds: string[];
+  languagePrompts: Array<{
+    videoId: string;
+    commentText: string;
+  }>;
 };

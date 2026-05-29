@@ -103,6 +103,23 @@ export interface YoutubePlaylistItem {
   };
 }
 
+export interface YoutubeCommentThreadItem {
+  id: string;
+  snippet?: {
+    topLevelComment?: {
+      id?: string;
+      snippet?: {
+        authorDisplayName?: string;
+        textOriginal?: string;
+        textDisplay?: string;
+        likeCount?: number;
+        publishedAt?: string;
+        updatedAt?: string;
+      };
+    };
+  };
+}
+
 export async function youtubeApiRequest<T>(
   db: Db,
   apiKey: ApiKeyContext,
