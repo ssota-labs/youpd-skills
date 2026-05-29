@@ -19,6 +19,8 @@ export const DEFAULT_MIGRATIONS_DIR = resolve(
 export interface RunMigrationsOptions {
   /** Override the migrations directory (mostly for tests). */
   migrationsDir?: string;
+  /** If set, do not apply migration files lexicographically after this filename. */
+  untilInclusive?: string;
 }
 
 export interface RunMigrationsResult {
@@ -108,6 +110,7 @@ export function runMigrations(
 
   for (const filename of discovered) {
     if (filename === BOOTSTRAP_FILENAME) continue;
+    if (options.untilInclusive != null && filename > options.untilInclusive) continue;
     if (applied.has(filename)) continue;
 
     const sql = readFileSync(join(migrationsDir, filename), 'utf8');
