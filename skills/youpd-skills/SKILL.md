@@ -49,6 +49,7 @@ description: YouTube/Threads/TikTok/Instagram/카드뉴스 콘텐츠 기획·제
 | 큐레이션된 레퍼런스 조회·필터 | `references/research/youtube/list-references.md` | ✅ P1.2 |
 | 폴더에서 레퍼런스 제거 | `references/research/youtube/remove-reference.md` | ✅ P1.2 |
 | 레퍼런스 영상 댓글 수집 | `references/research/youtube/fetch-comments.md` | ✅ P1.2 |
+| 워크스페이스 DB 로컬 뷰어 (읽기 전용) | `references/research/youtube/view-workspace.md` | ✅ P1.3 |
 | 제목 LLM 분석 · 축 매핑 | `references/research/youtube/analyze-title.md` | 🚧 P1.4 |
 | 썸네일 LLM 분석 · 축 매핑 | `references/research/youtube/analyze-thumbnail.md` | 🚧 P1.4 |
 | 자막/스크립트 추출 | `references/research/youtube/fetch-transcript.md` | 🚧 P1.5 |
@@ -79,4 +80,4 @@ pnpm tsx skills/youpd-skills/scripts/<domain>/<action>.ts [args...]
 - `references/workspace/init.md` — 워크스페이스 생성·마이그레이션 적용 (P1.0)
 - `references/research/youtube/INDEX.md` — YouTube 도메인 라우트 묶음 + 권장 호출 순서 (Phase 1)
 
-> **Phase 1 진행 상태**: P1.0 (workspace/init) 완료. P1.1 YouTube 6 routes 구현 완료. P1.2 성과 기반 레퍼런스 큐레이션 구현 완료. P1.3+ 는 reference 계약만 존재.
+> **Phase 1 진행 상태**: P1.0 (workspace/init) 완료. P1.1 YouTube 6 routes 구현 완료. P1.2 성과 기반 레퍼런스 큐레이션 구현 완료. P1.3 로컬 워크스페이스 뷰어 구현 완료. P1.4+ 는 reference 계약만 존재.
