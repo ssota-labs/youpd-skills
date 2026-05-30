@@ -10,25 +10,17 @@
 
 ## 유저 온보딩 (터미널 없음)
 
-**유저는 터미널을 쓰지 않는다.** 아래 **명령어를 Cursor 채팅에 붙여 넣고**, 에이전트에게 실행하라고 하면 된다.
-
-**1) 설치 — Agent 채팅에 붙여 넣기:**
+**유저는 터미널을 쓰지 않는다.** 아래 블록을 **Cursor Agent 채팅에 붙여 넣으면** 된다.
 
 ```text
-아래 명령 알아서 실행해줘.
-
+아래 명령어로 설치해주고,
 npx skills add ssota-labs/youpd-skills --skill youpd-skills \
   -a cursor -a claude-code -a codex \
   -g -y
+끝나면 스킬 읽어서 온보딩 진행해줘.
 ```
 
-**2) 온보딩 — 설치가 끝난 뒤:**
-
-```text
-youpd 온보딩해줘.
-```
-
-에이전트는 `references/setup/onboarding.md` 절차(채널 폴더 → DB → API 키 HTML → 시청자 논의)를 따른다.  
+에이전트: 명령 Shell 실행 → `references/setup/onboarding.md` (채널 폴더 → DB → API 키 HTML → 시청자 논의).  
 [docs/installation.md](docs/installation.md)
 
 [![skills.sh](https://skills.sh/b/ssota-labs/youpd-skills)](https://skills.sh/ssota-labs/youpd-skills) · [skills.sh 안내](docs/skills-sh.md)

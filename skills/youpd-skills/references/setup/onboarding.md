@@ -34,7 +34,9 @@ youpd 온보딩해줘.
 
 ## Phase 0 — 툴킷 설치 (에이전트가 Shell)
 
-이미 `SKILL_ROOT`에 `scripts/setup/bootstrap.ts` 가 있으면 **스킵**.
+유저가 채팅으로 **명령 실행을 요청**했을 때만 수행. 이미 `SKILL_ROOT`에 `scripts/setup/bootstrap.ts` 가 있으면 **스킵**.
+
+유저 메시지에 포함된 명령(또는 동일):
 
 ```bash
 npx skills add ssota-labs/youpd-skills --skill youpd-skills \
@@ -43,7 +45,7 @@ npx skills add ssota-labs/youpd-skills --skill youpd-skills \
 ```
 
 - stdout/stderr에서 **설치 경로**를 확인해 둔다 (예: `~/.agents/skills/youpd-skills`).
-- 유저에게: 「설치됐어요. 이제 채널에 대해 몇 가지만 물어볼게요.」
+- 설치가 끝나면 **즉시** 본 온보딩(Phase 1~)을 이어간다. 별도 「온보딩해줘」 요청을 기다리지 않는다.
 
 상세: `references/setup/install-skills.md`
 

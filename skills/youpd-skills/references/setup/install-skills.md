@@ -23,9 +23,8 @@ Cursor 등에서는 often `~/.agents/skills/youpd-skills` — **실행 로그로
 
 ## 유저에게 (README 문구)
 
-「터미널에 입력하세요」가 아니라, **아래 명령을 채팅에 붙여 넣고 `알아서 실행해줘` 라고 하세요.**
-
-온보딩은 설치 후 `youpd 온보딩해줘` → `onboarding.md`.
+채팅에 설치 명령 + `끝나면 스킬 읽어서 온보딩 진행해줘` 한 블록을 붙여 넣게 안내한다.  
+상세: `references/setup/onboarding.md`
 
 ## 최소 (플래그 없음 · 대화형, 에이전트용)
 
