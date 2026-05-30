@@ -1,6 +1,6 @@
 # Route: `research/youtube/snapshot-channel`
 
-> **상태**: 🚧 P1.2 — 스크립트 stub.
+> **상태**: 미지원 — 단독 스냅샷 라우트는 제공하지 않는다. `fetch-channel` 수집 경로에 통합됨.
 
 지정 채널의 현 시점 수치(구독자/총조회수/영상수)를 `youtube_channel_snapshots` 에 1행 INSERT. 같은 (snapshot_date, channel_id) 가 이미 있으면 update.
 

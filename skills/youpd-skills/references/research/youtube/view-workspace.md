@@ -1,6 +1,6 @@
 # Route: `research/youtube/view-workspace`
 
-> **상태**: ✅ P1.3 — 로컬 읽기 전용 워크스페이스 뷰어 (정적 HTML + 선택적 localhost 서버)
+> **상태**: 사용 가능 — 로컬 읽기 전용 워크스페이스 뷰어 (정적 HTML + 선택적 localhost 서버)
 
 수집·큐레이션 결과를 코드/SQL 없이 브라우저에서 본다. DB는 **읽기 전용**으로 열며, BYOK·외부 API 호출은 없다.
 
@@ -64,7 +64,7 @@ pnpm tsx skills/youpd-skills/scripts/research/youtube/view.ts --mode serve --por
 ## 사전 조건
 
 1. `./.youpd/workspace.db` 존재 (`workspace/init` 완료).
-2. P1.1·P1.2 데이터가 있으면 뷰 내용이 풍부해진다 (없어도 빈 상태로 렌더).
+2. 수집·레퍼런스 데이터가 있으면 뷰 내용이 풍부해진다 (없어도 빈 상태로 렌더).
 
 ## 에러 코드
 
@@ -74,7 +74,7 @@ pnpm tsx skills/youpd-skills/scripts/research/youtube/view.ts --mode serve --por
 | `validation_error` | 잘못된 `--mode` / `--port` |
 | `db_error` | SQLite 읽기 실패 |
 
-## Out of scope (P1.3)
+## 이 라우트에서 하지 않는 것
 
 - DB 편집·레퍼런스 추가/삭제
 - 인증·공유·호스티드 대시보드

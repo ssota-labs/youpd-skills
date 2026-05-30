@@ -1,6 +1,6 @@
 # Route: `research/youtube/fetch-trending`
 
-> **상태**: 🚧 P1.1 — 스크립트 stub.
+> **상태**: 미지원 — 트렌딩(mostPopular) 수집은 제공하지 않는다. 인기/핫 영상은 `list-hot-videos` 를 사용한다.
 
 `videos.list?chart=mostPopular` 로 일별 트렌딩 결과를 받아 `youtube_trending` 에 일별 스냅샷 형태로 적재. 자동 트리거는 없음 — 사용자 명시 호출만 허용.
 

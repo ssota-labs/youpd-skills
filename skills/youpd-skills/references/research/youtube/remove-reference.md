@@ -1,6 +1,6 @@
 # Route: `research/youtube/remove-reference`
 
-> **상태**: ✅ P1.2
+> **상태**: 사용 가능
 
 Child folder에서 레퍼런스 영상을 제거한다. 영상 master, snapshots, scores, comments는 보존한다.
 

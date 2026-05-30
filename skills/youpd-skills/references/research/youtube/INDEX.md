@@ -1,41 +1,41 @@
-# YouTube 리서치 라우트 인덱스 (Phase 1)
+# YouTube 리서치 라우트 인덱스
 
-> Phase 1 YouTube 도메인 라우트를 한눈에 본다. 사용자 의도 → 라우트 매핑 + 권장 호출 순서.
+> YouTube 도메인 라우트를 한눈에 본다. 사용자 의도 → 라우트 매핑 + 권장 호출 순서.
 > 개별 라우트 상세는 같은 폴더의 `<route>.md` 파일을 추가 Read 로 진입한다.
 
-## Phase 1 의미 흐름
+## 워크플로 흐름
 
 ```
-add-keyword                    [P1.1]  키워드 마스터 등록 (date-only 수집 전제)
+add-keyword                    키워드 마스터 등록 (date-only 수집 전제)
        │
        ▼
-search-by-keyword              [P1.1]  order=date 고정, 최초 500개 → 이후 publishedAfter 증분
+search-by-keyword              order=date 고정, 최초 500개 → 이후 publishedAfter 증분
        │
-       ├─ list-hot-videos       [P1.1]  DB score 기반 Good+ 인기 영상 (API 정렬 없음)
-       │
-       ▼
-search-channels                [P1.1]  search.list?type=channel
-fetch-channel                  [P1.1]  channels.list 단건/배치
-fetch-channel-videos           [P1.1]  playlistItems + videos.list 일괄
+       ├─ list-hot-videos       DB score 기반 Good+ 인기 영상 (API 정렬 없음)
        │
        ▼
-discover-references            [P1.2]  agent procedure: keyword probe → P1.1 routes → score curation
+search-channels                search.list?type=channel
+fetch-channel                  channels.list 단건/배치
+fetch-channel-videos           playlistItems + videos.list 일괄
        │
        ▼
-create-reference-folder / curate-references / list-references / fetch-comments [P1.2]
+discover-references            에이전트 절차: keyword probe → 수집 라우트 → score curation
        │
        ▼
-view-workspace                     [P1.3]  로컬 읽기 전용 HTML 뷰어
+create-reference-folder / curate-references / list-references / fetch-comments
        │
        ▼
-analyze-title / analyze-thumbnail   [P1.4]
+view-workspace                 로컬 읽기 전용 HTML 뷰어
        │
        ▼
-fetch-transcript / analyze-intro    [P1.5]
+analyze-title / analyze-thumbnail   (준비 중)
+       │
+       ▼
+fetch-transcript / analyze-intro    (준비 중)
 ```
 
 > **인기 영상 의도**: YouTube `search.list order=viewCount` 를 쓰지 않는다. `list-hot-videos` 로 라우팅한다.
-> **트렌딩 의도**: `fetch-trending` 은 P1.1 out-of-scope. 인기/핫 영상은 `list-hot-videos`.
+> **트렌딩 의도**: `fetch-trending` 은 미지원. 인기/핫 영상은 `list-hot-videos`.
 
 ## 라우트 매핑
 
@@ -47,8 +47,8 @@ fetch-transcript / analyze-intro    [P1.5]
 | `search-channels.md` | "트래블블로그 관련 채널 찾아줘" | channels + snapshots | YouTube Data API |
 | `fetch-channel.md` | "이 채널 정보 가져와줘" | channels + snapshots | YouTube Data API |
 | `fetch-channel-videos.md` | "이 채널 영상 100개 가져와줘" | channels + videos + snapshots + scores | YouTube Data API |
-| `fetch-trending.md` | "오늘 트렌딩 가져와줘" | — | **P1.1 미구현** |
-| `discover-references.md` | "30대 직장인 AI 생산성 레퍼런스 찾아줘" | agent procedure + P1.1 routes + P1.2 curation | route 조합 |
+| `fetch-trending.md` | "오늘 트렌딩 가져와줘" | — | **미지원** |
+| `discover-references.md` | "30대 직장인 AI 생산성 레퍼런스 찾아줘" | 수집·큐레이션 라우트 조합 | route 조합 |
 | `create-reference-folder.md` | "AI 생산성 레퍼런스 폴더 만들어줘" | reference_folder_groups + reference_folders | none |
 | `record-discovery-run.md` | "이번 탐색 이력 기록해줘" | reference_discovery_runs | none |
 | `curate-references.md` | "이 검색 결과에서 성과 좋은 영상 넣어줘" | reference_folder_videos + scores | none |
@@ -57,7 +57,7 @@ fetch-transcript / analyze-intro    [P1.5]
 | `fetch-comments.md` | "성과 좋은 영상 댓글도 보고 고객 언어 뽑아줘" | youtube_comments + comment fetch sessions | YouTube Data API |
 | `view-workspace.md` | "워크스페이스 DB 브라우저로 보여줘" | read-only 전 테이블 스냅샷 | none (local HTML) |
 
-## P1.1 keyword collection 정책
+## 키워드 수집 정책
 
 - `search-by-keyword` 는 **date-only incremental collector** 다. `order=date` 고정.
 - 최초 수집: 기본 **500개** (10 page × 50).
@@ -91,16 +91,13 @@ interface RouteError {
 ```
 add-keyword → search-by-keyword → list-hot-videos
   (필요 시) search-channels / fetch-channel / fetch-channel-videos
-  (P1.2) create-reference-folder → record-discovery-run → curate-references → fetch-comments → list-references
-  (P1.3) view-workspace
-  (P1.4+) analyze-*
+  create-reference-folder → record-discovery-run → curate-references → fetch-comments → list-references
+  view-workspace
+  (준비 중) analyze-title / analyze-thumbnail / fetch-transcript / analyze-intro
 ```
 
-## 구현 상태
+## 제공 상태
 
-- ✅ P1.0: workspace bootstrap
-- ✅ P1.1: 6 routes (`add-keyword`, `search-by-keyword`, `search-channels`, `fetch-channel`, `fetch-channel-videos`, `list-hot-videos`)
-- ✅ P1.2: reference folder groups, score-based curation, capped comment fetch
-- ✅ P1.3: local read-only workspace viewer (`view.ts` static HTML + optional serve)
-- ⏭ standalone snapshot routes: P1.1 search/fetch 경로에 흡수됨
-- 🚧 P1.4+: title/thumbnail analysis; P1.5 intro analysis
+- **사용 가능**: 워크스페이스 초기화; 키워드·채널·영상 수집 6종; 레퍼런스 폴더·큐레이션·댓글; 로컬 워크스페이스 뷰어
+- **미지원**: `fetch-trending` (인기 영상은 `list-hot-videos`); 단독 snapshot 라우트(수집 경로에 통합됨)
+- **준비 중**: 제목·썸네일 분석; 자막 추출; 도입부 분석
