@@ -8,23 +8,22 @@
 - **결과 적재**: 사용자 작업 디렉터리 하위 `./.youpd/workspace.db` (SQLite 단일 파일, SSOT)
 - **배포 모델**: [skills.sh](https://skills.sh) / `npx skills add` + Claude Code Plugin + Cursor
 
-## 유저 설치 (skills.sh)
+## 유저 온보딩 (터미널 없음)
 
-**별도 등록 폼 없음** — 공개 GitHub + `npx skills add` 설치 통계로 [skills.sh](https://skills.sh)에 노출됩니다. 자세히: [docs/skills-sh.md](docs/skills-sh.md)
+**유저는 터미널을 쓰지 않는다.** 설치·설정 명령은 **Cursor Agent가 실행**하고, 유저는 채팅 + 브라우저(YouTube API 키)만 쓴다.
 
-```bash
-npx skills add ssota-labs/youpd-skills --skill youpd-skills \
-  -a cursor -a claude-code -a codex \
-  -g -y
+**Cursor Agent에 붙여 넣기:**
+
+```text
+youpd-skills 설치하고 온보딩해줘.
 ```
 
-대화형 최소 설치: `npx skills add ssota-labs/youpd-skills` (CLI가 스킬·에이전트·scope 질문).  
-`-g` = 툴킷 글로벌 · `-y` = 프롬프트 생략 · **DB** = 채널 폴더 `./.youpd/workspace.db` 만.
+에이전트가 `npx skills add` 부터 채널 폴더·DB·API 키(HTML)·시청자 논의까지 진행한다.  
+절차: `skills/youpd-skills/references/setup/onboarding.md` · [docs/installation.md](docs/installation.md)
 
-채널 폴더를 Cursor로 연 뒤「youpd 초기 설정해줘」→ bootstrap → env HTML(YouTube 키) → workspace/init.  
-[docs/installation.md](docs/installation.md)
+이미 설치됐으면: `youpd 온보딩해줘.`
 
-[![skills.sh](https://skills.sh/b/ssota-labs/youpd-skills)](https://skills.sh/ssota-labs/youpd-skills)
+[![skills.sh](https://skills.sh/b/ssota-labs/youpd-skills)](https://skills.sh/ssota-labs/youpd-skills) · [skills.sh 안내](docs/skills-sh.md)
 
 ## 빠른 시작 (기여자 · full clone)
 

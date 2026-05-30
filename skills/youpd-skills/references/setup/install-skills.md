@@ -1,6 +1,7 @@
 # Setup: `npx skills add` (툴킷 설치, 최초 1회)
 
-> 개발 레포 **clone 하지 않음**. `skills/youpd-skills` 스킬 폴더만 에이전트에 설치한다.
+> 개발 레포 **clone 하지 않음**. `skills/youpd-skills` 스킬 폴더만 설치한다.
+> **유저는 터미널을 쓰지 않는다** — 아래 명령은 **에이전트가 Shell로 실행**한다 (`references/setup/onboarding.md` Phase 0).
 
 ## 권장 (글로벌 · Cursor + Claude Code + Codex · 비대화형)
 
@@ -17,9 +18,15 @@ npx skills add ssota-labs/youpd-skills --skill youpd-skills \
 | `-g` | **글로벌** — 툴킷 한 벌, 채널마다 복사 안 함 |
 | `-y` | 확인 프롬프트 생략 (에이전트·CI) |
 
-설치 경로 = **SKILL_ROOT** (`bootstrap`·스크립트 실행 기준).
+설치 경로 = **SKILL_ROOT** (`bootstrap`·스크립트 실행 기준).  
+Cursor 등에서는 often `~/.agents/skills/youpd-skills` — **실행 로그로 확인**.
 
-## 최소 (플래그 없음 · 대화형)
+## 유저에게
+
+「터미널에 이 명령을 입력하세요」라고 **하지 않는다**.  
+온보딩 전체는 `onboarding.md` 를 따른다.
+
+## 최소 (플래그 없음 · 대화형, 에이전트용)
 
 ```bash
 npx skills add ssota-labs/youpd-skills
@@ -46,7 +53,4 @@ npx skills add ssota-labs/youpd-skills --list
 
 ## 다음
 
-1. 채널 폴더 생성 → Cursor에서 그 폴더만 연다
-2. `references/setup/channel-project.md`
-3. `references/setup/bootstrap.md`
-4. `references/workspace/init.md`
+`references/setup/onboarding.md` Phase 1 이후 (채널 대화 → 폴더 → …).
