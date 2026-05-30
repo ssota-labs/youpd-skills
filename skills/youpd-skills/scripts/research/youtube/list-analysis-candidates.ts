@@ -9,8 +9,8 @@ import type { ListAnalysisCandidatesResult } from '../../lib/types/analysis.ts';
 const ROUTE = 'list-analysis-candidates';
 
 function parseKind(raw: string | undefined): AnalysisKind {
-  if (raw === 'title' || raw === 'thumbnail') return raw;
-  throw new Error('--kind 는 title 또는 thumbnail 이어야 합니다.');
+  if (raw === 'title' || raw === 'thumbnail' || raw === 'intro') return raw;
+  throw new Error('--kind 는 title, thumbnail, intro 중 하나여야 합니다.');
 }
 
 function parseCli(argv: string[]) {

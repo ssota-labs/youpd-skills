@@ -11,6 +11,7 @@ import {
   validateAxisValue,
   validateAxisValues,
 } from './glossary.ts';
+import { hasTranscript } from '../transcript/persist.ts';
 
 export interface SaveTitleAnalysisInput {
   videoId: string;
@@ -50,7 +51,7 @@ export interface SaveThumbnailAnalysisResult {
   hasTitleAnalysis: boolean;
 }
 
-export type AnalysisKind = 'title' | 'thumbnail';
+export type AnalysisKind = 'title' | 'thumbnail' | 'intro';
 
 export interface AnalysisCandidate {
   videoId: string;
@@ -59,6 +60,28 @@ export interface AnalysisCandidate {
   folderIds: string[];
   hasTitleAnalysis: boolean;
   hasThumbnailAnalysis: boolean;
+  hasIntroAnalysis: boolean;
+  hasTranscript: boolean;
+}
+
+export interface SaveIntroAnalysisInput {
+  videoId: string;
+  windowSec: number;
+  introHookPrimary: string;
+  introHookSecondary?: string | undefined;
+  introStructure: string;
+  pacingSignal: string;
+  rewardBurdenBalance: string;
+  reasoning: string;
+  freeTags: string[];
+  reanalyze?: boolean | undefined;
+}
+
+export interface SaveIntroAnalysisResult {
+  videoId: string;
+  analysisId: string;
+  reanalyzed: boolean;
+  hasTranscript: boolean;
 }
 
 export function saveTitleAnalysis(db: Db, input: SaveTitleAnalysisInput): SaveTitleAnalysisResult {
@@ -178,6 +201,74 @@ export function saveThumbnailAnalysis(
   };
 }
 
+export function saveIntroAnalysis(db: Db, input: SaveIntroAnalysisInput): SaveIntroAnalysisResult {
+  assertGlossarySeeded(db);
+  assertVideoExists(db, input.videoId);
+
+  if (!hasTranscript(db, input.videoId)) {
+    fail('validation_error', '자막이 없습니다. fetch-transcript 를 먼저 실행하세요.', {
+      videoId: input.videoId,
+    });
+  }
+
+  if (input.windowSec < 1) {
+    fail('validation_error', 'window_sec 은 1 이상이어야 합니다.', { windowSec: input.windowSec });
+  }
+
+  validateAxisValue(db, 'hook-type', input.introHookPrimary);
+  if (input.introHookSecondary != null && input.introHookSecondary.length > 0) {
+    validateAxisValue(db, 'hook-type', input.introHookSecondary);
+  }
+  validateAxisValue(db, 'intro-structure', input.introStructure);
+  validateAxisValue(db, 'pacing-signal', input.pacingSignal);
+  validateAxisValue(db, 'reward-burden-balance', input.rewardBurdenBalance);
+
+  const existing = db
+    .prepare(`SELECT id FROM youtube_intro_analyses WHERE video_id = ?`)
+    .get(input.videoId) as { id: string } | undefined;
+
+  if (existing && !input.reanalyze) {
+    fail('validation_error', '이미 도입부 분석이 있습니다. 재분석하려면 reanalyze=true 를 사용하세요.', {
+      videoId: input.videoId,
+    });
+  }
+
+  let reanalyzed = false;
+  if (existing) {
+    db.prepare(`DELETE FROM youtube_intro_analyses WHERE video_id = ?`).run(input.videoId);
+    reanalyzed = true;
+  }
+
+  const id = randomUUID();
+  const analyzedAt = nowIso();
+  db.prepare(
+    `INSERT INTO youtube_intro_analyses
+       (id, video_id, window_sec, intro_hook_primary, intro_hook_secondary, intro_structure,
+        pacing_signal, reward_burden_balance, reasoning, free_tags_json, framework_version, analyzed_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  ).run(
+    id,
+    input.videoId,
+    input.windowSec,
+    input.introHookPrimary,
+    input.introHookSecondary ?? null,
+    input.introStructure,
+    input.pacingSignal,
+    input.rewardBurdenBalance,
+    input.reasoning,
+    JSON.stringify(input.freeTags),
+    CLASSIFICATION_FRAMEWORK_VERSION,
+    analyzedAt,
+  );
+
+  return {
+    videoId: input.videoId,
+    analysisId: id,
+    reanalyzed,
+    hasTranscript: true,
+  };
+}
+
 export interface ListAnalysisCandidatesOptions {
   kind: AnalysisKind;
   folderId?: string | undefined;
@@ -213,8 +304,10 @@ export function listAnalysisCandidates(
   if (!options.includeAnalyzed) {
     if (options.kind === 'title') {
       conditions.push('ta.id IS NULL');
-    } else {
+    } else if (options.kind === 'thumbnail') {
       conditions.push('th.id IS NULL');
+    } else {
+      conditions.push('ia.id IS NULL');
     }
   }
 
@@ -225,12 +318,16 @@ export function listAnalysisCandidates(
       v.thumbnail_url AS thumbnail_url,
       GROUP_CONCAT(DISTINCT rfv.folder_id) AS folder_ids,
       CASE WHEN ta.id IS NOT NULL THEN 1 ELSE 0 END AS has_title_analysis,
-      CASE WHEN th.id IS NOT NULL THEN 1 ELSE 0 END AS has_thumbnail_analysis
+      CASE WHEN th.id IS NOT NULL THEN 1 ELSE 0 END AS has_thumbnail_analysis,
+      CASE WHEN ia.id IS NOT NULL THEN 1 ELSE 0 END AS has_intro_analysis,
+      CASE WHEN tr.video_id IS NOT NULL THEN 1 ELSE 0 END AS has_transcript
     FROM reference_folder_videos rfv
     JOIN reference_folders rf ON rf.id = rfv.folder_id
     JOIN youtube_videos v ON v.video_id = rfv.video_id
     LEFT JOIN youtube_title_analyses ta ON ta.video_id = rfv.video_id
     LEFT JOIN youtube_thumbnail_analyses th ON th.video_id = rfv.video_id
+    LEFT JOIN youtube_intro_analyses ia ON ia.video_id = rfv.video_id
+    LEFT JOIN youtube_video_transcripts tr ON tr.video_id = rfv.video_id
     WHERE ${conditions.join(' AND ')}
     GROUP BY rfv.video_id
     ORDER BY rfv.added_at DESC
@@ -246,6 +343,8 @@ export function listAnalysisCandidates(
     folder_ids: string | null;
     has_title_analysis: number;
     has_thumbnail_analysis: number;
+    has_intro_analysis: number;
+    has_transcript: number;
   }>;
 
   return rows.map((row) => ({
@@ -255,5 +354,7 @@ export function listAnalysisCandidates(
     folderIds: row.folder_ids?.split(',') ?? [],
     hasTitleAnalysis: row.has_title_analysis === 1,
     hasThumbnailAnalysis: row.has_thumbnail_analysis === 1,
+    hasIntroAnalysis: row.has_intro_analysis === 1,
+    hasTranscript: row.has_transcript === 1,
   }));
 }

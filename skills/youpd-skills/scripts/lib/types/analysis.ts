@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
-export type AnalysisKind = 'title' | 'thumbnail';
+export type AnalysisKind = 'title' | 'thumbnail' | 'intro';
 
-export const AnalysisKindSchema = z.enum(['title', 'thumbnail']);
+export const AnalysisKindSchema = z.enum(['title', 'thumbnail', 'intro']);
 
 export type AnalysisCandidateItem = {
   videoId: string;
@@ -11,6 +11,8 @@ export type AnalysisCandidateItem = {
   folderIds: string[];
   hasTitleAnalysis: boolean;
   hasThumbnailAnalysis: boolean;
+  hasIntroAnalysis: boolean;
+  hasTranscript: boolean;
 };
 
 export type ListAnalysisCandidatesResult = {
@@ -30,6 +32,26 @@ export type SaveThumbnailAnalysisResult = {
   reanalyzed: boolean;
   hasTitleAnalysis: boolean;
 };
+
+export type SaveIntroAnalysisResult = {
+  videoId: string;
+  analysisId: string;
+  reanalyzed: boolean;
+  hasTranscript: boolean;
+};
+
+export const SaveIntroAnalysisInputSchema = z.object({
+  videoId: z.string().min(1),
+  windowSec: z.number().int().positive(),
+  introHookPrimary: z.string().min(1),
+  introHookSecondary: z.string().min(1).optional(),
+  introStructure: z.string().min(1),
+  pacingSignal: z.string().min(1),
+  rewardBurdenBalance: z.string().min(1),
+  reasoning: z.string().min(1),
+  freeTags: z.array(z.string().min(1)).default([]),
+  reanalyze: z.boolean().default(false),
+});
 
 export type DbExecResult = {
   rows: Record<string, unknown>[];

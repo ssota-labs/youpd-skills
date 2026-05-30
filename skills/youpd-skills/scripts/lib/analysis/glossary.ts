@@ -4,7 +4,7 @@ import { fail } from '../youtube/common.ts';
 export const CLASSIFICATION_FRAMEWORK_VERSION = 'youpd-classification-framework-v0' as const;
 
 const SEED_MISSING_MESSAGE =
-  '분류 축 seed가 아직 적용 안 됐어요. P1.4 마이그레이션(014_seed_glossary_axes_v0) 적용 후 다시 시도해 주세요.';
+  '분류 축 seed가 아직 적용 안 됐어요. 마이그레이션 014·017 glossary seed 적용 후 다시 시도해 주세요.';
 
 export function assertGlossarySeeded(db: Db): void {
   const row = db
@@ -50,6 +50,13 @@ export function assertVideoExists(db: Db, videoId: string): void {
 export function hasTitleAnalysis(db: Db, videoId: string): boolean {
   const row = db
     .prepare(`SELECT id FROM youtube_title_analyses WHERE video_id = ?`)
+    .get(videoId) as { id: string } | undefined;
+  return row != null;
+}
+
+export function hasIntroAnalysis(db: Db, videoId: string): boolean {
+  const row = db
+    .prepare(`SELECT id FROM youtube_intro_analyses WHERE video_id = ?`)
     .get(videoId) as { id: string } | undefined;
   return row != null;
 }

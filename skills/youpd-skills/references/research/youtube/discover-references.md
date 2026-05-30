@@ -20,7 +20,7 @@
 
 ## 금지
 
-- 이 절차에서 제목/썸네일/후킹 각도 분석을 하지 않는다. 해당 요청은 `analyze-title` / `analyze-thumbnail` / `analyze-intro` 로 넘긴다 (준비 중이면 사용자에게 아직 불가 안내).
+- 이 절차에서 제목/썸네일/도입부 분석을 하지 않는다. 해당 요청은 `analyze-title` / `analyze-thumbnail` / `analyze-intro` 로 넘긴다.
 - SEO 검색량/난이도 기준으로 우선순위를 정하지 않는다.
 - 댓글은 고객 언어 회수까지만 사용한다. 감성/반응 분석은 하지 않는다.
 
