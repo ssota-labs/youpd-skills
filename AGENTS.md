@@ -85,78 +85,52 @@ Design SSOT (Notion, internal): [P1.0 D3](https://www.notion.so/36d346dac45681fa
 
 **Notion is the source of truth for how we build this project.** The repository holds the code; Notion holds the *why* — decisions, specs, policies, guides, and task state. Git history alone loses the reasoning, so durable knowledge about the project must live in Notion where it persists across versions and contributors. (This is separate from the product runtime, whose SSOT is the local `./.youpd/workspace.db`. The shipped plugin still has no Notion dependency.)
 
-### Start every non-trivial task by connecting to Notion
+### Development router (read first)
 
-Before doing meaningful work (planning, design, implementation, spec/policy changes), **request and confirm the Notion MCP connection first.** If the Notion MCP is unavailable, say so explicitly and do not pretend the SSOT was read or updated — surface it as a blocker rather than proceeding blind.
+For **any** development request (work, reconciliation, new version, docs, implementation), start here. Skills are not auto-loaded every turn; this section is the always-on gate and intent router.
 
-The development task database is:
-`https://www.notion.so/paxhumana/55eda245160f43eba0ebe28b71604f89?v=c58d8705594d4e7c8844ab7d98354513`
+#### Step 0 — Notion (mandatory)
 
-### Search before you build — without being asked
+1. Confirm **Notion MCP** is connected. If not, stop — do not plan or code from memory.
+2. Load context from the [development task database](https://www.notion.so/paxhumana/55eda245160f43eba0ebe28b71604f89?v=c58d8705594d4e7c8844ab7d98354513):
+   - User named a task/version → fetch that row.
+   - Otherwise → identify in-progress or next eligible row; confirm in one line before proceeding.
+3. Document database (linked docs): `https://www.notion.so/5ac346dac45682cf98ed815c25b32d38`
 
-Always assume relevant material may already exist. Before creating anything, search Notion for related tasks, ADRs, specs, policies, guides, and prior decisions, then reason about what you found. The goal is to think with the existing context, not to generate duplicates. Update or supersede an existing page when one fits; create a new page only when there is genuinely no suitable home.
+#### Step 1 — Classify intent
 
-This is proactive behavior: do it on your own initiative whenever the work plausibly touches existing knowledge, even if the user did not explicitly ask you to check Notion.
-
-### What to record, and where
-
-Durable docs live in the shared **유PD 프로덕트 팀 문서** database (`https://www.notion.so/5ac346dac45682cf98ed815c25b32d38`). The document *type* is the `태그` (multi-select) property — set the correct tag so the SSOT stays queryable — and each doc is linked back to its task via the task's `관련 문서` relation. The full document system (lifetimes, dependency order, per-type deliverables, naming) is defined in the **`youpd-version-workflow`** skill — read [`.cursor/skills/youpd-version-workflow/references/documentation-workflow.md`](.cursor/skills/youpd-version-workflow/references/documentation-workflow.md) before classifying or writing a document.
-
-| What happened | `태그` to set | Notes |
+| User / scheduler says | Intent | Read skill (Read tool) |
 |---|---|---|
-| A technical/architectural decision was made (driver, schema strategy, trade-off) | `ADR` | Treat as immutable. The docs DB has no status field yet, so express lifecycle in the title/first line: prefix `[ADR-NNNN] <decision>`, and when a later decision replaces it add a `Superseded by [ADR-MMMM]` line instead of editing the original |
-| A current implementation contract changed (DB schema, route/CLI I/O, error codes, env vars) | `스펙` | Living, topic-based (e.g. `youpd-skills 스펙 — DB 스키마`) |
-| A rule now recurs across versions (migration policy, naming, BYOK, error-code conventions) | `정책` | Cumulative |
-| Version intent / user value / scope was defined | `PRD` | Use the **신제품 스펙 문서(PRD)** page template |
-| Version implementation design (data model, API, algorithms for one version) | `설계` | Use the **신기술 스펙 문서** page template |
-| A version shipped | `릴리즈 노트` | Plan vs actual, known issues |
-| Phase-wide route map / domain model / milestone plan | `제품 로드맵` | a.k.a. Blueprint |
-| Reusable how-to / runbook | `가이드` | |
-| Exploratory investigation | `리서치` | |
+| 정합성 체크, reconciliation, drift audit | `reconcile` | `.cursor/skills/youpd-reconciliation/SKILL.md` |
+| 작업 진행, continue task, implement, YPDS-* | `work` | See Step 2 |
+| 새 버전, milestone setup, task template | `bootstrap-version` | `.cursor/skills/youpd-version-bootstrap/SKILL.md` |
 
-After creating or updating any of these, link it to the originating task via that task's `관련 문서` relation so the board and the SSOT stay connected.
+**Reconcile default scope:** entire development task database (all `상태`), repo `main` at current HEAD — unless the user narrowed scope in chat.
 
-Use judgment about what is *durable*: record decisions, contract changes, policies, guides, root-cause/resolution of significant bugs, and test strategy. Skip ephemera like typo fixes, trivial refactors, or one-off command output — logging noise dilutes the SSOT.
+#### Step 2 — `work` branch
 
-### Keep the task board in sync
+Use the loaded task’s `작업 유형` and title:
 
-The development task DB uses `상태` = `대기` / `진행중` / `보류` / `완료` / `취소` and `작업 유형` = `상세 로드맵 작성` / `PRD 작성` / `설계 작성` / `구현` / `검증`. When you pick up a task, move it to `진행중`; if it's waiting on a dependency, set `보류` and note the blocker. Do **not** set `완료` unless the user asked you to update task status — propose the change and let the user confirm. Link any docs you produced via `관련 문서`.
+| Route | Read skill |
+|---|---|
+| PRD 작성, 설계 작성, 상세 로드맵 작성; primary deliverable is Blueprint / Policy / ADR / dedicated Spec | `.cursor/skills/youpd-documentation-workflow/SKILL.md` |
+| 구현, 검증 | `.cursor/skills/youpd-implementation-workflow/SKILL.md` |
 
-### Implementation gate (applies even when the user asks to implement)
+**Small Spec/Policy patches** (single topic, same PR) → implementation skill Close-out, not documentation skill.
 
-A direct user request such as “P1.4 구현해줘” does **not** bypass Notion dependencies or documentation gates. Treat “implement” as **implementation work** and run this checklist **before** editing migrations, scripts, or route references:
+#### `work` → 구현/검증
 
-1. **Locate the milestone task** in the [development task database](https://www.notion.so/paxhumana/55eda245160f43eba0ebe28b71604f89?v=c58d8705594d4e7c8844ab7d98354513) (e.g. `YPDS-P1.4-IMPL`) and read `Blocked by`, `Blocking`, `종속성`, `상태`, and `관련 문서`.
-2. **Verify documentation exists and is linked** — for implementation, the version **PRD** and **D3 (설계)** must exist in **유PD 프로덕트 팀 문서** (or be explicitly accepted in chat after you report a gap). Empty task pages with no `관련 문서` do not count as PRD/D3.
-3. **Verify predecessor milestones** — e.g. P1.4 analysis requires a curated reference pool (P1.2 in the current roadmap numbering); confirm in Notion and in `main` code, not only in stale references.
-4. **If any gate fails** — stop coding, report the blocker using the template below, and propose the next doc task (PRD → D3 → IMPL). Do not open a feature PR for partial implementation “to get started.”
-5. **Explicit override only** — continue implementation without PRD/D3 only if the user, **after** seeing the gap report, explicitly accepts the risk (e.g. “PRD 없이 진행”). Record what was skipped in the PR/commit message.
+Use [Project Overview](#project-overview) (runtime, DB), [Development Workflow](#development-workflow), [Testing Instructions](#testing-instructions), and [Code Style](#code-style) — these stay in AGENTS.md for long sessions. Before editing code, run the gate in `youpd-implementation-workflow` (`references/implementation-gate.md`).
 
-**Blocker response template** (use in chat when stopping):
+### Search before you build
 
-```markdown
-Cannot start implementation yet.
+Search Notion for related tasks, ADRs, specs, and policies before creating duplicates.
 
-Selected candidate: [task ID / milestone]
-Blocked by:
-- [missing or blank PRD / D3 / ADR]
-- [Notion Blocked by relation or incomplete predecessor]
-- [repo vs Notion contract mismatch, if any]
+### Notion docs and task board
 
-Next recommended action:
-- [YPDS-Px.x-PRD / DSGN / ADR task or doc to complete first]
-```
-
-This gate exists because implementation without accepted design loses the “why” and often duplicates or contradicts the repo (e.g. LLM-route stubs vs agent-reasoning PRD). The 2026-05-29 P1.4 attempt is the reference incident: IMPL was requested while `YPDS-P1.4-DSGN` and task-board PRD were still empty.
-
-### Order of operations for a typical change
-
-1. Confirm Notion MCP is connected.
-2. Search Notion + repo for related tasks, ADRs, specs, policies, prior decisions.
-3. Classify the work type via `documentation-workflow.md` and check dependencies (roadmap → PRD → D3 → implementation).
-4. Do the work in the repo.
-5. Record durable outcomes in Notion (ADR / Spec / Policy / Release Notes as applicable) and update the task board.
-6. Report what changed in both the repo and Notion, flagging any status update that needs user confirmation.
+- **Docs DB:** `https://www.notion.so/5ac346dac45682cf98ed815c25b32d38` — types, templates, anti-patterns: load [youpd-documentation-workflow](.cursor/skills/youpd-documentation-workflow/SKILL.md) when writing documents.
+- **Tasks:** `상태` `대기`/`진행중`/`보류`/`완료`/`취소`; `작업 유형` PRD/설계/구현/검증/로드맵. Pick up → `진행중`; blocked → `보류`. Link outputs via `관련 문서`. **Do not** set `완료` unless the user asked — propose only.
+- Record durable outcomes (decisions, contracts, policies); skip typo-only noise.
 
 ---
 
@@ -247,17 +221,9 @@ Test location: `skills/youpd-skills/scripts/__tests__/*.test.ts` (Node built-in 
 
 When adding P1.1+ scripts, add focused tests for: happy path, idempotency, missing env key rejection, and FK/CHECK constraint behavior where relevant.
 
-### Skill evaluation policy
+### Shipped skill evals (product)
 
-Code-level tests are necessary but not sufficient because **youpd-skills ships as an agent skill**. Substantive route/reference changes must also consider skill-level evals: trigger accuracy, reference selection, tool/script sequence, boundary correctness, and final user reporting.
-
-- Local summary: `docs/testing/skill-evaluation.md`
-- Notion SSOT: [정책 — youpd-skills 스킬 테스트/평가 전략](https://www.notion.so/36f346dac456816084c0cea2d78e8827)
-
-Minimum testing layers:
-1. **Code-level tests** — `pnpm typecheck`, `pnpm test:smoke`, `pnpm test`.
-2. **Route/reference contract checks** — `SKILL.md`, route references, script inputs, stdout contracts, and user-facing availability labels (`사용 가능` / `준비 중` / `미지원`) stay aligned.
-3. **Subagent skill evals** — independent clean-context agents execute representative user workflows and are graded on trajectory plus final output.
+When changing `skills/youpd-skills/SKILL.md` or route references, also follow `docs/testing/skill-evaluation.md` (Notion: [스킬 테스트/평가 전략](https://www.notion.so/36f346dac456816084c0cea2d78e8827)). VERF / reconciliation do not replace this.
 
 ---
 
@@ -349,7 +315,10 @@ sqlite3 .youpd/workspace.db "SELECT filename FROM schema_migrations ORDER BY fil
 | `skills/youpd-skills/references/workspace/init.md` | P1.0 route contract |
 | `skills/youpd-skills/references/research/youtube/INDEX.md` | YouTube route index |
 | `skills/youpd-skills/scripts/lib/db/migrate.ts` | Migration runner logic |
-| `.cursor/skills/youpd-version-workflow/references/documentation-workflow.md` | Notion document system (ADR/Spec/Policy/PRD/D3/Release Notes) and dependency order |
+| `.cursor/skills/youpd-documentation-workflow/` | Notion document work (PRD, D3, Blueprint, Policy, ADR, dedicated Spec) |
+| `.cursor/skills/youpd-implementation-workflow/` | 구현/검증 procedure (gate, close-out, small Spec patches) |
+| `.cursor/skills/youpd-reconciliation/` | Full task DB ↔ `main` reconciliation (scheduler-friendly) |
+| `.cursor/skills/youpd-version-bootstrap/` | New version Notion task templates |
 | `README.md` | Human-oriented overview (Korean) |
 
 When in doubt about schema or naming, follow the [Phase 1 Blueprint](https://www.notion.so/36d346dac456813daa20e054198e3a8c) for domain design and the milestone D3 (e.g. [P1.0 D3](https://www.notion.so/36c346dac45681faa27fdfb0b39ef9fe)) for what is implemented in code.
@@ -377,17 +346,6 @@ pnpm tsx skills/youpd-skills/scripts/workspace/init.ts --db /tmp/test.db --label
 ```bash
 pnpm tsx skills/youpd-skills/scripts/workspace/init.ts
 ```
-
-### Key commands
-
-Refer to **Setup Commands** and **Testing Instructions** sections above. Summary:
-
-| Task | Command |
-|---|---|
-| Type check | `pnpm typecheck` |
-| Smoke tests | `pnpm test:smoke` |
-| All tests | `pnpm test` |
-| Workspace init | `pnpm tsx skills/youpd-skills/scripts/workspace/init.ts` |
 
 ### SQLite experimental warning
 
