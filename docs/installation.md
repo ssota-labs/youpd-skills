@@ -2,16 +2,39 @@
 
 개발 레포(`AGENTS.md`, `.cursor/skills`)를 clone하지 않습니다. **스킬 폴더만** 설치합니다.
 
-## 1. 스킬 설치 (skills.sh / npx)
+## 1. 스킬 설치 (skills.sh / npx) — 툴킷만 글로벌
 
 ```bash
-npx skills add ssota-labs/youpd-skills --skill youpd-skills -g -y
+npx skills add ssota-labs/youpd-skills --skill youpd-skills -a cursor -g -y
 ```
 
-- `-g`: 전역(머신 공용). 채널마다 프로젝트 scope로 설치해도 됩니다.
-- 설치 경로는 CLI가 안내합니다 (에이전트가 `SKILL_ROOT`로 사용).
+| 플래그 | 의미 |
+|--------|------|
+| `--skill youpd-skills` | 레포 안에서 **이 스킬 폴더만** 설치 (개발용 `AGENTS.md` 등은 안 옴) |
+| `-a cursor` | Cursor용 경로에 연결 (생략 시 CLI가 에이전트를 물어봄) |
+| `-g` / `--global` | **글로벌** — 툴킷을 머신에 한 벌만 둠. 채널 프로젝트마다 복사하지 않음 |
+| `-y` / `--yes` | **확인 프롬프트 생략** — “어느 에이전트?” “덮어쓸까?” 등 질문 없이 끝까지 진행 (에이전트·CI용) |
 
-skills.sh 노출: [docs/skills-sh.md](./skills-sh.md)
+`-y` 없이 실행하면 대화형으로 에이전트·scope를 고르게 됩니다. 사람이 터미널에서 처음 설치할 때는 `-y` 빼도 됩니다.
+
+설치된 경로 = **`SKILL_ROOT`** (스크립트·`node_modules`·`.env.local`). CLI stdout 또는 Cursor Settings → Skills 에서 확인.
+
+### DB는 어디?
+
+**`-g`와 무관.** SQLite DB는 Cursor로 연 **채널 폴더**에만 생깁니다.
+
+```
+SKILL_ROOT/          ← -g 로 한 번만 (툴킷)
+  scripts/
+  node_modules/
+  .env.local         ← YouTube API 키
+
+~/youpd/my-channel/  ← Cursor 워크스페이스 (채널)
+  .youpd/workspace.db
+  .youpd/project.json
+```
+
+skills.sh: [docs/skills-sh.md](./skills-sh.md)
 
 ## 2. 채널 워크스페이스 (Cursor에서 여는 폴더)
 

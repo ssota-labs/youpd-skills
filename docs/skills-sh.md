@@ -13,15 +13,14 @@
 ## 유저 설치 명령
 
 ```bash
-# 레포에서 youpd-skills 스킬만
-npx skills add ssota-labs/youpd-skills --skill youpd-skills -g -y
+# 권장: Cursor + 글로벌 툴킷 + 비대화형
+npx skills add ssota-labs/youpd-skills --skill youpd-skills -a cursor -g -y
 
 # 설치 가능 목록 확인
 npx skills add ssota-labs/youpd-skills --list
-
-# Cursor만 대상으로
-npx skills add ssota-labs/youpd-skills --skill youpd-skills -a cursor -g -y
 ```
+
+`-g` = 툴킷 공용 · `-y` = yes to all prompts · 워크스페이스 DB는 채널 폴더에만 ([installation.md](./installation.md)).
 
 설치 후 에이전트가 `references/setup/bootstrap.md` 절차로 `pnpm install`·YouTube 키(HTML)를 처리한다. **개발 레포 전체 clone은 필요 없다.**
 
