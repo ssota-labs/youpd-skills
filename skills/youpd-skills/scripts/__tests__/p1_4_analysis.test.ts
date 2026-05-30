@@ -24,7 +24,7 @@ import {
 import { assertGlossarySeeded } from '../lib/analysis/glossary.ts';
 
 const TEST_FILE_DIR = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = resolve(TEST_FILE_DIR, '..', '..', '..', '..');
+const SKILL_ROOT = resolve(TEST_FILE_DIR, '..', '..', '..');
 const SAVE_TITLE = resolve(TEST_FILE_DIR, '..', 'research', 'youtube', 'save-title-analysis.ts');
 const SAVE_THUMBNAIL = resolve(TEST_FILE_DIR, '..', 'research', 'youtube', 'save-thumbnail-analysis.ts');
 const LIST_CANDIDATES = resolve(TEST_FILE_DIR, '..', 'research', 'youtube', 'list-analysis-candidates.ts');
@@ -247,7 +247,7 @@ test('save-title-analysis script rejects unknown hook code', () => {
         '--reasoning',
         'bad',
       ],
-      { cwd: REPO_ROOT, encoding: 'utf8' },
+      { cwd: SKILL_ROOT, encoding: 'utf8' },
     );
 
     const parsed = parseLastJson(`${result.stdout}${result.stderr}`);
@@ -269,7 +269,7 @@ test('db/exec allows SELECT and blocks DROP', () => {
     const select = spawnSync(
       'pnpm',
       ['tsx', DB_EXEC, '--db', ws.dbPath, '--sql', 'SELECT COUNT(*) AS n FROM glossary_axes'],
-      { cwd: REPO_ROOT, encoding: 'utf8' },
+      { cwd: SKILL_ROOT, encoding: 'utf8' },
     );
     assert.equal(select.status, 0);
     const ok = parseLastJson(select.stdout);
@@ -278,7 +278,7 @@ test('db/exec allows SELECT and blocks DROP', () => {
     const drop = spawnSync(
       'pnpm',
       ['tsx', DB_EXEC, '--db', ws.dbPath, '--sql', 'DROP TABLE glossary_axes'],
-      { cwd: REPO_ROOT, encoding: 'utf8' },
+      { cwd: SKILL_ROOT, encoding: 'utf8' },
     );
     const err = parseLastJson(`${drop.stdout}${drop.stderr}`);
     assert.equal(err.ok, false);
@@ -308,7 +308,7 @@ test('list-analysis-candidates script emits ok JSON', () => {
         '--folder-id',
         folderId,
       ],
-      { cwd: REPO_ROOT, encoding: 'utf8' },
+      { cwd: SKILL_ROOT, encoding: 'utf8' },
     );
     assert.equal(result.status, 0);
     const parsed = parseLastJson(result.stdout) as { ok: boolean; result: { candidates: unknown[] } };
@@ -355,7 +355,7 @@ test('save-thumbnail-analysis script persists alignment', () => {
         '--reasoning',
         'thumb ok',
       ],
-      { cwd: REPO_ROOT, encoding: 'utf8' },
+      { cwd: SKILL_ROOT, encoding: 'utf8' },
     );
     assert.equal(result.status, 0);
     const parsed = parseLastJson(result.stdout) as { ok: boolean; result: { hasTitleAnalysis: boolean } };

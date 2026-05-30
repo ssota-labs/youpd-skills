@@ -11,7 +11,7 @@
 
 ## 입력 (CLI args / env)
 
-스크립트: `skills/youpd-skills/scripts/workspace/init.ts`
+스크립트: `scripts/workspace/init.ts` (**SKILL_ROOT** 에서 실행)
 
 | 입력 | 형태 | 설명 | 기본값 |
 |---|---|---|---|
@@ -22,15 +22,14 @@
 호출 예시:
 
 ```bash
-pnpm tsx skills/youpd-skills/scripts/workspace/init.ts
-pnpm tsx skills/youpd-skills/scripts/workspace/init.ts --db /tmp/test.db --label phase1-test
-pnpm init        # package.json scripts 의 단축
+pnpm --dir "<SKILL_ROOT>" exec tsx scripts/setup/bootstrap.ts
+pnpm --dir "<SKILL_ROOT>" exec tsx scripts/workspace/init.ts --db "<channel>/.youpd/workspace.db" --label my-channel
 ```
 
 ## 사전 조건
 
-1. Node 24 (`node --version`) + `pnpm install` 완료. DB 접근은 Node 내장 `node:sqlite` (`DatabaseSync`) 사용 — 네이티브 빌드 불필요.
-2. 입력된 `--db` 경로의 부모 디렉터리에 쓰기 권한이 있어야 한다 (없으면 자동 생성 시도).
+1. **`setup/bootstrap` 성공** — SKILL_ROOT 에 `node_modules`·`YOUTUBE_API_KEY` (`.env.local` 또는 env HTML 표면).
+2. 채널 cwd 기준 `./.youpd/workspace.db` (또는 `--db`). 부모 디렉터리에 쓰기 권한.
 
 위가 충족되지 않으면 스크립트는 즉시 `exit code != 0` + stderr 에 한국어 안내를 출력한다.
 

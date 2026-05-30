@@ -20,7 +20,7 @@ import { createSearchSession, insertKeywordVideoResults, persistVideoBundle, ups
 import { loadWorkspaceViewPayload, renderWorkspaceViewHtml } from '../lib/youtube/workspace-view.ts';
 
 const TEST_FILE_DIR = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = resolve(TEST_FILE_DIR, '..', '..', '..', '..');
+const SKILL_ROOT = resolve(TEST_FILE_DIR, '..', '..', '..');
 const VIEW_SCRIPT = resolve(TEST_FILE_DIR, '..', 'research', 'youtube', 'view.ts');
 
 let nextServePort = 43848;
@@ -134,7 +134,7 @@ async function startServe(dbPath: string): Promise<{ url: string; child: ReturnT
   const child = spawn(
     'pnpm',
     ['tsx', VIEW_SCRIPT, '--mode', 'serve', '--db', dbPath, '--port', String(port)],
-    { cwd: REPO_ROOT, stdio: ['ignore', 'pipe', 'pipe'] },
+    { cwd: SKILL_ROOT, stdio: ['ignore', 'pipe', 'pipe'] },
   );
 
   let stdout = '';
@@ -224,7 +224,7 @@ test('P1.4.5 VERF: view-workspace static stdout counts and serve payload', async
     const staticRun = spawnSync(
       'pnpm',
       ['tsx', VIEW_SCRIPT, '--mode', 'static', '--db', ws.dbPath, '--output', htmlPath],
-      { cwd: REPO_ROOT, encoding: 'utf8' },
+      { cwd: SKILL_ROOT, encoding: 'utf8' },
     );
     assert.equal(staticRun.status, 0, staticRun.stderr);
     const parsed = parseLastJson(staticRun.stdout);

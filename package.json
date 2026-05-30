@@ -18,11 +18,12 @@
   },
   "packageManager": "pnpm@10.33.2",
   "scripts": {
-    "init": "tsx skills/youpd-skills/scripts/workspace/init.ts",
-    "test": "node --test --experimental-test-coverage --import tsx/esm skills/youpd-skills/scripts/__tests__/*.test.ts",
-    "test:e2e": "YOUPD_E2E=1 node --test --import tsx/esm skills/youpd-skills/scripts/__tests__/p1_1_e2e.test.ts",
-    "test:smoke": "node --test --import tsx/esm skills/youpd-skills/scripts/__tests__/smoke.test.ts",
-    "typecheck": "tsc --noEmit",
+    "bootstrap": "pnpm -C skills/youpd-skills bootstrap",
+    "init": "pnpm -C skills/youpd-skills init",
+    "test": "pnpm -C skills/youpd-skills test",
+    "test:e2e": "pnpm -C skills/youpd-skills test:e2e",
+    "test:smoke": "pnpm -C skills/youpd-skills test:smoke",
+    "typecheck": "pnpm -C skills/youpd-skills typecheck",
     "worktree:env": "bash scripts/link-env-from-main.sh",
     "worktree:add": "bash scripts/worktree-add.sh"
   },

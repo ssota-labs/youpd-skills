@@ -21,7 +21,7 @@ import {
 } from '../lib/db/migrate.ts';
 
 const TEST_FILE_DIR = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = resolve(TEST_FILE_DIR, '..', '..', '..', '..');
+const SKILL_ROOT = resolve(TEST_FILE_DIR, '..', '..', '..');
 const INIT_SCRIPT = resolve(TEST_FILE_DIR, '..', 'workspace', 'init.ts');
 
 interface TempWorkspace {
@@ -163,7 +163,7 @@ test('init.ts script: emits ok=true JSON line on fresh DB', () => {
     const result = spawnSync(
       'pnpm',
       ['tsx', INIT_SCRIPT, '--db', ws.dbPath, '--label', 'phase1-smoke'],
-      { cwd: REPO_ROOT, encoding: 'utf8' },
+      { cwd: SKILL_ROOT, encoding: 'utf8' },
     );
 
     assert.equal(result.status, 0, `init.ts exited non-zero. stderr:\n${result.stderr}`);
@@ -189,13 +189,13 @@ test('init.ts script: re-run is idempotent and reports no new work', () => {
   const ws = makeTempWorkspace();
   try {
     const first = spawnSync('pnpm', ['tsx', INIT_SCRIPT, '--db', ws.dbPath], {
-      cwd: REPO_ROOT,
+      cwd: SKILL_ROOT,
       encoding: 'utf8',
     });
     assert.equal(first.status, 0);
 
     const second = spawnSync('pnpm', ['tsx', INIT_SCRIPT, '--db', ws.dbPath], {
-      cwd: REPO_ROOT,
+      cwd: SKILL_ROOT,
       encoding: 'utf8',
     });
     assert.equal(second.status, 0);

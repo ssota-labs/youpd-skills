@@ -22,7 +22,7 @@ import {
 import { createSearchSession, insertKeywordVideoResults, persistVideoBundle, upsertKeyword } from '../lib/youtube/write.ts';
 
 const TEST_FILE_DIR = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = resolve(TEST_FILE_DIR, '..', '..', '..', '..');
+const SKILL_ROOT = resolve(TEST_FILE_DIR, '..', '..', '..');
 const FETCH_COMMENTS = resolve(TEST_FILE_DIR, '..', 'research', 'youtube', 'fetch-comments.ts');
 
 interface TempWorkspace {
@@ -245,7 +245,7 @@ test('fetch-comments CLI rejects missing API key before external calls', () => {
     const env = { ...process.env, YOUPD_WORKSPACE_DB: ws.dbPath };
     delete (env as NodeJS.ProcessEnv).YOUTUBE_API_KEY;
     const result = spawnSync('pnpm', ['tsx', FETCH_COMMENTS, '--video-id', 'video-1'], {
-      cwd: REPO_ROOT,
+      cwd: SKILL_ROOT,
       encoding: 'utf8',
       env,
     });

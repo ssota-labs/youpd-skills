@@ -18,7 +18,7 @@ import { fileURLToPath } from 'node:url';
 import { openDb } from '../lib/db/client.ts';
 
 const TEST_FILE_DIR = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = resolve(TEST_FILE_DIR, '..', '..', '..', '..');
+const SKILL_ROOT = resolve(TEST_FILE_DIR, '..', '..', '..');
 const INIT_SCRIPT = resolve(TEST_FILE_DIR, '..', 'workspace', 'init.ts');
 const ADD_KEYWORD_SCRIPT = resolve(TEST_FILE_DIR, '..', 'research', 'youtube', 'add-keyword.ts');
 const SEARCH_BY_KEYWORD_SCRIPT = resolve(
@@ -79,7 +79,7 @@ function parseLastJson(stdout: string): Record<string, unknown> {
 
 function runScript(script: string, args: string[], env: NodeJS.ProcessEnv): Record<string, unknown> {
   const result = spawnSync('pnpm', ['tsx', script, ...args], {
-    cwd: REPO_ROOT,
+    cwd: SKILL_ROOT,
     encoding: 'utf8',
     env,
   });
