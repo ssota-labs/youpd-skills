@@ -10,7 +10,7 @@ description: YouTube/Threads/TikTok/Instagram/카드뉴스 콘텐츠 기획·제
 ## 핵심 원칙
 
 - **로컬 완결**: 결과는 사용자 작업 디렉터리의 `./.youpd/workspace.db` (SQLite 단일 파일)에 누적된다. 외부 서버·SaaS·MCP 의존성 없음.
-- **BYOK**: `YOUTUBE_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY` 등은 사용자 환경에 미리 설정되어야 한다. 키 부재 시 즉시 거절 + 설정 안내.
+- **BYOK**: YouTube Data API 키(`YOUTUBE_API_KEY`)만 사용한다. 키는 스킬 폴더의 `.env.local` 또는 `setup/env` HTML 표면으로 설정한다. 채팅에 키를 붙여넣게 하지 않는다.
 - **Forward-only 마이그레이션**: 머지된 `.sql` 파일은 신규 파일로만 수정. 자동 다운 마이그레이션 없음.
 - **단일 SKILL + 라우팅**: 본 SKILL.md 는 라우터일 뿐. 실제 동작 절차는 `references/<route>.md` 를 Read 도구로 추가 로드해 그 파일이 시키는 대로 따른다.
 
@@ -33,6 +33,9 @@ description: YouTube/Threads/TikTok/Instagram/카드뉴스 콘텐츠 기획·제
 
 | 사용자 의도 | 읽을 파일 | 구현 상태 |
 |---|---|---|
+| 스킬 툴킷 설치 (`npx skills add`, 최초 1회) | `references/setup/install-skills.md` | 사용 가능 |
+| 채널 폴더 · project.json · channel-brief | `references/setup/channel-project.md` | 사용 가능 |
+| 툴킷 준비 · pnpm install · YouTube API 키 | `references/setup/bootstrap.md` | 사용 가능 |
 | 워크스페이스 생성 · 마이그레이션 적용 | `references/workspace/init.md` | 사용 가능 |
 | YouTube 라우트 인덱스 · 권장 호출 순서 | `references/research/youtube/INDEX.md` | 사용 가능 |
 | 키워드 마스터 등록 · 정규화 | `references/research/youtube/add-keyword.md` | 사용 가능 |
@@ -61,22 +64,28 @@ description: YouTube/Threads/TikTok/Instagram/카드뉴스 콘텐츠 기획·제
 
 라우팅 후 첫 동작 직전, 다음을 빠르게 검증한다 (각 reference 파일에서 다시 명시되더라도 라우터 차원에서 한 번 거를 것):
 
-1. **Node 24 + 의존성 설치 완료** — `pnpm install` 완료 여부 확인. SQLite는 Node 내장 `node:sqlite` 사용 (별도 네이티브 모듈 불필요).
-2. **워크스페이스 존재 여부** — 의도가 `workspace/init` 외 라우트인데 `./.youpd/workspace.db` 가 없으면 먼저 init 을 권유.
-3. **BYOK 키** — YouTube API 호출 라우트는 `YOUTUBE_API_KEY` 환경변수 확인. LLM 호출 라우트는 `ANTHROPIC_API_KEY` 또는 `OPENAI_API_KEY`. 없으면 즉시 거절 + `.env.example` 참고 안내.
+1. **SKILL_ROOT** — 스킬이 설치된 디렉터리(자급자족 런타임). 채널 cwd 와 다를 수 있다. `bootstrap` 으로 `pnpm install`·키를 준비한다 (유저에게 수동 install 요청 금지).
+2. **워크스페이스** — 채널 cwd 의 `./.youpd/workspace.db`. `workspace/init` 외 라우트는 DB 없으면 init 권유.
+3. **YouTube BYOK** — API 라우트는 `YOUTUBE_API_KEY` 필수. 없으면 `setup/env` HTML 표면(`--mode serve`) 안내. 키를 채팅으로 받지 않는다.
 
 ## 호출 패턴
 
 본 스킬의 모든 동작은 reference 파일에서 지시하는 **TS 스크립트를 Shell 도구로 실행**해 수행한다. 임의의 SQL 쿼리를 직접 작성하거나, reference 가 지정하지 않은 스크립트를 호출하지 말 것.
 
 ```bash
-pnpm tsx skills/youpd-skills/scripts/<domain>/<action>.ts [args...]
+# SKILL_ROOT = 본 스킬 디렉터리. 채널 작업 시 cwd 는 채널 폴더, 실행은 SKILL_ROOT 기준.
+pnpm --dir "<SKILL_ROOT>" exec tsx scripts/setup/bootstrap.ts
+pnpm --dir "<SKILL_ROOT>" exec tsx scripts/workspace/init.ts --db "<channel>/.youpd/workspace.db"
+pnpm --dir "<SKILL_ROOT>" exec tsx scripts/<domain>/<action>.ts [args...]
 ```
 
 스크립트는 항상 JSON 한 줄을 stdout 에 출력한다. 에이전트는 그 JSON 을 파싱해 사용자에게 한국어로 요약 보고한다. 사용자에게는 **기능 이름과 결과**만 말하고, 내부 버전·페이즈 번호는 언급하지 말 것.
 
 ## Reference 인덱스 (1단계 깊이)
 
+- `references/setup/install-skills.md` — `npx skills add` (Cursor · Claude Code · Codex)
+- `references/setup/channel-project.md` — 채널 `.youpd/project.json`
+- `references/setup/bootstrap.md` — 툴킷 준비·의존성·YouTube BYOK
 - `references/workspace/init.md` — 워크스페이스 생성·마이그레이션 적용
 - `references/research/youtube/INDEX.md` — YouTube 도메인 라우트 묶음 + 권장 호출 순서
 

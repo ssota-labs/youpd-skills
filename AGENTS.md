@@ -248,12 +248,13 @@ See `.env.example`. Key vars:
 
 | Variable | When required |
 |---|---|
-| `YOUTUBE_API_KEY` | P1.1+ YouTube API routes |
-| `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` | P1.4+ LLM analysis routes |
+| `YOUTUBE_API_KEY` | P1.1+ YouTube API routes (set via `skills/youpd-skills` `.env.local` or setup/env HTML) |
 | `YOUPD_WORKSPACE_DB` | Optional override for DB path (default `./.youpd/workspace.db`) |
 | `YOUPD_SCHEMA_VERSION_LABEL` | Optional override for `workspace_meta.schema_version_label` |
 
-Reject and point to `.env.example` if a required key is missing — do not proceed with API calls.
+Title/thumbnail/intro analysis uses agent reasoning only — no `ANTHROPIC_API_KEY` / `OPENAI_API_KEY`.
+
+Reject and point to `skills/youpd-skills/.env.example` if YouTube key is missing — do not proceed with API calls.
 
 ---
 

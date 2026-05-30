@@ -19,7 +19,7 @@ import { createSearchSession, insertKeywordVideoResults, persistVideoBundle, ups
 import { loadWorkspaceViewPayload, renderWorkspaceViewHtml } from '../lib/youtube/workspace-view.ts';
 
 const TEST_FILE_DIR = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = resolve(TEST_FILE_DIR, '..', '..', '..', '..');
+const SKILL_ROOT = resolve(TEST_FILE_DIR, '..', '..', '..');
 const VIEW_SCRIPT = resolve(TEST_FILE_DIR, '..', 'research', 'youtube', 'view.ts');
 
 interface TempWorkspace {
@@ -124,7 +124,7 @@ test('view.ts static mode writes HTML and emits ok JSON', () => {
     const result = spawnSync(
       'pnpm',
       ['tsx', VIEW_SCRIPT, '--mode', 'static', '--db', ws.dbPath, '--output', htmlPath],
-      { cwd: REPO_ROOT, encoding: 'utf8' },
+      { cwd: SKILL_ROOT, encoding: 'utf8' },
     );
     assert.equal(result.status, 0, result.stderr);
     const parsed = parseLastJson(result.stdout);
@@ -146,7 +146,7 @@ test('view.ts fails with not_found when DB is missing', () => {
     const result = spawnSync(
       'pnpm',
       ['tsx', VIEW_SCRIPT, '--db', missing],
-      { cwd: REPO_ROOT, encoding: 'utf8' },
+      { cwd: SKILL_ROOT, encoding: 'utf8' },
     );
     assert.notEqual(result.status, 0);
     const parsed = parseLastJson(result.stdout);
@@ -166,7 +166,7 @@ test('view.ts serve mode responds with HTTP 200', async () => {
     db.close();
 
     const child = spawn('pnpm', ['tsx', VIEW_SCRIPT, '--mode', 'serve', '--db', ws.dbPath, '--port', '43847'], {
-      cwd: REPO_ROOT,
+      cwd: SKILL_ROOT,
       stdio: ['ignore', 'pipe', 'pipe'],
     });
 

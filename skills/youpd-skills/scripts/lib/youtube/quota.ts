@@ -2,6 +2,7 @@ import { createHash, randomUUID } from 'node:crypto';
 
 import type { Db } from '../db/client.ts';
 import type { YoutubeRouteErrorCode } from '../types/youtube.ts';
+import { loadSkillEnv } from '../skill-root.ts';
 import { fail, nowIso, runInTransaction, todayUtc } from './common.ts';
 
 export const DEFAULT_DAILY_QUOTA_LIMIT = 10_000;
@@ -24,11 +25,12 @@ export function fingerprintApiKey(key: string): string {
 }
 
 export function requireYoutubeApiKey(env: NodeJS.ProcessEnv = process.env): ApiKeyContext {
+  loadSkillEnv();
   const key = env.YOUTUBE_API_KEY?.trim();
   if (!key) {
     fail(
       'missing_api_key',
-      'YOUTUBE_API_KEY 가 설정되어 있지 않습니다. `.env.example` 를 참고해 셸 환경변수를 설정해주세요.',
+      'YOUTUBE_API_KEY 가 없습니다. `tsx scripts/setup/env.ts --mode serve` 로 브라우저에서 설정하세요. 키는 채팅에 붙여넣지 마세요.',
     );
   }
   return {

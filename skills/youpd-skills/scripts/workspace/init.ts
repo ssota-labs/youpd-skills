@@ -11,11 +11,10 @@
  */
 
 import { parseArgs } from 'node:util';
-import { readFileSync, existsSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { dirname, resolve } from 'node:path';
+import { existsSync } from 'node:fs';
 
 import { openDb, resolveDbPath } from '../lib/db/client.ts';
+import { loadSkillEnv, readPackageVersion } from '../lib/skill-root.ts';
 import { ensureWorkspaceMeta, runMigrations } from '../lib/db/migrate.ts';
 import type {
   WorkspaceInitError,
@@ -23,9 +22,6 @@ import type {
   WorkspaceInitOk,
   WorkspaceInitResult,
 } from '../lib/types/workspace.ts';
-
-const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = resolve(SCRIPT_DIR, '..', '..', '..', '..');
 
 interface CliArgs {
   dbPath?: string;
@@ -67,18 +63,6 @@ function parseCli(argv: string[]): CliArgs {
   return args;
 }
 
-function readPackageVersion(): string {
-  try {
-    const pkg = JSON.parse(readFileSync(resolve(REPO_ROOT, 'package.json'), 'utf8')) as {
-      version?: string;
-    };
-    if (typeof pkg.version === 'string' && pkg.version.length > 0) return pkg.version;
-  } catch {
-    // ignore — fall through to default
-  }
-  return '0.1.0-dev.0';
-}
-
 function resolveSchemaVersionLabel(cliLabel?: string): string {
   return cliLabel ?? process.env.YOUPD_SCHEMA_VERSION_LABEL ?? readPackageVersion();
 }
@@ -117,6 +101,7 @@ function checkNodeVersion(): void {
 async function main(): Promise<void> {
   const args = parseCli(process.argv.slice(2));
 
+  loadSkillEnv();
   checkNodeVersion();
 
   const dbPath = resolveDbPath(args.dbPath !== undefined ? { path: args.dbPath } : {});

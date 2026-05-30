@@ -19,7 +19,7 @@ import { channelFromApiItem, videoFromApiItem, setFetchImpl, resetFetchImpl } fr
 import { SCORE_POLICY_VERSION } from '../lib/types/youtube.ts';
 
 const TEST_FILE_DIR = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = resolve(TEST_FILE_DIR, '..', '..', '..', '..');
+const SKILL_ROOT = resolve(TEST_FILE_DIR, '..', '..', '..');
 const ADD_KEYWORD = resolve(TEST_FILE_DIR, '..', 'research', 'youtube', 'add-keyword.ts');
 const SEARCH_KEYWORD = resolve(TEST_FILE_DIR, '..', 'research', 'youtube', 'search-by-keyword.ts');
 
@@ -184,7 +184,7 @@ test('add-keyword CLI: normalization, default initial_target_count=500, reuse', 
     const first = spawnSync(
       'pnpm',
       ['tsx', ADD_KEYWORD, '--keyword', ' AI Trend ', '--region', 'kr'],
-      { cwd: REPO_ROOT, encoding: 'utf8', env },
+      { cwd: SKILL_ROOT, encoding: 'utf8', env },
     );
     assert.equal(first.status, 0, first.stderr);
     const firstJson = parseLastJson(first.stdout);
@@ -197,7 +197,7 @@ test('add-keyword CLI: normalization, default initial_target_count=500, reuse', 
     const second = spawnSync(
       'pnpm',
       ['tsx', ADD_KEYWORD, '--keyword', 'ai trend', '--region', 'KR'],
-      { cwd: REPO_ROOT, encoding: 'utf8', env },
+      { cwd: SKILL_ROOT, encoding: 'utf8', env },
     );
     assert.equal(second.status, 0, second.stderr);
     const secondJson = parseLastJson(second.stdout);
@@ -222,7 +222,7 @@ test('search-by-keyword rejects missing API key before external calls', () => {
     const result = spawnSync(
       'pnpm',
       ['tsx', SEARCH_KEYWORD, '--keyword', 'test-keyword'],
-      { cwd: REPO_ROOT, encoding: 'utf8', env },
+      { cwd: SKILL_ROOT, encoding: 'utf8', env },
     );
     assert.equal(result.status, 1);
     const parsed = parseLastJson(result.stdout) as { ok: boolean; code: string };
