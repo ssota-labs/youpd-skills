@@ -5,7 +5,7 @@
 
 ## 언제
 
-- `npx skills add` 로 스킬만 설치한 뒤, Cursor에서 **채널 폴더만** 열었을 때
+- `references/setup/install-skills.md` 로 툴킷 설치 후, Cursor에서 **채널 폴더만** 열었을 때
 - bootstrap / workspace/init 전에 채널 메타를 파일로 남길 때
 
 ## 스크립트

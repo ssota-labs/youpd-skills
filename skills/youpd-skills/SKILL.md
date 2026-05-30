@@ -33,6 +33,7 @@ description: YouTube/Threads/TikTok/Instagram/카드뉴스 콘텐츠 기획·제
 
 | 사용자 의도 | 읽을 파일 | 구현 상태 |
 |---|---|---|
+| 스킬 툴킷 설치 (`npx skills add`, 최초 1회) | `references/setup/install-skills.md` | 사용 가능 |
 | 채널 폴더 · project.json · channel-brief | `references/setup/channel-project.md` | 사용 가능 |
 | 툴킷 준비 · pnpm install · YouTube API 키 | `references/setup/bootstrap.md` | 사용 가능 |
 | 워크스페이스 생성 · 마이그레이션 적용 | `references/workspace/init.md` | 사용 가능 |
@@ -82,6 +83,7 @@ pnpm --dir "<SKILL_ROOT>" exec tsx scripts/<domain>/<action>.ts [args...]
 
 ## Reference 인덱스 (1단계 깊이)
 
+- `references/setup/install-skills.md` — `npx skills add` (Cursor · Claude Code · Codex)
 - `references/setup/channel-project.md` — 채널 `.youpd/project.json`
 - `references/setup/bootstrap.md` — 툴킷 준비·의존성·YouTube BYOK
 - `references/workspace/init.md` — 워크스페이스 생성·마이그레이션 적용

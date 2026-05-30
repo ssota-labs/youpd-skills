@@ -13,10 +13,13 @@
 **별도 등록 폼 없음** — 공개 GitHub + `npx skills add` 설치 통계로 [skills.sh](https://skills.sh)에 노출됩니다. 자세히: [docs/skills-sh.md](docs/skills-sh.md)
 
 ```bash
-npx skills add ssota-labs/youpd-skills --skill youpd-skills -a cursor -g -y
+npx skills add ssota-labs/youpd-skills --skill youpd-skills \
+  -a cursor -a claude-code -a codex \
+  -g -y
 ```
 
-- `-g`: 툴킷 글로벌 1벌 · `-y`: 설치 확인 프롬프트 생략 · DB는 **채널 폴더** `./.youpd/workspace.db` 만
+대화형 최소 설치: `npx skills add ssota-labs/youpd-skills` (CLI가 스킬·에이전트·scope 질문).  
+`-g` = 툴킷 글로벌 · `-y` = 프롬프트 생략 · **DB** = 채널 폴더 `./.youpd/workspace.db` 만.
 
 채널 폴더를 Cursor로 연 뒤「youpd 초기 설정해줘」→ bootstrap → env HTML(YouTube 키) → workspace/init.  
 [docs/installation.md](docs/installation.md)

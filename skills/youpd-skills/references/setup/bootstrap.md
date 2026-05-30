@@ -3,6 +3,10 @@
 > 툴킷(스킬 폴더) 준비: Node/pnpm 검증, **`pnpm install` 자동 실행**, YouTube BYOK.
 > 채널 워크스페이스의 `workspace/init` **전에** 에이전트가 실행한다. 유저에게 `pnpm install` 을 요청하지 않는다.
 
+## 사전 조건
+
+- `references/setup/install-skills.md` — `npx skills add` 로 툴킷(SKILL_ROOT)이 이미 설치되어 있어야 한다.
+
 ## 언제
 
 - 채널 프로젝트에서 youpd 를 **처음** 쓸 때
