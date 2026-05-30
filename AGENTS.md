@@ -116,58 +116,21 @@ Use the loaded task’s `작업 유형` and title:
 | PRD 작성, 설계 작성, 상세 로드맵 작성; primary deliverable is Blueprint / Policy / ADR / dedicated Spec | `.cursor/skills/youpd-documentation-workflow/SKILL.md` |
 | 구현, 검증 | `.cursor/skills/youpd-implementation-workflow/SKILL.md` |
 
-**Small Spec/Policy patches** after a feature (single topic, same PR) → handle in implementation skill Close-out, not documentation skill.
+**Small Spec/Policy patches** (single topic, same PR) → implementation skill Close-out, not documentation skill.
 
-#### Implementation conventions (always on for `work` → 구현/검증)
+#### `work` → 구현/검증
 
-Long sessions must not lose these — they stay in AGENTS.md, not only in skills:
+Use [Project Overview](#project-overview) (runtime, DB), [Development Workflow](#development-workflow), [Testing Instructions](#testing-instructions), and [Code Style](#code-style) — these stay in AGENTS.md for long sessions. Before editing code, run the gate in `youpd-implementation-workflow` (`references/implementation-gate.md`).
 
-- **Runtime:** Node **24+**, pnpm **10+**, TypeScript ESM, Zod v4 at script boundaries.
-- **DB:** `node:sqlite` (`DatabaseSync`) only; prepared statements; migrations under `skills/youpd-skills/scripts/lib/migrations/`; **forward-only** SQL; `COALESCE` uniques via `CREATE UNIQUE INDEX`.
-- **Scripts:** under `skills/youpd-skills/`; stdout = **one JSON line**; `openDb()` from `scripts/lib/db/client.ts`; no ORM, no `better-sqlite3`.
-- **Shipped layout:** single product `SKILL.md` + `references/<route>.md` — no per-route `SKILL.md`.
-- **Secrets:** never commit `.env*`, keys, `*.db`, `.youpd/`.
-- **Verify before done:** `pnpm typecheck`, `pnpm test:smoke` (and `pnpm test` when behavior changed).
-- **Implementation gate (summary):** PRD + D3 linked on IMPL task; predecessors on `main`; if blocked, stop — full checklist in implementation skill `references/implementation-gate.md`.
-- **Task `완료`:** propose only when the user asked to update Notion status.
+### Search before you build
 
-Details: [Development Workflow](#development-workflow), [Testing Instructions](#testing-instructions), [Code Style](#code-style).
+Search Notion for related tasks, ADRs, specs, and policies before creating duplicates.
 
-### Search before you build — without being asked
+### Notion docs and task board
 
-Always assume relevant material may already exist. Before creating anything, search Notion for related tasks, ADRs, specs, policies, guides, and prior decisions, then reason about what you found. The goal is to think with the existing context, not to generate duplicates. Update or supersede an existing page when one fits; create a new page only when there is genuinely no suitable home.
-
-This is proactive behavior: do it on your own initiative whenever the work plausibly touches existing knowledge, even if the user did not explicitly ask you to check Notion.
-
-### What to record, and where
-
-Durable docs live in the shared **유PD 프로덕트 팀 문서** database (`https://www.notion.so/5ac346dac45682cf98ed815c25b32d38`). The document *type* is the `태그` (multi-select) property — set the correct tag so the SSOT stays queryable — and each doc is linked back to its task via the task's `관련 문서` relation. Document types, dependency order, and deliverables: [`.cursor/skills/youpd-documentation-workflow/references/documentation-workflow.md`](.cursor/skills/youpd-documentation-workflow/references/documentation-workflow.md) (load via [youpd-documentation-workflow](.cursor/skills/youpd-documentation-workflow/SKILL.md) when doing doc work).
-
-| What happened | `태그` to set | Notes |
-|---|---|---|
-| A technical/architectural decision was made (driver, schema strategy, trade-off) | `ADR` | Treat as immutable. The docs DB has no status field yet, so express lifecycle in the title/first line: prefix `[ADR-NNNN] <decision>`, and when a later decision replaces it add a `Superseded by [ADR-MMMM]` line instead of editing the original |
-| A current implementation contract changed (DB schema, route/CLI I/O, error codes, env vars) | `스펙` | Living, topic-based (e.g. `youpd-skills 스펙 — DB 스키마`) |
-| A rule now recurs across versions (migration policy, naming, BYOK, error-code conventions) | `정책` | Cumulative |
-| Version intent / user value / scope was defined | `PRD` | Use the **신제품 스펙 문서(PRD)** page template |
-| Version implementation design (data model, API, algorithms for one version) | `설계` | Use the **신기술 스펙 문서** page template |
-| A version shipped | `릴리즈 노트` | Plan vs actual, known issues |
-| Phase-wide route map / domain model / milestone plan | `제품 로드맵` | a.k.a. Blueprint |
-| Reusable how-to / runbook | `가이드` | |
-| Exploratory investigation | `리서치` | |
-
-After creating or updating any of these, link it to the originating task via that task's `관련 문서` relation so the board and the SSOT stay connected.
-
-Use judgment about what is *durable*: record decisions, contract changes, policies, guides, root-cause/resolution of significant bugs, and test strategy. Skip ephemera like typo fixes, trivial refactors, or one-off command output — logging noise dilutes the SSOT.
-
-### Keep the task board in sync
-
-The development task DB uses `상태` = `대기` / `진행중` / `보류` / `완료` / `취소` and `작업 유형` = `상세 로드맵 작성` / `PRD 작성` / `설계 작성` / `구현` / `검증`. When you pick up a task, move it to `진행중`; if it's waiting on a dependency, set `보류` and note the blocker. Do **not** set `완료` unless the user asked you to update task status — propose the change and let the user confirm. Link any docs you produced via `관련 문서`.
-
-### Implementation gate
-
-A request such as “P1.4 구현해줘” does **not** bypass the gate. Follow the [Development router](#development-router-read-first), route to **youpd-implementation-workflow**, and run the full checklist in `.cursor/skills/youpd-implementation-workflow/references/implementation-gate.md` before editing code.
-
-Reference incident (2026-05-29): IMPL while `YPDS-P1.4-DSGN` and PRD were empty.
+- **Docs DB:** `https://www.notion.so/5ac346dac45682cf98ed815c25b32d38` — types, templates, anti-patterns: load [youpd-documentation-workflow](.cursor/skills/youpd-documentation-workflow/SKILL.md) when writing documents.
+- **Tasks:** `상태` `대기`/`진행중`/`보류`/`완료`/`취소`; `작업 유형` PRD/설계/구현/검증/로드맵. Pick up → `진행중`; blocked → `보류`. Link outputs via `관련 문서`. **Do not** set `완료` unless the user asked — propose only.
+- Record durable outcomes (decisions, contracts, policies); skip typo-only noise.
 
 ---
 
@@ -258,17 +221,9 @@ Test location: `skills/youpd-skills/scripts/__tests__/*.test.ts` (Node built-in 
 
 When adding P1.1+ scripts, add focused tests for: happy path, idempotency, missing env key rejection, and FK/CHECK constraint behavior where relevant.
 
-### Skill evaluation policy
+### Shipped skill evals (product)
 
-Code-level tests are necessary but not sufficient because **youpd-skills ships as an agent skill**. Substantive route/reference changes must also consider skill-level evals: trigger accuracy, reference selection, tool/script sequence, boundary correctness, and final user reporting.
-
-- Local summary: `docs/testing/skill-evaluation.md`
-- Notion SSOT: [정책 — youpd-skills 스킬 테스트/평가 전략](https://www.notion.so/36f346dac456816084c0cea2d78e8827)
-
-Minimum testing layers:
-1. **Code-level tests** — `pnpm typecheck`, `pnpm test:smoke`, `pnpm test`.
-2. **Route/reference contract checks** — `SKILL.md`, route references, script inputs, stdout contracts, and user-facing availability labels (`사용 가능` / `준비 중` / `미지원`) stay aligned.
-3. **Subagent skill evals** — independent clean-context agents execute representative user workflows and are graded on trajectory plus final output.
+When changing `skills/youpd-skills/SKILL.md` or route references, also follow `docs/testing/skill-evaluation.md` (Notion: [스킬 테스트/평가 전략](https://www.notion.so/36f346dac456816084c0cea2d78e8827)). VERF / reconciliation do not replace this.
 
 ---
 
@@ -391,17 +346,6 @@ pnpm tsx skills/youpd-skills/scripts/workspace/init.ts --db /tmp/test.db --label
 ```bash
 pnpm tsx skills/youpd-skills/scripts/workspace/init.ts
 ```
-
-### Key commands
-
-Refer to **Setup Commands** and **Testing Instructions** sections above. Summary:
-
-| Task | Command |
-|---|---|
-| Type check | `pnpm typecheck` |
-| Smoke tests | `pnpm test:smoke` |
-| All tests | `pnpm test` |
-| Workspace init | `pnpm tsx skills/youpd-skills/scripts/workspace/init.ts` |
 
 ### SQLite experimental warning
 

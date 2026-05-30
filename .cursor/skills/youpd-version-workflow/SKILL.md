@@ -15,5 +15,4 @@ This skill was split into:
 | 작업 진행 — 구현/검증 | [youpd-implementation-workflow](../youpd-implementation-workflow/SKILL.md) |
 | 새 버전 태스크 세팅 | [youpd-version-bootstrap](../youpd-version-bootstrap/SKILL.md) |
 
-Documentation reference moved to:
-`youpd-documentation-workflow/references/documentation-workflow.md`
+Documentation content is in `youpd-documentation-workflow/SKILL.md` (single file).

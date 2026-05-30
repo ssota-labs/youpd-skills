@@ -1,7 +1,3 @@
 # Moved
 
-This file moved to:
-
-[youpd-documentation-workflow/references/documentation-workflow.md](../../youpd-documentation-workflow/references/documentation-workflow.md)
-
-Use **AGENTS.md** Development router to choose skills.
+Content is in [youpd-documentation-workflow/SKILL.md](../../youpd-documentation-workflow/SKILL.md).
