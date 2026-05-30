@@ -67,17 +67,9 @@ skills/youpd-skills/
 
 When reporting to users, never cite phase numbers or internal version names. Say what works today and what is not available yet.
 
-Implementation status, phase plans, and milestone tracking belong in **AGENTS.md**, Notion, and `scripts/**` / tests — not in shipped skill markdown. After changing route behavior, update references with the labels above (not `P1.x`).
+Implementation status, phase plans, and milestone tracking belong in **Notion** (development task database and linked docs) and in `scripts/**` / tests — not in shipped skill markdown or in this file. After changing route behavior, update route references with the availability labels above (not internal milestone IDs).
 
-### Implementation Status (Phase 1)
-
-| Milestone | Status |
-|---|---|
-| **P1.0** — DB bootstrap, migrations, `workspace/init` | ✅ Done (`schema_migrations`, `workspace_meta` only) |
-| **P1.1** — YouTube fetch routes (6 scripts) | 🚧 Reference stubs only |
-| **P1.2–P1.5** — Snapshots, curation, analysis | 🚧 Reference stubs only |
-
-Design SSOT (Notion, internal): [P1.0 D3](https://www.notion.so/36d346dac45681faa27fdfb0b39ef9fe), [Phase 1 Blueprint](https://www.notion.so/36d346dac456813daa20e054198e3a8c).
+Design SSOT (Notion, internal): [Phase 1 Blueprint](https://www.notion.so/36d346dac456813daa20e054198e3a8c) and per-milestone PRD/D3 in the docs database.
 
 ---
 
