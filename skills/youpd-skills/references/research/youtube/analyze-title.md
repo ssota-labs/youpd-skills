@@ -1,6 +1,6 @@
 # Route: `research/youtube/analyze-title`
 
-> **상태**: ✅ P1.4 — 에이전트 reasoning + `save-title-analysis` 영속화. **외부 LLM API 없음.**
+> **상태**: 사용 가능 — 에이전트 reasoning + `save-title-analysis` 영속화. **외부 LLM API 없음.**
 
 레퍼런스 영상 제목을 PRD §2·§3 프레임워크(`hook-type` + `title-shape` + `title-tone`)로 분류한다.
 

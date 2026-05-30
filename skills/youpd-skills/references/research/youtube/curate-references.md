@@ -1,8 +1,8 @@
 # Route: `research/youtube/curate-references`
 
-> **상태**: ✅ P1.2
+> **상태**: 사용 가능
 
-P1.1 search/hot result 또는 명시 video id를 reference child folder에 저장한다. 선별 기준은 P1.1 score다. 제목/썸네일/각도 분석은 하지 않는다.
+검색·hot video 결과 또는 명시 video id를 reference child folder에 저장한다. 선별 기준은 수집 단계의 score다. 제목/썸네일/각도 분석은 하지 않는다.
 
 ## 실행
 
@@ -19,7 +19,7 @@ pnpm tsx skills/youpd-skills/scripts/research/youtube/curate-references.ts \
 | 인수 | 형태 | 기본 | 설명 |
 |---|---|---|---|
 | `--folder-id` | uuid | — | 대상 child folder |
-| `--search-session-id` | uuid | — | P1.1 검색 세션에서 후보 선택 |
+| `--search-session-id` | uuid | — | `search-by-keyword` 검색 세션에서 후보 선택 |
 | `--hot-date` | YYYY-MM-DD | — | `youtube_hot_videos`에서 후보 선택 |
 | `--region`, `-r` | string | `KR` | hot-date 조회 region |
 | `--video-id` | repeatable string | — | 명시 영상 추가 |

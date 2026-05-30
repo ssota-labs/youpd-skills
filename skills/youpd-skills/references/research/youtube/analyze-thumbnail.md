@@ -1,6 +1,6 @@
 # Route: `research/youtube/analyze-thumbnail`
 
-> **상태**: ✅ P1.4 — 에이전트 멀티모달 reasoning + `save-thumbnail-analysis`. **외부 비전/LLM API 없음.**
+> **상태**: 사용 가능 — 에이전트 멀티모달 reasoning + `save-thumbnail-analysis`. **외부 비전/LLM API 없음.**
 
 레퍼런스 썸네일을 PRD §4 프레임워크로 분류한다.
 

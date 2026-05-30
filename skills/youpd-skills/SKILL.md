@@ -19,12 +19,12 @@ description: YouTube/Threads/TikTok/Instagram/카드뉴스 콘텐츠 기획·제
 다음 의도가 보이면 이 스킬을 사용한다:
 
 - **워크스페이스**: "youpd 시작", "workspace 만들어줘", "DB 초기화", "스키마 마이그레이션 적용"
-- **YouTube 리서치 (Phase 1)**: 키워드 등록·date-only 수집, hot video 조회, 채널 검색·수집, 스냅샷·점수, 레퍼런스 마킹·조회, 제목/썸네일/도입부 분석
+- **YouTube 리서치**: 키워드 등록·date-only 수집, hot video 조회, 채널 검색·수집, 스냅샷·점수, 레퍼런스 마킹·조회, 제목/썸네일/도입부 분석
 
-다음 의도는 **본 스킬의 범위 밖**이다 → 사용자에게 "Phase X 에서 도입 예정" 이라고 안내하고 본 스킬을 사용하지 말 것:
+다음 의도는 **본 스킬의 범위 밖**이다 → 사용자에게 "아직 지원하지 않습니다" 라고 안내하고 본 스킬을 사용하지 말 것:
 
-- Threads / TikTok / Instagram Reels / 카드뉴스 채널 (Phase 2-3)
-- `plan` / `produce` 도메인 (Phase 2+, 본 스킬은 `research` + `analyze` 까지)
+- Threads / TikTok / Instagram Reels / 카드뉴스 채널
+- 콘텐츠 기획·제작(`plan` / `produce`) 워크플로 — 본 스킬은 리서치·분석(`research` / `analyze`) 까지
 - 본 제품(유PD)의 노션 연동, MCP, 대시보드 — 별도 제품 라인업
 
 ## 라우팅 (어느 reference 파일을 읽어야 하나)
@@ -33,27 +33,27 @@ description: YouTube/Threads/TikTok/Instagram/카드뉴스 콘텐츠 기획·제
 
 | 사용자 의도 | 읽을 파일 | 구현 상태 |
 |---|---|---|
-| 워크스페이스 생성 · 마이그레이션 적용 | `references/workspace/init.md` | ✅ P1.0 |
-| YouTube 라우트 인덱스 · 권장 호출 순서 | `references/research/youtube/INDEX.md` | ✅ |
-| 키워드 마스터 등록 · 정규화 | `references/research/youtube/add-keyword.md` | ✅ P1.1 |
-| 등록된 키워드로 영상 date-only 수집 | `references/research/youtube/search-by-keyword.md` | ✅ P1.1 |
-| 수집 pool 기반 hot video (Good+) | `references/research/youtube/list-hot-videos.md` | ✅ P1.1 |
-| 키워드로 채널 검색 | `references/research/youtube/search-channels.md` | ✅ P1.1 |
-| 채널 ID/핸들로 채널 정보 fetch | `references/research/youtube/fetch-channel.md` | ✅ P1.1 |
-| 채널의 업로드 영상 일괄 fetch | `references/research/youtube/fetch-channel-videos.md` | ✅ P1.1 |
-| 트렌딩 (mostPopular) fetch | `references/research/youtube/fetch-trending.md` | ⏭ P1.1 out-of-scope |
-| 고객군·키워드 기반 레퍼런스 발견 절차 | `references/research/youtube/discover-references.md` | ✅ P1.2 |
-| 레퍼런스 폴더 그룹·자식 폴더 생성 | `references/research/youtube/create-reference-folder.md` | ✅ P1.2 |
-| discovery 실행 이력 기록 | `references/research/youtube/record-discovery-run.md` | ✅ P1.2 |
-| 성과 기반 레퍼런스 큐레이션 | `references/research/youtube/curate-references.md` | ✅ P1.2 |
-| 큐레이션된 레퍼런스 조회·필터 | `references/research/youtube/list-references.md` | ✅ P1.2 |
-| 폴더에서 레퍼런스 제거 | `references/research/youtube/remove-reference.md` | ✅ P1.2 |
-| 레퍼런스 영상 댓글 수집 | `references/research/youtube/fetch-comments.md` | ✅ P1.2 |
-| 워크스페이스 DB 로컬 뷰어 (읽기 전용, P1.4.5 분석 표면) | `references/research/youtube/view-workspace.md` | ✅ P1.3 · P1.4.5 |
-| 제목 LLM 분석 · 축 매핑 | `references/research/youtube/analyze-title.md` | 🚧 P1.4 |
-| 썸네일 LLM 분석 · 축 매핑 | `references/research/youtube/analyze-thumbnail.md` | 🚧 P1.4 |
-| 자막/스크립트 추출 | `references/research/youtube/fetch-transcript.md` | 🚧 P1.5 |
-| 도입부 후크 · 구조 분석 | `references/research/youtube/analyze-intro.md` | 🚧 P1.5 |
+| 워크스페이스 생성 · 마이그레이션 적용 | `references/workspace/init.md` | 사용 가능 |
+| YouTube 라우트 인덱스 · 권장 호출 순서 | `references/research/youtube/INDEX.md` | 사용 가능 |
+| 키워드 마스터 등록 · 정규화 | `references/research/youtube/add-keyword.md` | 사용 가능 |
+| 등록된 키워드로 영상 date-only 수집 | `references/research/youtube/search-by-keyword.md` | 사용 가능 |
+| 수집 pool 기반 hot video (Good+) | `references/research/youtube/list-hot-videos.md` | 사용 가능 |
+| 키워드로 채널 검색 | `references/research/youtube/search-channels.md` | 사용 가능 |
+| 채널 ID/핸들로 채널 정보 fetch | `references/research/youtube/fetch-channel.md` | 사용 가능 |
+| 채널의 업로드 영상 일괄 fetch | `references/research/youtube/fetch-channel-videos.md` | 사용 가능 |
+| 트렌딩 (mostPopular) fetch | `references/research/youtube/fetch-trending.md` | 미지원 (`list-hot-videos` 사용) |
+| 고객군·키워드 기반 레퍼런스 발견 절차 | `references/research/youtube/discover-references.md` | 사용 가능 |
+| 레퍼런스 폴더 그룹·자식 폴더 생성 | `references/research/youtube/create-reference-folder.md` | 사용 가능 |
+| discovery 실행 이력 기록 | `references/research/youtube/record-discovery-run.md` | 사용 가능 |
+| 성과 기반 레퍼런스 큐레이션 | `references/research/youtube/curate-references.md` | 사용 가능 |
+| 큐레이션된 레퍼런스 조회·필터 | `references/research/youtube/list-references.md` | 사용 가능 |
+| 폴더에서 레퍼런스 제거 | `references/research/youtube/remove-reference.md` | 사용 가능 |
+| 레퍼런스 영상 댓글 수집 | `references/research/youtube/fetch-comments.md` | 사용 가능 |
+| 워크스페이스 DB 로컬 뷰어 (읽기 전용, 제목·썸네일 분석 표면) | `references/research/youtube/view-workspace.md` | 사용 가능 |
+| 제목 분석 · 축 매핑 (에이전트 reasoning) | `references/research/youtube/analyze-title.md` | 사용 가능 |
+| 썸네일 분석 · 축 매핑 (에이전트 reasoning) | `references/research/youtube/analyze-thumbnail.md` | 사용 가능 |
+| 자막/스크립트 추출 | `references/research/youtube/fetch-transcript.md` | 준비 중 |
+| 도입부 후크 · 구조 분석 | `references/research/youtube/analyze-intro.md` | 준비 중 |
 
 의도가 모호하면 위 라우트 후보를 1줄씩 사용자에게 제시하고 선택을 받는다. 절대 임의 추측으로 다중 라우트를 동시에 호출하지 말 것.
 
@@ -73,11 +73,11 @@ description: YouTube/Threads/TikTok/Instagram/카드뉴스 콘텐츠 기획·제
 pnpm tsx skills/youpd-skills/scripts/<domain>/<action>.ts [args...]
 ```
 
-스크립트는 항상 JSON 한 줄을 stdout 에 출력한다. 에이전트는 그 JSON 을 파싱해 사용자에게 한국어로 요약 보고한다.
+스크립트는 항상 JSON 한 줄을 stdout 에 출력한다. 에이전트는 그 JSON 을 파싱해 사용자에게 한국어로 요약 보고한다. 사용자에게는 **기능 이름과 결과**만 말하고, 내부 버전·페이즈 번호는 언급하지 말 것.
 
 ## Reference 인덱스 (1단계 깊이)
 
-- `references/workspace/init.md` — 워크스페이스 생성·마이그레이션 적용 (P1.0)
-- `references/research/youtube/INDEX.md` — YouTube 도메인 라우트 묶음 + 권장 호출 순서 (Phase 1)
+- `references/workspace/init.md` — 워크스페이스 생성·마이그레이션 적용
+- `references/research/youtube/INDEX.md` — YouTube 도메인 라우트 묶음 + 권장 호출 순서
 
-> **Phase 1 진행 상태**: P1.0 (workspace/init) 완료. P1.1 YouTube 6 routes 구현 완료. P1.2 성과 기반 레퍼런스 큐레이션 구현 완료. P1.3 로컬 워크스페이스 뷰어 구현 완료. P1.4+ 는 reference 계약만 존재.
+현재 제공 범위: 워크스페이스 부트스트랩, YouTube 키워드·채널·영상 수집, 성과 기반 레퍼런스 큐레이션·댓글 수집, 로컬 워크스페이스 뷰어. 제목/썸네일/자막/도입부 분석 라우트는 계약만 있으며 **준비 중**이다.
