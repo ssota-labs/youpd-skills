@@ -103,6 +103,37 @@ Use LLM-as-judge only for semantic qualities:
 
 Use human review for early dogfood, large PRD/D3 changes, score policy changes, or model upgrades.
 
+## P1.4 minimum eval cases
+
+Suite: [`evals/youpd-skills/p1_4_title_thumbnail_analysis.cases.json`](../evals/youpd-skills/p1_4_title_thumbnail_analysis.cases.json)
+
+### P1.4-01: folder title hook distribution
+
+Prompt:
+
+> AI 업무 자동화 레퍼런스 폴더에 넣은 영상들 제목 후크 분포 보여줘. 아직 분석 안 된 건 분류해줘.
+
+Expected:
+
+- reads `analyze-title.md`, `list-analysis-candidates`, `save-title-analysis`, `db/exec`
+- uses agent reasoning (no external LLM API for classification)
+- persists `youtube_title_analyses` with glossary-valid codes
+- reports hook distribution
+
+### P1.4-02–06
+
+See the suite JSON for thumbnail emotion, alignment, LLM negative routing, invalid enum, and discovery boundary cases.
+
+Harness:
+
+```bash
+# Live (needs YOUTUBE_API_KEY in .env.local)
+bash evals/youpd-skills/scripts/run_p14_live_e2e.sh
+
+# Fixture (no API)
+bash evals/youpd-skills/scripts/run_p14_fixture_e2e.sh
+```
+
 ## P1.2 minimum eval cases
 
 ### P1.2-01: phenomenon-stage discovery

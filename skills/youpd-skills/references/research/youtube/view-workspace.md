@@ -53,13 +53,19 @@ pnpm tsx skills/youpd-skills/scripts/research/youtube/view.ts --mode serve --por
   "result": {
     "mode": "static",
     "htmlPath": "/path/to/.youpd/workspace-view.html",
-    "byteLength": 12345
+    "byteLength": 12345,
+    "counts": {
+      "titleAnalyses": 0,
+      "thumbnailAnalyses": 0,
+      "foldersWithStats": 0,
+      "analysisSurfaceEnabled": false
+    }
   },
   "unitsConsumed": 0
 }
 ```
 
-`serve` 모드는 `result.url`, `result.host`, `result.port` 를 포함한다.
+`serve` 모드는 `result.url`, `result.host`, `result.port` 를 포함한다. P1.4.5부터 `result.counts`에 분석 표면 요약이 포함된다 (`youtube_title_analyses` 존재 시 `analysisSurfaceEnabled: true`).
 
 ## 사전 조건
 

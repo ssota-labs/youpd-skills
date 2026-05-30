@@ -49,9 +49,9 @@ description: YouTube/Threads/TikTok/Instagram/카드뉴스 콘텐츠 기획·제
 | 큐레이션된 레퍼런스 조회·필터 | `references/research/youtube/list-references.md` | 사용 가능 |
 | 폴더에서 레퍼런스 제거 | `references/research/youtube/remove-reference.md` | 사용 가능 |
 | 레퍼런스 영상 댓글 수집 | `references/research/youtube/fetch-comments.md` | 사용 가능 |
-| 워크스페이스 DB 로컬 뷰어 (읽기 전용) | `references/research/youtube/view-workspace.md` | 사용 가능 |
-| 제목 LLM 분석 · 축 매핑 | `references/research/youtube/analyze-title.md` | 준비 중 |
-| 썸네일 LLM 분석 · 축 매핑 | `references/research/youtube/analyze-thumbnail.md` | 준비 중 |
+| 워크스페이스 DB 로컬 뷰어 (읽기 전용, 제목·썸네일 분석 표면) | `references/research/youtube/view-workspace.md` | 사용 가능 |
+| 제목 분석 · 축 매핑 (에이전트 reasoning) | `references/research/youtube/analyze-title.md` | 사용 가능 |
+| 썸네일 분석 · 축 매핑 (에이전트 reasoning) | `references/research/youtube/analyze-thumbnail.md` | 사용 가능 |
 | 자막/스크립트 추출 | `references/research/youtube/fetch-transcript.md` | 준비 중 |
 | 도입부 후크 · 구조 분석 | `references/research/youtube/analyze-intro.md` | 준비 중 |
 

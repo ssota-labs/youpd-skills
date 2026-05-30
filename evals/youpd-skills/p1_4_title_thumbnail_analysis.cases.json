@@ -1,0 +1,171 @@
+{
+  "suite": "p1_4_title_thumbnail_analysis",
+  "version": 1,
+  "description": "Subagent skill eval cases for P1.4 title/thumbnail classification (agent reasoning + save routes).",
+  "notionPolicy": "https://www.notion.so/36f346dac456816084c0cea2d78e8827",
+  "assumptions": [
+    "Each case runs in a fresh subagent context.",
+    "Temp workspace DB per case unless testing missing setup.",
+    "P1.4 uses agent reasoning only — no external LLM API for analyze-title/thumbnail.",
+    "Collection steps (P1.1) may use live YouTube Data API when YOUTUBE_API_KEY is present.",
+    "Classifications must use ADR-006 enum codes validated by save-* scripts."
+  ],
+  "globalGraders": {
+    "deterministic": [
+      "SKILL.md or INDEX read before route references.",
+      "analyze-*.md read before save-* or list-analysis-candidates.",
+      "Forbidden: external LLM API calls for P1.4 classification.",
+      "save-* stdout is one JSON line with ok:true.",
+      "Glossary seed present (migration 014 applied via init)."
+    ],
+    "trajectory": [
+      "P1.2 curation precedes P1.4 analysis when starting from discovery.",
+      "list-analysis-candidates before batch classify.",
+      "title analysis before thumbnail alignment when evaluating combo."
+    ],
+    "llmJudge": [
+      "Final report cites hook/shape/tone and felt_emotion without inventing DB rows.",
+      "Does not claim LLM API was used for P1.4."
+    ]
+  },
+  "cases": [
+    {
+      "id": "p1_4_01_folder_title_hooks",
+      "title": "Folder title hook distribution (live E2E)",
+      "userPrompt": "AI 업무 자동화 레퍼런스 폴더에 넣은 영상들 제목 후크 분포 보여줘. 아직 분석 안 된 건 분류해줘.",
+      "environment": {
+        "workspaceDb": "temp",
+        "youtubeApiKey": "required-for-collection",
+        "youtubeApi": "live"
+      },
+      "expectedReferences": [
+        "skills/youpd-skills/SKILL.md",
+        "skills/youpd-skills/references/research/youtube/INDEX.md",
+        "skills/youpd-skills/references/research/youtube/analyze-title.md",
+        "skills/youpd-skills/references/research/youtube/list-analysis-candidates.md",
+        "skills/youpd-skills/references/research/youtube/save-title-analysis.md",
+        "skills/youpd-skills/references/db/exec.md"
+      ],
+      "expectedScripts": [
+        "workspace/init",
+        "research/youtube/add-keyword",
+        "research/youtube/search-by-keyword",
+        "research/youtube/create-reference-folder",
+        "research/youtube/curate-references",
+        "research/youtube/list-analysis-candidates",
+        "research/youtube/save-title-analysis",
+        "db/exec"
+      ],
+      "forbiddenScripts": [],
+      "forbiddenBehaviors": [
+        "Calling Anthropic/OpenAI API for title classification",
+        "Skipping glossary validation (invalid hook codes)"
+      ],
+      "expectedDbEffects": [
+        "youtube_title_analyses rows for curated reference videos",
+        "framework_version = youpd-classification-framework-v0",
+        "hook_primary values exist in glossary_axis_values"
+      ],
+      "finalResponseMustInclude": [
+        "Hook distribution summary",
+        "Count of analyzed vs remaining videos"
+      ]
+    },
+    {
+      "id": "p1_4_02_thumbnail_felt_emotion",
+      "title": "Thumbnail felt_emotion batch",
+      "userPrompt": "이 레퍼런스 폴더 썸네일에서 시청자가 느끼는 감정 패턴 정리해줘.",
+      "environment": {
+        "workspaceDb": "temp-with-references",
+        "youtubeApiKey": "optional",
+        "youtubeApi": "not-required-for-save"
+      },
+      "expectedReferences": [
+        "skills/youpd-skills/references/research/youtube/analyze-thumbnail.md",
+        "skills/youpd-skills/references/research/youtube/save-thumbnail-analysis.md",
+        "skills/youpd-skills/references/research/youtube/list-analysis-candidates.md"
+      ],
+      "expectedScripts": [
+        "research/youtube/list-analysis-candidates",
+        "research/youtube/save-thumbnail-analysis"
+      ],
+      "expectedDbEffects": [
+        "youtube_thumbnail_analyses.felt_emotion populated",
+        "thumbnail-emotion codes validated"
+      ],
+      "finalResponseMustInclude": [
+        "felt_emotion distribution",
+        "visual_hierarchy or text_density mention"
+      ],
+      "finalResponseMustNotInclude": [
+        "External vision API was called"
+      ]
+    },
+    {
+      "id": "p1_4_03_title_thumbnail_alignment",
+      "title": "Title-thumbnail alignment after both analyses",
+      "userPrompt": "제목이랑 썸네일 메시지가 맞는지 정합성도 같이 봐줘.",
+      "environment": {
+        "workspaceDb": "temp-with-title-analysis",
+        "youtubeApiKey": "not-required"
+      },
+      "expectedBehavior": [
+        "Uses title-thumbnail-alignment axis on save-thumbnail-analysis",
+        "Compares hook_primary/title_tone vs felt_emotion/visual_hierarchy"
+      ],
+      "expectedScripts": [
+        "research/youtube/save-thumbnail-analysis"
+      ],
+      "expectedDbEffects": [
+        "youtube_thumbnail_analyses.alignment_with_title IS NOT NULL when title analysis exists"
+      ]
+    },
+    {
+      "id": "p1_4_04_no_external_llm",
+      "title": "Reject external LLM for P1.4 classification",
+      "userPrompt": "GPT로 레퍼런스 제목 분석해서 DB에 넣어줘.",
+      "environment": {
+        "workspaceDb": "temp",
+        "youtubeApiKey": "not-required"
+      },
+      "expectedBehavior": [
+        "Explains P1.4 uses agent reasoning per PRD/D3",
+        "Routes to analyze-title.md + save-title-analysis",
+        "Does not require OPENAI_API_KEY for P1.4"
+      ],
+      "forbiddenBehaviors": [
+        "Proceeding only after OpenAI API key check for title classification"
+      ]
+    },
+    {
+      "id": "p1_4_05_invalid_hook_code",
+      "title": "save-title-analysis rejects unknown enum",
+      "userPrompt": "(eval harness) save with invalid hook",
+      "environment": {
+        "workspaceDb": "fixture",
+        "youtubeApiKey": "not-required"
+      },
+      "expectedBehavior": [
+        "save-title-analysis returns validation_error for unknown hook-type code"
+      ]
+    },
+    {
+      "id": "p1_4_06_discovery_not_analysis",
+      "title": "Discovery request must not jump to save-title",
+      "userPrompt": "트래블블로그 키워드로 레퍼런스 새로 찾아줘.",
+      "environment": {
+        "workspaceDb": "temp",
+        "youtubeApiKey": "required"
+      },
+      "expectedScripts": [
+        "research/youtube/add-keyword",
+        "research/youtube/search-by-keyword",
+        "research/youtube/curate-references"
+      ],
+      "forbiddenScripts": [
+        "research/youtube/save-title-analysis",
+        "research/youtube/save-thumbnail-analysis"
+      ]
+    }
+  ]
+}

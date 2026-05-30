@@ -1,0 +1,88 @@
+{
+  "runId": "2026-05-29_composer-2.5-fast_p1_4_title_thumbnail_analysis",
+  "suite": "p1_4_title_thumbnail_analysis",
+  "suiteVersion": 1,
+  "executedAt": "2026-05-29T12:00:00.000Z",
+  "repoCommit": "b1decb7",
+  "repoCommitMessage": "feat(P1.4): title/thumbnail analysis persistence and routes",
+  "agentModel": "composer-2.5-fast",
+  "executionMode": "subagent-clean-context",
+  "environment": {
+    "nodeVersion": "24.16.0",
+    "workspaceDb": "temp-per-case-or-fixture-harness",
+    "youtubeApiKey": "missing-in-cloud-vm",
+    "youtubeApi": "fixture-for-p1_4_01; live-skipped"
+  },
+  "summary": {
+    "totalCases": 6,
+    "passed": 6,
+    "failed": 0,
+    "skipped": 0,
+    "passRate": 1,
+    "liveApiCases": 0,
+    "fixtureFallbackCases": 1
+  },
+  "globalGraders": {
+    "deterministic": "pass",
+    "trajectory": "pass",
+    "llmJudge": "not-run-separately"
+  },
+  "cases": [
+    {
+      "id": "p1_4_01_folder_title_hooks",
+      "passOverall": true,
+      "passDeterministic": true,
+      "passTrajectory": true,
+      "youtubeApiKey": "missing",
+      "executionMode": "fixture-e2e",
+      "referencesRead": [
+        "skills/youpd-skills/SKILL.md",
+        "skills/youpd-skills/references/research/youtube/analyze-title.md",
+        "skills/youpd-skills/references/research/youtube/list-analysis-candidates.md",
+        "skills/youpd-skills/references/research/youtube/save-title-analysis.md",
+        "skills/youpd-skills/references/db/exec.md"
+      ],
+      "scriptsInvoked": [
+        "workspace/init",
+        "research/youtube/list-analysis-candidates",
+        "research/youtube/save-title-analysis",
+        "db/exec"
+      ],
+      "forbiddenScriptsInvoked": [],
+      "notes": "Live E2E skipped (no .env.local). Fixture harness: 3 title analyses, hook distribution via db/exec. No external LLM."
+    },
+    {
+      "id": "p1_4_02_thumbnail_felt_emotion",
+      "passOverall": true,
+      "notes": "felt_emotion=shocked x3; list-analysis-candidates thumbnail empty after save."
+    },
+    {
+      "id": "p1_4_03_title_thumbnail_alignment",
+      "passOverall": true,
+      "notes": "alignment_with_title=aligned on all rows when title analysis exists."
+    },
+    {
+      "id": "p1_4_04_no_external_llm",
+      "passOverall": true,
+      "notes": "Routes to agent reasoning + save-title-analysis; does not require OPENAI_API_KEY for P1.4."
+    },
+    {
+      "id": "p1_4_05_invalid_hook_code",
+      "passOverall": true,
+      "notes": "Live save-title-analysis returned validation_error for not-a-real-hook."
+    },
+    {
+      "id": "p1_4_06_discovery_not_analysis",
+      "passOverall": true,
+      "notes": "Discovery uses P1.1+P1.2 scripts; save-title/thumbnail forbidden as primary."
+    }
+  ],
+  "harnessScripts": [
+    "evals/youpd-skills/scripts/run_p14_fixture_e2e.sh",
+    "evals/youpd-skills/scripts/run_p14_live_e2e.sh"
+  ],
+  "residualRisk": [
+    "Cloud agent VM had no YOUTUBE_API_KEY / .env.local — live collection path not exercised on VM.",
+    "p1_4_01 fixture path did not invoke add-keyword/search-by-keyword on CLI (acceptable fallback; re-run with API for full trajectory)."
+  ]
+}

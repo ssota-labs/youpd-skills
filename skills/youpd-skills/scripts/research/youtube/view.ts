@@ -95,6 +95,12 @@ async function main(): Promise<void> {
     const payload = loadWorkspaceViewPayload(db, dbPath);
     const html = renderWorkspaceViewHtml(payload);
     const byteLength = Buffer.byteLength(html, 'utf8');
+    const counts = {
+      titleAnalyses: Object.keys(payload.titleAnalysisByVideoId).length,
+      thumbnailAnalyses: Object.keys(payload.thumbnailAnalysisByVideoId).length,
+      foldersWithStats: payload.folders.filter((f) => f.bothAnalyzedCount != null).length,
+      analysisSurfaceEnabled: payload.analysisSurfaceEnabled,
+    };
 
     if (args.mode === 'static') {
       const outputPath = resolve(args.outputPath ?? defaultOutputPath(dbPath));
@@ -103,6 +109,7 @@ async function main(): Promise<void> {
         mode: 'static',
         htmlPath: outputPath,
         byteLength,
+        counts,
       };
       emitOk(ROUTE, dbPath, result, 0);
       return;
@@ -115,6 +122,7 @@ async function main(): Promise<void> {
       host: args.host,
       port: args.port,
       byteLength,
+      counts,
     };
     emitOk(ROUTE, dbPath, result, 0);
 

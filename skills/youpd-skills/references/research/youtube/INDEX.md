@@ -25,10 +25,10 @@ discover-references            에이전트 절차: keyword probe → 수집 라
 create-reference-folder / curate-references / list-references / fetch-comments
        │
        ▼
-view-workspace                 로컬 읽기 전용 HTML 뷰어
+view-workspace                 로컬 읽기 전용 HTML 뷰어 (제목·썸네일 분석 표면)
        │
        ▼
-analyze-title / analyze-thumbnail   (준비 중)
+analyze-title / analyze-thumbnail   사용 가능
        │
        ▼
 fetch-transcript / analyze-intro    (준비 중)
@@ -93,11 +93,12 @@ add-keyword → search-by-keyword → list-hot-videos
   (필요 시) search-channels / fetch-channel / fetch-channel-videos
   create-reference-folder → record-discovery-run → curate-references → fetch-comments → list-references
   view-workspace
-  (준비 중) analyze-title / analyze-thumbnail / fetch-transcript / analyze-intro
+  analyze-title / analyze-thumbnail
+  (준비 중) fetch-transcript / analyze-intro
 ```
 
 ## 제공 상태
 
-- **사용 가능**: 워크스페이스 초기화; 키워드·채널·영상 수집 6종; 레퍼런스 폴더·큐레이션·댓글; 로컬 워크스페이스 뷰어
+- **사용 가능**: 워크스페이스 초기화; 키워드·채널·영상 수집 6종; 레퍼런스 폴더·큐레이션·댓글; 로컬 워크스페이스 뷰어(제목·썸네일 분석 표면); 제목·썸네일 분석 저장
 - **미지원**: `fetch-trending` (인기 영상은 `list-hot-videos`); 단독 snapshot 라우트(수집 경로에 통합됨)
-- **준비 중**: 제목·썸네일 분석; 자막 추출; 도입부 분석
+- **준비 중**: 자막 추출; 도입부 분석
