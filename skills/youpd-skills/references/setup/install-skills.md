@@ -21,10 +21,11 @@ npx skills add ssota-labs/youpd-skills --skill youpd-skills \
 설치 경로 = **SKILL_ROOT** (`bootstrap`·스크립트 실행 기준).  
 Cursor 등에서는 often `~/.agents/skills/youpd-skills` — **실행 로그로 확인**.
 
-## 유저에게
+## 유저에게 (README 문구)
 
-「터미널에 이 명령을 입력하세요」라고 **하지 않는다**.  
-온보딩 전체는 `onboarding.md` 를 따른다.
+「터미널에 입력하세요」가 아니라, **아래 명령을 채팅에 붙여 넣고 `알아서 실행해줘` 라고 하세요.**
+
+온보딩은 설치 후 `youpd 온보딩해줘` → `onboarding.md`.
 
 ## 최소 (플래그 없음 · 대화형, 에이전트용)
 

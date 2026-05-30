@@ -3,17 +3,25 @@
 > **터미널을 쓰지 않는 유저**를 기본으로 한다. 설치(`npx skills add`)·폴더 생성·스크립트·브라우저(YouTube 키) 안내는 **전부 에이전트**가 Shell로 수행한다.
 > 유저는 Cursor 채팅과, 안내받은 **브라우저 폼**만 사용한다.
 
-## 유저가 말하는 한 줄 (README와 동일)
+## 유저가 Agent 채팅에 넣는 말 (README와 동일)
+
+**설치(최초 1회)** — 명령 블록 + 실행 요청:
 
 ```text
-youpd-skills 설치하고 온보딩해줘.
+아래 명령 알아서 실행해줘.
+
+npx skills add ssota-labs/youpd-skills --skill youpd-skills \
+  -a cursor -a claude-code -a codex \
+  -g -y
 ```
 
-또는 이미 설치했다면:
+**온보딩** — 설치가 끝난 뒤:
 
 ```text
 youpd 온보딩해줘.
 ```
+
+유저에게 「터미널을 열어서 입력하세요」라고 **하지 않는다**. 명령은 **채팅에 붙여 넣고 Agent가 Shell**로 실행한다.
 
 ## 에이전트 절대 규칙
 

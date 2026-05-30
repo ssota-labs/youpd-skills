@@ -10,18 +10,26 @@
 
 ## 유저 온보딩 (터미널 없음)
 
-**유저는 터미널을 쓰지 않는다.** 설치·설정 명령은 **Cursor Agent가 실행**하고, 유저는 채팅 + 브라우저(YouTube API 키)만 쓴다.
+**유저는 터미널을 쓰지 않는다.** 아래 **명령어를 Cursor 채팅에 붙여 넣고**, 에이전트에게 실행하라고 하면 된다.
 
-**Cursor Agent에 붙여 넣기:**
+**1) 설치 — Agent 채팅에 붙여 넣기:**
 
 ```text
-youpd-skills 설치하고 온보딩해줘.
+아래 명령 알아서 실행해줘.
+
+npx skills add ssota-labs/youpd-skills --skill youpd-skills \
+  -a cursor -a claude-code -a codex \
+  -g -y
 ```
 
-에이전트가 `npx skills add` 부터 채널 폴더·DB·API 키(HTML)·시청자 논의까지 진행한다.  
-절차: `skills/youpd-skills/references/setup/onboarding.md` · [docs/installation.md](docs/installation.md)
+**2) 온보딩 — 설치가 끝난 뒤:**
 
-이미 설치됐으면: `youpd 온보딩해줘.`
+```text
+youpd 온보딩해줘.
+```
+
+에이전트는 `references/setup/onboarding.md` 절차(채널 폴더 → DB → API 키 HTML → 시청자 논의)를 따른다.  
+[docs/installation.md](docs/installation.md)
 
 [![skills.sh](https://skills.sh/b/ssota-labs/youpd-skills)](https://skills.sh/ssota-labs/youpd-skills) · [skills.sh 안내](docs/skills-sh.md)
 
