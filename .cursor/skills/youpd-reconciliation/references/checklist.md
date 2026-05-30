@@ -52,6 +52,8 @@ For each page in `관련 문서` on IMPL/VERF/Spec-related tasks:
 정합성 체크해줘. 개발 태스크 DB 전체, main 최신 기준.
 ```
 
+After the run, file a Notion log page (`태그` = `정합성`) — see [report-template.md](report-template.md). Do not save reports in the repo.
+
 ## Out of scope (unless explicit)
 
 - Shipped `skills/youpd-skills/SKILL.md` vs references contract audit → `docs/testing/skill-evaluation.md`

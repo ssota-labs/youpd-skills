@@ -119,7 +119,8 @@ Route map & cuts; cumulative rules; ship report; `[ADR-NNNN]` immutable decision
 | Release | `릴리즈 노트` | — |
 | ADR | `ADR` | — |
 | Guide | `가이드` | — |
-| Research / reconciliation | `리서치` | — |
+| Research | `리서치` | — |
+| Development SSOT reconciliation log | `정합성` | — (see [youpd-reconciliation](../youpd-reconciliation/SKILL.md); one page per run, Notion only) |
 
 ## Anti-patterns
 
