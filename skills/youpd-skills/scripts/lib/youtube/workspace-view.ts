@@ -44,6 +44,43 @@ export interface WorkspaceFolderSummary {
   name: string;
   consumerStage: ConsumerStage;
   videoCount: number;
+  titleAnalyzedCount?: number;
+  thumbnailAnalyzedCount?: number;
+  bothAnalyzedCount?: number;
+}
+
+export interface WorkspaceFolderAnalysisStats {
+  folderId: string;
+  totalVideos: number;
+  titleAnalyzed: number;
+  thumbnailAnalyzed: number;
+  bothAnalyzed: number;
+  hookPrimaryCounts: Record<string, number>;
+  titleToneCounts: Record<string, number>;
+  feltEmotionCounts: Record<string, number>;
+  alignmentCounts: Record<string, number>;
+}
+
+export interface WorkspaceTitleAnalysisSummary {
+  videoId: string;
+  hookPrimary: string;
+  hookSecondary: string | null;
+  titleShapes: string[];
+  titleTone: string;
+  reasoning: string;
+  analyzedAt: string;
+}
+
+export interface WorkspaceThumbnailAnalysisSummary {
+  videoId: string;
+  visualHierarchy: string;
+  textDensity: string;
+  faceTreatment: string | null;
+  feltEmotion: string;
+  alignmentWithTitle: string | null;
+  alignmentReasoning: string | null;
+  reasoning: string;
+  analyzedAt: string;
 }
 
 export interface WorkspaceReferenceSummary {
@@ -60,6 +97,8 @@ export interface WorkspaceReferenceSummary {
   lengthAdjustedScore: number | null;
   addedAt: string;
   reason: string | null;
+  hasTitleAnalysis?: boolean;
+  hasThumbnailAnalysis?: boolean;
 }
 
 export interface WorkspaceChannelSummary {
@@ -102,10 +141,225 @@ export interface WorkspaceViewPayload {
   searchSessions: WorkspaceSearchSessionSummary[];
   hotVideos: WorkspaceHotVideoSummary[];
   folders: WorkspaceFolderSummary[];
+  folderAnalysisStats: WorkspaceFolderAnalysisStats[];
   references: WorkspaceReferenceSummary[];
   channels: WorkspaceChannelSummary[];
   videos: WorkspaceVideoSummary[];
   commentsByVideoId: Record<string, WorkspaceCommentSummary[]>;
+  analysisSurfaceEnabled: boolean;
+  glossaryLabels: Record<string, string>;
+  titleAnalysisByVideoId: Record<string, WorkspaceTitleAnalysisSummary>;
+  thumbnailAnalysisByVideoId: Record<string, WorkspaceThumbnailAnalysisSummary>;
+}
+
+const GLOSSARY_AXIS_CODES = [
+  'hook-type',
+  'title-shape',
+  'title-tone',
+  'visual-hierarchy',
+  'text-density',
+  'face-treatment',
+  'thumbnail-emotion',
+  'title-thumbnail-alignment',
+] as const;
+
+function tableExists(db: Db, tableName: string): boolean {
+  const row = db
+    .prepare(`SELECT 1 AS ok FROM sqlite_master WHERE type = 'table' AND name = ?`)
+    .get(tableName) as { ok: number } | undefined;
+  return row != null;
+}
+
+function parseJsonStringArray(raw: string): string[] {
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter((v): v is string => typeof v === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+
+function incrementCount(map: Record<string, number>, key: string | null | undefined): void {
+  if (!key) return;
+  map[key] = (map[key] ?? 0) + 1;
+}
+
+function loadGlossaryLabels(db: Db): Record<string, string> {
+  const placeholders = GLOSSARY_AXIS_CODES.map(() => '?').join(', ');
+  const rows = db
+    .prepare(
+      `SELECT v.code, v.name
+       FROM glossary_axis_values v
+       JOIN glossary_axes a ON a.id = v.axis_id
+       WHERE a.code IN (${placeholders})`,
+    )
+    .all(...GLOSSARY_AXIS_CODES) as Array<{ code: string; name: string }>;
+
+  const labels: Record<string, string> = {};
+  for (const row of rows) {
+    labels[row.code] = row.name;
+  }
+  return labels;
+}
+
+function loadTitleAnalyses(db: Db): Record<string, WorkspaceTitleAnalysisSummary> {
+  const rows = db
+    .prepare(
+      `SELECT video_id, hook_primary, hook_secondary, title_shapes_json, title_tone, reasoning, analyzed_at
+       FROM youtube_title_analyses`,
+    )
+    .all() as Array<{
+      video_id: string;
+      hook_primary: string;
+      hook_secondary: string | null;
+      title_shapes_json: string;
+      title_tone: string;
+      reasoning: string;
+      analyzed_at: string;
+    }>;
+
+  const byVideoId: Record<string, WorkspaceTitleAnalysisSummary> = {};
+  for (const row of rows) {
+    byVideoId[row.video_id] = {
+      videoId: row.video_id,
+      hookPrimary: row.hook_primary,
+      hookSecondary: row.hook_secondary,
+      titleShapes: parseJsonStringArray(row.title_shapes_json),
+      titleTone: row.title_tone,
+      reasoning: row.reasoning,
+      analyzedAt: row.analyzed_at,
+    };
+  }
+  return byVideoId;
+}
+
+function loadThumbnailAnalyses(db: Db): Record<string, WorkspaceThumbnailAnalysisSummary> {
+  const rows = db
+    .prepare(
+      `SELECT video_id, visual_hierarchy, text_density, face_treatment, felt_emotion,
+              alignment_with_title, alignment_reasoning, reasoning, analyzed_at
+       FROM youtube_thumbnail_analyses`,
+    )
+    .all() as Array<{
+      video_id: string;
+      visual_hierarchy: string;
+      text_density: string;
+      face_treatment: string | null;
+      felt_emotion: string;
+      alignment_with_title: string | null;
+      alignment_reasoning: string | null;
+      reasoning: string;
+      analyzed_at: string;
+    }>;
+
+  const byVideoId: Record<string, WorkspaceThumbnailAnalysisSummary> = {};
+  for (const row of rows) {
+    byVideoId[row.video_id] = {
+      videoId: row.video_id,
+      visualHierarchy: row.visual_hierarchy,
+      textDensity: row.text_density,
+      faceTreatment: row.face_treatment,
+      feltEmotion: row.felt_emotion,
+      alignmentWithTitle: row.alignment_with_title,
+      alignmentReasoning: row.alignment_reasoning,
+      reasoning: row.reasoning,
+      analyzedAt: row.analyzed_at,
+    };
+  }
+  return byVideoId;
+}
+
+function loadFolderAnalysisStats(db: Db): WorkspaceFolderAnalysisStats[] {
+  const countRows = db
+    .prepare(
+      `SELECT
+         f.id AS folder_id,
+         COUNT(rfv.video_id) AS total_videos,
+         COUNT(t.video_id) AS title_analyzed,
+         COUNT(th.video_id) AS thumbnail_analyzed,
+         COUNT(
+           CASE WHEN t.video_id IS NOT NULL AND th.video_id IS NOT NULL THEN 1 END
+         ) AS both_analyzed
+       FROM reference_folders f
+       LEFT JOIN reference_folder_videos rfv ON rfv.folder_id = f.id
+       LEFT JOIN youtube_title_analyses t ON t.video_id = rfv.video_id
+       LEFT JOIN youtube_thumbnail_analyses th ON th.video_id = rfv.video_id
+       GROUP BY f.id`,
+    )
+    .all() as Array<{
+      folder_id: string;
+      total_videos: number;
+      title_analyzed: number;
+      thumbnail_analyzed: number;
+      both_analyzed: number;
+    }>;
+
+  const detailRows = db
+    .prepare(
+      `SELECT
+         rfv.folder_id,
+         t.hook_primary,
+         t.title_tone,
+         th.felt_emotion,
+         th.alignment_with_title
+       FROM reference_folder_videos rfv
+       LEFT JOIN youtube_title_analyses t ON t.video_id = rfv.video_id
+       LEFT JOIN youtube_thumbnail_analyses th ON th.video_id = rfv.video_id`,
+    )
+    .all() as Array<{
+      folder_id: string;
+      hook_primary: string | null;
+      title_tone: string | null;
+      felt_emotion: string | null;
+      alignment_with_title: string | null;
+    }>;
+
+  const distByFolder = new Map<
+    string,
+    {
+      hookPrimaryCounts: Record<string, number>;
+      titleToneCounts: Record<string, number>;
+      feltEmotionCounts: Record<string, number>;
+      alignmentCounts: Record<string, number>;
+    }
+  >();
+
+  for (const row of detailRows) {
+    let bucket = distByFolder.get(row.folder_id);
+    if (!bucket) {
+      bucket = {
+        hookPrimaryCounts: {},
+        titleToneCounts: {},
+        feltEmotionCounts: {},
+        alignmentCounts: {},
+      };
+      distByFolder.set(row.folder_id, bucket);
+    }
+    incrementCount(bucket.hookPrimaryCounts, row.hook_primary);
+    incrementCount(bucket.titleToneCounts, row.title_tone);
+    incrementCount(bucket.feltEmotionCounts, row.felt_emotion);
+    incrementCount(bucket.alignmentCounts, row.alignment_with_title);
+  }
+
+  return countRows.map((row) => {
+    const dist = distByFolder.get(row.folder_id) ?? {
+      hookPrimaryCounts: {},
+      titleToneCounts: {},
+      feltEmotionCounts: {},
+      alignmentCounts: {},
+    };
+    return {
+      folderId: row.folder_id,
+      totalVideos: row.total_videos,
+      titleAnalyzed: row.title_analyzed,
+      thumbnailAnalyzed: row.thumbnail_analyzed,
+      bothAnalyzed: row.both_analyzed,
+      hookPrimaryCounts: dist.hookPrimaryCounts,
+      titleToneCounts: dist.titleToneCounts,
+      feltEmotionCounts: dist.feltEmotionCounts,
+      alignmentCounts: dist.alignmentCounts,
+    };
+  });
 }
 
 export function loadWorkspaceViewPayload(db: Db, dbPath: string): WorkspaceViewPayload {
@@ -335,6 +589,57 @@ export function loadWorkspaceViewPayload(db: Db, dbPath: string): WorkspaceViewP
     commentsByVideoId[row.video_id] = bucket;
   }
 
+  const analysisSurfaceEnabled = tableExists(db, 'youtube_title_analyses');
+  const glossaryLabels = analysisSurfaceEnabled ? loadGlossaryLabels(db) : {};
+  const titleAnalysisByVideoId = analysisSurfaceEnabled ? loadTitleAnalyses(db) : {};
+  const thumbnailAnalysisByVideoId = analysisSurfaceEnabled ? loadThumbnailAnalyses(db) : {};
+  const folderAnalysisStats = analysisSurfaceEnabled ? loadFolderAnalysisStats(db) : [];
+  const folderStatsById = new Map(folderAnalysisStats.map((s) => [s.folderId, s]));
+
+  const mappedFolders: WorkspaceFolderSummary[] = folders.map((row) => {
+    const base: WorkspaceFolderSummary = {
+      id: row.id,
+      groupId: row.group_id,
+      groupName: row.group_name,
+      name: row.name,
+      consumerStage: row.consumer_stage,
+      videoCount: row.video_count,
+    };
+    if (!analysisSurfaceEnabled) return base;
+    const stats = folderStatsById.get(row.id);
+    if (!stats) return base;
+    return {
+      ...base,
+      titleAnalyzedCount: stats.titleAnalyzed,
+      thumbnailAnalyzedCount: stats.thumbnailAnalyzed,
+      bothAnalyzedCount: stats.bothAnalyzed,
+    };
+  });
+
+  const mappedReferences: WorkspaceReferenceSummary[] = references.map((row) => {
+    const base: WorkspaceReferenceSummary = {
+      folderId: row.folder_id,
+      folderName: row.folder_name,
+      groupName: row.group_name,
+      consumerStage: row.consumer_stage,
+      videoId: row.video_id,
+      title: row.title,
+      channelTitle: row.channel_title,
+      publishedAt: row.published_at,
+      performanceGrade: row.performance_grade,
+      contributionGrade: row.contribution_grade,
+      lengthAdjustedScore: row.length_adjusted_score,
+      addedAt: row.added_at,
+      reason: row.reason,
+    };
+    if (!analysisSurfaceEnabled) return base;
+    return {
+      ...base,
+      hasTitleAnalysis: row.video_id in titleAnalysisByVideoId,
+      hasThumbnailAnalysis: row.video_id in thumbnailAnalysisByVideoId,
+    };
+  });
+
   return {
     meta: {
       dbPath,
@@ -368,29 +673,9 @@ export function loadWorkspaceViewPayload(db: Db, dbPath: string): WorkspaceViewP
       performanceGrade: row.performance_grade,
       contributionGrade: row.contribution_grade,
     })),
-    folders: folders.map((row) => ({
-      id: row.id,
-      groupId: row.group_id,
-      groupName: row.group_name,
-      name: row.name,
-      consumerStage: row.consumer_stage,
-      videoCount: row.video_count,
-    })),
-    references: references.map((row) => ({
-      folderId: row.folder_id,
-      folderName: row.folder_name,
-      groupName: row.group_name,
-      consumerStage: row.consumer_stage,
-      videoId: row.video_id,
-      title: row.title,
-      channelTitle: row.channel_title,
-      publishedAt: row.published_at,
-      performanceGrade: row.performance_grade,
-      contributionGrade: row.contribution_grade,
-      lengthAdjustedScore: row.length_adjusted_score,
-      addedAt: row.added_at,
-      reason: row.reason,
-    })),
+    folders: mappedFolders,
+    folderAnalysisStats,
+    references: mappedReferences,
     channels: channels.map((row) => ({
       channelId: row.channel_id,
       title: row.title,
@@ -416,6 +701,10 @@ export function loadWorkspaceViewPayload(db: Db, dbPath: string): WorkspaceViewP
       lengthAdjustedScore: row.length_adjusted_score,
     })),
     commentsByVideoId,
+    analysisSurfaceEnabled,
+    glossaryLabels,
+    titleAnalysisByVideoId,
+    thumbnailAnalysisByVideoId,
   };
 }
 
@@ -517,6 +806,35 @@ export function renderWorkspaceViewHtml(payload: WorkspaceViewPayload): string {
     a.link { color: var(--accent); text-decoration: none; }
     a.link:hover { text-decoration: underline; }
     .hidden { display: none !important; }
+    .callout {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    .callout.warn { border-color: var(--warn); color: var(--warn); }
+    .callout.ok { border-color: var(--good); color: var(--good); }
+    .filter-bar { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.75rem; }
+    .filter-bar button {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+    .filter-bar button.active { border-color: var(--accent); color: var(--accent); }
+    .analysis-badge { border-color: var(--good); color: var(--good); }
+    .analysis-badge.partial { border-color: var(--warn); color: var(--warn); }
+    .analysis-badge.missing { border-color: var(--muted); color: var(--muted); }
+    .dist-row { margin: 0.35rem 0; font-size: 0.85rem; }
+    .dist-row .label { display: inline-block; min-width: 8rem; color: var(--muted); }
+    .bar-wrap { display: inline-block; width: 10rem; height: 0.45rem; background: var(--border); border-radius: 4px; vertical-align: middle; margin: 0 0.35rem; }
+    .bar-fill { height: 100%; background: var(--accent); border-radius: 4px; }
+    tr.folder-selected td { background: rgba(124, 156, 255, 0.12); }
+    details.reasoning summary { cursor: pointer; color: var(--muted); font-size: 0.85rem; }
   </style>
 </head>
 <body>
@@ -532,6 +850,7 @@ export function renderWorkspaceViewHtml(payload: WorkspaceViewPayload): string {
     </nav>
   </header>
   <main>
+    <div id="analysis-banner"></div>
     <section id="view-search"></section>
     <section id="view-folders" class="hidden"></section>
     <section id="view-channels" class="hidden"></section>
@@ -545,8 +864,12 @@ export function renderWorkspaceViewHtml(payload: WorkspaceViewPayload): string {
       phenomenon: '현상', desire: '욕구', plan: '계획', action: '행동', reward: '보상',
       mixed: '복합', unspecified: '미지정'
     };
-    const state = { view: 'search', channelId: null, videoId: null };
+    const state = { view: 'search', channelId: null, videoId: null, folderId: null, refFilter: 'all' };
 
+    function analysisOn() { return !!DATA.analysisSurfaceEnabled; }
+    function label(code) {
+      return (DATA.glossaryLabels && DATA.glossaryLabels[code]) || code;
+    }
     function esc(s) {
       return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
@@ -569,10 +892,105 @@ export function renderWorkspaceViewHtml(payload: WorkspaceViewPayload): string {
     function ytVideoUrl(id) { return 'https://www.youtube.com/watch?v=' + encodeURIComponent(id); }
     function ytChannelUrl(id) { return 'https://www.youtube.com/channel/' + encodeURIComponent(id); }
 
+    function renderAnalysisBanner() {
+      const el = document.getElementById('analysis-banner');
+      if (!el) return;
+      if (analysisOn()) {
+        const nTitle = Object.keys(DATA.titleAnalysisByVideoId || {}).length;
+        const nThumb = Object.keys(DATA.thumbnailAnalysisByVideoId || {}).length;
+        el.innerHTML = '<div class="callout ok">제목·썸네일 분석 표면 활성 — 제목 ' + nTitle + '건 · 썸네일 ' + nThumb + '건</div>';
+      } else {
+        el.innerHTML = '<div class="callout warn">P1.4 분석 테이블이 없습니다 — 분석 표면 비활성 (P1.3 뷰어만)</div>';
+      }
+    }
+
+    function analysisBadges(r) {
+      if (!analysisOn()) return '';
+      const title = !!r.hasTitleAnalysis;
+      const thumb = !!r.hasThumbnailAnalysis;
+      if (title && thumb) return '<span class="badge analysis-badge">제목✓</span><span class="badge analysis-badge">썸네일✓</span>';
+      if (title) return '<span class="badge analysis-badge">제목✓</span><span class="badge analysis-badge partial">썸네일—</span>';
+      if (thumb) return '<span class="badge analysis-badge partial">제목—</span><span class="badge analysis-badge">썸네일✓</span>';
+      return '<span class="badge analysis-badge missing">미분석</span>';
+    }
+
+    function refFilterMatches(r, filter) {
+      if (filter === 'all') return true;
+      const title = !!r.hasTitleAnalysis;
+      const thumb = !!r.hasThumbnailAnalysis;
+      if (filter === 'title') return title;
+      if (filter === 'thumbnail') return thumb;
+      if (filter === 'both') return title && thumb;
+      if (filter === 'none') return !title && !thumb;
+      return true;
+    }
+
+    function folderProgress(f) {
+      if (!analysisOn() || f.bothAnalyzedCount == null) return '';
+      const both = f.bothAnalyzedCount;
+      const total = f.videoCount;
+      let hint = '';
+      if (f.titleAnalyzedCount != null && f.thumbnailAnalyzedCount != null) {
+        if (f.titleAnalyzedCount > both) hint += ' · 제목만 ' + (f.titleAnalyzedCount - both);
+        if (f.thumbnailAnalyzedCount > both) hint += ' · 썸네일만 ' + (f.thumbnailAnalyzedCount - both);
+      }
+      return '<span class="badge">분석 ' + both + '/' + total + '</span>' + (hint ? '<span class="meta">' + esc(hint) + '</span>' : '');
+    }
+
+    function renderDistBars(counts) {
+      const entries = Object.entries(counts || {}).sort((a, b) => b[1] - a[1]);
+      if (!entries.length) return '<div class="empty">집계 없음</div>';
+      const max = entries[0][1] || 1;
+      return entries.map(([code, n]) => {
+        const pct = Math.round((n / max) * 100);
+        return '<div class="dist-row"><span class="label">' + esc(label(code)) + '</span>'
+          + '<span class="bar-wrap"><span class="bar-fill" style="width:' + pct + '%"></span></span>'
+          + esc(String(n)) + '</div>';
+      }).join('');
+    }
+
+    function renderFolderStatsPanel(folderId) {
+      const stats = (DATA.folderAnalysisStats || []).find((s) => s.folderId === folderId);
+      if (!stats) return '';
+      return '<div class="panel"><h2>폴더 분석 분포</h2>'
+        + '<h3 style="font-size:0.85rem;margin:0.5rem 0 0.25rem">후크 primary</h3>' + renderDistBars(stats.hookPrimaryCounts)
+        + '<h3 style="font-size:0.85rem;margin:0.75rem 0 0.25rem">제목 톤</h3>' + renderDistBars(stats.titleToneCounts)
+        + '<h3 style="font-size:0.85rem;margin:0.75rem 0 0.25rem">썸네일 감정</h3>' + renderDistBars(stats.feltEmotionCounts)
+        + '<h3 style="font-size:0.85rem;margin:0.75rem 0 0.25rem">제목·썸네일 정합성</h3>' + renderDistBars(stats.alignmentCounts)
+        + '</div>';
+    }
+
+    function renderTitleAnalysisBlock(videoId) {
+      const a = (DATA.titleAnalysisByVideoId || {})[videoId];
+      if (!a) return '<div class="empty">제목 분석 없음</div>';
+      const shapes = (a.titleShapes || []).map((c) => label(c)).join(', ');
+      return '<div><div><strong>후크</strong> ' + esc(label(a.hookPrimary))
+        + (a.hookSecondary ? ' · ' + esc(label(a.hookSecondary)) : '') + '</div>'
+        + '<div class="meta">형태: ' + esc(shapes || '—') + ' · 톤: ' + esc(label(a.titleTone)) + '</div>'
+        + '<div class="meta">분석 시각: ' + fmtDate(a.analyzedAt) + '</div>'
+        + '<details class="reasoning"><summary>reasoning</summary><p>' + esc(a.reasoning) + '</p></details></div>';
+    }
+
+    function renderThumbnailAnalysisBlock(videoId) {
+      const a = (DATA.thumbnailAnalysisByVideoId || {})[videoId];
+      if (!a) return '<div class="empty">썸네일 분석 없음</div>';
+      return '<div><div><strong>시각 계층</strong> ' + esc(label(a.visualHierarchy))
+        + ' · <strong>텍스트 밀도</strong> ' + esc(label(a.textDensity)) + '</div>'
+        + '<div class="meta">얼굴: ' + esc(a.faceTreatment ? label(a.faceTreatment) : '—')
+        + ' · 감정: ' + esc(label(a.feltEmotion)) + '</div>'
+        + (a.alignmentWithTitle
+          ? '<div class="meta">정합성: ' + esc(label(a.alignmentWithTitle))
+            + (a.alignmentReasoning ? ' — ' + esc(a.alignmentReasoning) : '') + '</div>'
+          : '')
+        + '<div class="meta">분석 시각: ' + fmtDate(a.analyzedAt) + '</div>'
+        + '<details class="reasoning"><summary>reasoning</summary><p>' + esc(a.reasoning) + '</p></details></div>';
+    }
+
     function setView(view) {
       state.view = view;
       state.channelId = null;
       state.videoId = null;
+      state.folderId = null;
       document.querySelectorAll('#main-nav button').forEach((btn) => {
         btn.classList.toggle('active', btn.dataset.view === view);
       });
@@ -627,16 +1045,47 @@ export function renderWorkspaceViewHtml(payload: WorkspaceViewPayload): string {
     function renderFolders() {
       const el = document.getElementById('view-folders');
       const folderRows = DATA.folders.length
-        ? DATA.folders.map((f) => '<tr><td>' + esc(f.groupName) + '</td><td>' + esc(f.name) + '</td><td>' + stageBadge(f.consumerStage) + '</td><td>' + fmtNum(f.videoCount) + '</td></tr>').join('')
+        ? DATA.folders.map((f) => {
+            const sel = state.folderId === f.id ? ' folder-selected' : '';
+            const clickable = analysisOn() ? ' clickable' : '';
+            return '<tr class="' + clickable.trim() + sel + '" data-folder="' + esc(f.id) + '"><td>' + esc(f.groupName) + '</td><td>' + esc(f.name) + '</td><td>' + stageBadge(f.consumerStage) + '</td><td>' + fmtNum(f.videoCount) + ' ' + folderProgress(f) + '</td></tr>';
+          }).join('')
         : '<tr><td colspan="4" class="empty">레퍼런스 폴더가 없습니다.</td></tr>';
-      const refRows = DATA.references.length
-        ? DATA.references.map((r) => '<tr class="clickable" data-video="' + esc(r.videoId) + '"><td>' + esc(r.groupName) + ' / ' + esc(r.folderName) + '</td><td>' + esc(r.title) + '</td><td>' + esc(r.channelTitle) + '</td><td>' + stageBadge(r.consumerStage) + gradeBadge('성과', r.performanceGrade) + gradeBadge('기여', r.contributionGrade) + '</td><td>' + esc(r.reason || '') + '</td></tr>').join('')
+      const filteredRefs = DATA.references.filter((r) => refFilterMatches(r, state.refFilter));
+      const refRows = filteredRefs.length
+        ? filteredRefs.map((r) => '<tr class="clickable" data-video="' + esc(r.videoId) + '"><td>' + esc(r.groupName) + ' / ' + esc(r.folderName) + '</td><td>' + esc(r.title) + '</td><td>' + esc(r.channelTitle) + '</td><td>' + stageBadge(r.consumerStage) + gradeBadge('성과', r.performanceGrade) + gradeBadge('기여', r.contributionGrade) + analysisBadges(r) + '</td><td>' + esc(r.reason || '') + '</td></tr>').join('')
         : '<tr><td colspan="5" class="empty">큐레이션된 레퍼런스가 없습니다.</td></tr>';
+      const filterBar = analysisOn()
+        ? '<div class="filter-bar" id="ref-filters">'
+          + ['all','title','thumbnail','both','none'].map((f) => {
+              const labels = { all: '전체', title: '제목 완료', thumbnail: '썸네일 완료', both: '둘 다', none: '미완료' };
+              const active = state.refFilter === f ? ' active' : '';
+              return '<button type="button" data-filter="' + f + '" class="' + active.trim() + '">' + labels[f] + '</button>';
+            }).join('')
+          + '</div>'
+        : '';
+      const statsPanel = state.folderId && analysisOn() ? renderFolderStatsPanel(state.folderId) : '';
       el.innerHTML = '<div class="panel"><h2>폴더</h2><table><thead><tr><th>그룹</th><th>폴더</th><th>단계</th><th>영상 수</th></tr></thead><tbody>' + folderRows + '</tbody></table></div>'
-        + '<div class="panel"><h2>레퍼런스 영상</h2><table><thead><tr><th>폴더</th><th>제목</th><th>채널</th><th>배지</th><th>사유</th></tr></thead><tbody>' + refRows + '</tbody></table></div>';
+        + statsPanel
+        + '<div class="panel"><h2>레퍼런스 영상</h2>' + filterBar
+        + '<table><thead><tr><th>폴더</th><th>제목</th><th>채널</th><th>배지</th><th>사유</th></tr></thead><tbody>' + refRows + '</tbody></table></div>';
       el.querySelectorAll('tr[data-video]').forEach((row) => {
         row.addEventListener('click', () => openVideo(row.getAttribute('data-video')));
       });
+      if (analysisOn()) {
+        el.querySelectorAll('tr[data-folder]').forEach((row) => {
+          row.addEventListener('click', () => {
+            state.folderId = row.getAttribute('data-folder');
+            renderFolders();
+          });
+        });
+        el.querySelectorAll('#ref-filters button').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            state.refFilter = btn.getAttribute('data-filter') || 'all';
+            renderFolders();
+          });
+        });
+      }
     }
 
     function renderChannels() {
@@ -701,6 +1150,12 @@ export function renderWorkspaceViewHtml(payload: WorkspaceViewPayload): string {
         + (video.lengthAdjustedScore != null ? '<span class="badge">길이보정 ' + video.lengthAdjustedScore.toFixed(2) + '</span>' : '') + '</div>'
         + '<div><a class="link" href="' + ytVideoUrl(video.videoId) + '" target="_blank" rel="noopener">YouTube에서 열기</a></div></div></div></div>'
         + '<div class="panel"><h2>레퍼런스 폴더</h2><ul>' + refList + '</ul></div>'
+        + (analysisOn()
+          ? '<div class="panel analysis-panel"><h2>제목·썸네일 분석</h2>'
+            + '<h3 style="font-size:0.9rem;margin:0.75rem 0 0.35rem">제목</h3>' + renderTitleAnalysisBlock(video.videoId)
+            + '<h3 style="font-size:0.9rem;margin:0.75rem 0 0.35rem">썸네일</h3>' + renderThumbnailAnalysisBlock(video.videoId)
+            + '</div>'
+          : '')
         + '<div class="panel"><h2>댓글 (저장분)</h2>' + commentBlocks + '</div>';
       document.getElementById('back-generic').addEventListener('click', () => setView('folders'));
       el.querySelector('[data-channel]')?.addEventListener('click', (ev) => {
@@ -711,6 +1166,7 @@ export function renderWorkspaceViewHtml(payload: WorkspaceViewPayload): string {
     function render() {
       document.getElementById('meta-line').textContent =
         (DATA.meta.schemaVersionLabel ? DATA.meta.schemaVersionLabel + ' · ' : '') + DATA.meta.dbPath;
+      renderAnalysisBanner();
       if (state.view === 'search') renderSearch();
       else if (state.view === 'folders') renderFolders();
       else if (state.view === 'channels') renderChannels();

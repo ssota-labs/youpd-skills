@@ -161,7 +161,7 @@ test('view.ts serve mode responds with HTTP 200', async () => {
   const ws = makeTempWorkspace();
   try {
     const { db } = openDb({ path: ws.dbPath });
-    runMigrations(db);
+    runMigrations(db, { untilInclusive: '011_reference_curation.sql' });
     seedWorkspace(db);
     db.close();
 

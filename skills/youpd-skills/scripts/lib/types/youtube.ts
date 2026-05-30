@@ -348,6 +348,13 @@ export type FetchCommentsResult = {
 
 export type ViewWorkspaceMode = 'static' | 'serve';
 
+export type ViewWorkspaceCounts = {
+  titleAnalyses: number;
+  thumbnailAnalyses: number;
+  foldersWithStats: number;
+  analysisSurfaceEnabled: boolean;
+};
+
 export type ViewWorkspaceResult = {
   mode: ViewWorkspaceMode;
   htmlPath?: string;
@@ -355,4 +362,5 @@ export type ViewWorkspaceResult = {
   port?: number;
   host?: string;
   byteLength: number;
+  counts?: ViewWorkspaceCounts;
 };
