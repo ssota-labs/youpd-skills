@@ -44,6 +44,7 @@ Do **not** edit `main` except to read for Spec accuracy.
 | **D3 Tech Spec** | Frozen at release | What to implement this version |
 | **D4 Release Notes** | Cumulative | Shipped vs plan |
 | **D5 ADR** | Immutable | One major decision |
+| **PDR** | Immutable | One major product/business decision |
 
 **Overlap rule:** longest-lived doc wins — Blueprint for phase map, Policy for recurring rules, Spec for current contracts.
 
@@ -64,10 +65,11 @@ Do **not** edit `main` except to read for Spec accuracy.
 | 구현, implementation | → implementation skill | — |
 | Blueprint, phase roadmap | **Blueprint** | Version D3 |
 | 정책, Policy | **Policy** | ADR |
+| 제품/사업 의사결정, PDR, market/customer/demo/sales direction | **PDR** | ADR |
 
 ## Dependency order
 
-Roadmap → Blueprint → (Policy) + PRD → D3 → Implementation → Spec / Release notes. ADR at decision time.
+Roadmap → Blueprint → (Policy) + PRD → D3 → Implementation → Spec / Release notes. ADR/PDR at decision time.
 
 | Work type | Can start when |
 |---|---|
@@ -92,9 +94,9 @@ Data model, interfaces, algorithms, verification plan for **this version only**.
 
 **Current Contract** from `main`; **Not Implemented**; **Validation** (tests); **Change Log**. Name: `{제품} 스펙 — {area}`.
 
-### Blueprint / Policy / D4 / D5
+### Blueprint / Policy / D4 / D5 / PDR
 
-Route map & cuts; cumulative rules; ship report; `[ADR-NNNN]` immutable decision (supersede via new ADR line, not edits).
+Route map & cuts; cumulative rules; ship report; `[ADR-NNNN]` immutable architecture decision; `[PDR-NNNN]` immutable product/business decision (supersede via a new record, not edits).
 
 ## Task DB mapping
 
@@ -118,6 +120,7 @@ Route map & cuts; cumulative rules; ship report; `[ADR-NNNN]` immutable decision
 | Spec | `스펙` | — |
 | Release | `릴리즈 노트` | — |
 | ADR | `ADR` | — |
+| PDR | `PDR` | — |
 | Guide | `가이드` | — |
 | Research | `리서치` | — |
 | Development SSOT reconciliation log | `정합성` | — (see [youpd-reconciliation](../youpd-reconciliation/SKILL.md); one page per run, Notion only) |
@@ -131,6 +134,7 @@ Route map & cuts; cumulative rules; ship report; `[ADR-NNNN]` immutable decision
 - Implementation results in PRD → D4 or Spec
 - Editing shipped D3 → new D3 or ADR
 - Editing ADR body → new ADR; use Policy for living rules
+- Product/business decisions filed as ADR → PDR
 
 ## Examples
 
@@ -141,3 +145,4 @@ Route map & cuts; cumulative rules; ship report; `[ADR-NNNN]` immutable decision
 | P1.0 D3 | [설계](https://www.notion.so/36d346dac45681faa27fdfb0b39ef9fe) |
 | DB Spec | [스펙 — DB](https://www.notion.so/36c346dac45681a1923af41aa49c6a33) |
 | Route Spec | [스펙 — Route](https://www.notion.so/36f346dac45681e994aefccd54ff4487) |
+| PDR | [웹앱 데모 표면 분리](https://www.notion.so/370346dac4568175942df80bf98d406a) |
