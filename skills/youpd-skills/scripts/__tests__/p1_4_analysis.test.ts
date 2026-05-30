@@ -121,7 +121,7 @@ test('P1.4 migrations create glossary and analysis tables with seed', () => {
          WHERE a.code = 'hook-type'`,
       )
       .get() as { n: number };
-    assert.equal(hookCount.n, 15);
+    assert.equal(hookCount.n, 24);
     db.close();
   } finally {
     cleanup(ws);

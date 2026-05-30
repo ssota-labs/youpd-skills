@@ -1,29 +1,53 @@
 # Route: `research/youtube/fetch-transcript`
 
-> **상태**: 준비 중 — 자막 수급 경로(공식 API vs 서드파티 vs ASR)가 확정되기 전까지 실행할 수 없다.
+> **상태**: 사용 가능 — 공개 **timedtext** 자막 수급·DB 저장. ASR·공식 captions OAuth 는 후속.
 
-영상의 자막/스크립트를 추출. 공식 captions API → 서드파티 transcript → ASR fallback 순서로 시도.
+영상의 자막/스크립트를 추출해 `youtube_video_transcripts`에 저장한다. 도입부 분석(`analyze-intro`) 전에 호출한다.
 
-## 계획된 입력
+## 선행 조건
 
-| 인수 | 형태 | 설명 |
+- `youtube_videos`에 해당 `video_id` 행 존재 (수집·큐레이션 완료)
+- Node 24+ 네트워크 접근 (YouTube watch 페이지 fetch)
+
+## 실행
+
+```bash
+pnpm tsx skills/youpd-skills/scripts/research/youtube/fetch-transcript.ts \
+  --video-id <id> [--video-id <id> ...] \
+  [--lang ko,en] \
+  [--db <path>]
+```
+
+| 인수 | 기본 | 설명 |
 |---|---|---|
-| `--video-id` | string (repeatable) | |
-| `--lang` | string | (선택) 우선 언어 (default `ko` → `en` 순) |
-| `--allow-asr` | boolean | ASR fallback 허용 여부 (기본 false; opt-in) |
+| `--video-id` | (필수, 반복) | YouTube video ID |
+| `--lang` | `ko,en` | 우선 언어 (쉼표 구분) |
+| `--allow-asr` | false | **미구현** — 지정 시 `OPENAI_API_KEY` 확인 후 거절. 사용자 명시 승인 전 자동 ASR 금지 |
 
-## DB 영향
+## stdout
 
-- write: `youtube_video_transcripts` (향후 마이그레이션)
-- read: `youtube_videos`
+`RouteOk<FetchTranscriptResult>`:
 
-## 외부 의존
+- `succeeded` / `failed` 건수
+- `items[]`: `videoId`, `source`, `language`, `replaced`, `segmentCount`, `charCount`
+- `failures[]`: `videoId`, `message`, `code` (일부 실패해도 `ok: true` — 배치 처리)
 
-- YouTube captions API (공식, OAuth 필요할 수 있음)
-- 서드파티 transcript 라이브러리 (e.g. `youtube-transcript`)
-- (옵션) Whisper ASR (BYOK, opt-in only)
+## 수급 경로 (dogfood)
 
-## 아직 정하지 않은 사항
+1. **timedtext** (기본): watch 페이지 `captionTracks` → json3/srv3 파싱 → `source=timedtext`
+2. **youtube_captions** (OAuth): 미지원
+3. **asr_whisper**: `--allow-asr` — 미구현. 키 없으면 즉시 거절
 
-- ToS 합법성: 공식 captions API 만 허용할지, 서드파티 라이브러리 의존을 허용할지
-- ASR 비용: 비용·시간 트레이드오프. 기본은 ASR 미포함
+자막이 없으면 `not_found` — 에이전트는 사용자에게 ASR 의향을 묻고, 거절 시 해당 영상 분석 스킵.
+
+## DB
+
+`youtube_video_transcripts`: `video_id` PK, `source`, `language`, `full_text`, `segments_json`, `fetched_at`. 동일 `video_id` 재호출 시 UPDATE.
+
+## 에러 (단일 영상 실패는 failures에 포함)
+
+| code | 조건 |
+|---|---|
+| `not_found` | 공개 자막 트랙 없음 / `video_id` 없음 |
+| `network_error` | HTTP 실패 |
+| `validation_error` | `--allow-asr` 미구현·키 없음 |

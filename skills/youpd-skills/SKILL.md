@@ -52,8 +52,8 @@ description: YouTube/Threads/TikTok/Instagram/카드뉴스 콘텐츠 기획·제
 | 워크스페이스 DB 로컬 뷰어 (읽기 전용, 제목·썸네일 분석 표면) | `references/research/youtube/view-workspace.md` | 사용 가능 |
 | 제목 분석 · 축 매핑 (에이전트 reasoning) | `references/research/youtube/analyze-title.md` | 사용 가능 |
 | 썸네일 분석 · 축 매핑 (에이전트 reasoning) | `references/research/youtube/analyze-thumbnail.md` | 사용 가능 |
-| 자막/스크립트 추출 | `references/research/youtube/fetch-transcript.md` | 준비 중 |
-| 도입부 후크 · 구조 분석 | `references/research/youtube/analyze-intro.md` | 준비 중 |
+| 자막/스크립트 추출 (timedtext) | `references/research/youtube/fetch-transcript.md` | 사용 가능 |
+| 도입부 후크 · 구조 분석 (에이전트 reasoning) | `references/research/youtube/analyze-intro.md` | 사용 가능 |
 
 의도가 모호하면 위 라우트 후보를 1줄씩 사용자에게 제시하고 선택을 받는다. 절대 임의 추측으로 다중 라우트를 동시에 호출하지 말 것.
 
@@ -80,4 +80,4 @@ pnpm tsx skills/youpd-skills/scripts/<domain>/<action>.ts [args...]
 - `references/workspace/init.md` — 워크스페이스 생성·마이그레이션 적용
 - `references/research/youtube/INDEX.md` — YouTube 도메인 라우트 묶음 + 권장 호출 순서
 
-현재 제공 범위: 워크스페이스 부트스트랩, YouTube 키워드·채널·영상 수집, 성과 기반 레퍼런스 큐레이션·댓글 수집, 로컬 워크스페이스 뷰어. 제목/썸네일/자막/도입부 분석 라우트는 계약만 있으며 **준비 중**이다.
+현재 제공 범위: 워크스페이스 부트스트랩, YouTube 키워드·채널·영상 수집, 성과 기반 레퍼런스 큐레이션·댓글 수집, 로컬 워크스페이스 뷰어, 제목·썸네일·도입부 분석(자막 timedtext 수급 포함). ASR·공식 captions OAuth 는 미지원.

@@ -80,7 +80,9 @@ test('runMigrations: applies all migrations on a fresh DB and reports them', () 
     assert.ok(tableExists(db, 'glossary_axes'));
     assert.ok(tableExists(db, 'youtube_title_analyses'));
     assert.ok(tableExists(db, 'youtube_thumbnail_analyses'));
-    assert.equal(expected.length, 7, 'P1.4 adds 012–014 glossary + analysis migrations');
+    assert.ok(tableExists(db, 'youtube_video_transcripts'));
+    assert.ok(tableExists(db, 'youtube_intro_analyses'));
+    assert.equal(expected.length, 10, 'P1.5 adds 015–017 transcript + intro migrations');
 
     db.close();
   } finally {
