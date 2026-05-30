@@ -74,8 +74,9 @@ Implementation status, phase plans, and milestone tracking belong in **AGENTS.md
 | Milestone | Status |
 |---|---|
 | **P1.0** — DB bootstrap, migrations, `workspace/init` | ✅ Done (`schema_migrations`, `workspace_meta` only) |
-| **P1.1** — YouTube fetch routes (6 scripts) | 🚧 Reference stubs only |
-| **P1.2–P1.5** — Snapshots, curation, analysis | 🚧 Reference stubs only |
+| **P1.1** — YouTube fetch routes (6 scripts) | ✅ Done |
+| **P1.2–P1.4** — Curation, title/thumbnail analysis | ✅ Done |
+| **P1.5** — Transcript fetch (timedtext) + intro analysis | ✅ Done (ASR/captions OAuth 미지원) |
 
 Design SSOT (Notion, internal): [P1.0 D3](https://www.notion.so/36d346dac45681faa27fdfb0b39ef9fe), [Phase 1 Blueprint](https://www.notion.so/36d346dac456813daa20e054198e3a8c).
 
