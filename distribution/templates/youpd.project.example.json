@@ -1,0 +1,15 @@
+{
+  "id": "senior-cafe-tv",
+  "displayName": "Senior Cafe TV",
+  "channel": {
+    "oneLiner": "시니어와 4050 자녀를 위한 유튜브 — 건강·일상·가족 소통",
+    "audiences": ["senior-55-75", "children-40-50"],
+    "platforms": ["youtube-long"]
+  },
+  "toolkit": {
+    "path": "/absolute/path/to/youpd-skills"
+  },
+  "workspace": {
+    "dbPath": "./.youpd/workspace.db"
+  }
+}

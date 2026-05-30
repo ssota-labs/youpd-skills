@@ -1,0 +1,16 @@
+{
+  "$comment": "Paths included in end-user runtime installs (sparse clone / install-youpd-runtime.sh). Dev-only files (AGENTS.md, .cursor/skills, evals, …) are excluded.",
+  "version": 1,
+  "sparseCheckout": [
+    "package.json",
+    "pnpm-lock.yaml",
+    "tsconfig.json",
+    ".env.example",
+    "skills/youpd-skills",
+    ".cursor-plugin",
+    "distribution",
+    "scripts/install-youpd-runtime.sh",
+    "scripts/install-youpd-project.sh"
+  ],
+  "copyAsReadme": "distribution/README.runtime.md"
+}

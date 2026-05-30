@@ -1,144 +1,136 @@
 # youpd-skills 설치 가이드
 
-유저가 Cursor · Claude Code · Codex 등 **에이전트 IDE**에서 youpd-skills를 쓰려면, 현재는 [GitHub 레포](https://github.com/ssota-labs/youpd-skills)를 로컬에 두는 것이 기본입니다. 마켓플레이스 원클릭 설치는 공개(Phase 4) 이후 검토 대상입니다.
+## 한 줄 요약
+
+| 누가 | 무엇을 받나 | Cursor에서 여는 폴더 |
+|------|-------------|----------------------|
+| **채널 운영자** | 런타임 툴킷 + 채널 폴더 | 채널 폴더 (`my-channel/`) |
+| **레포 기여자** | full `git clone` | `youpd-skills` 레포 루트 |
+
+채널 운영자는 **`AGENTS.md` 가 없는** 경로를 쓰는 것이 좋습니다. 이유와 방법: [distribution.md](./distribution.md).
+
+---
 
 ## 사전 요구 사항
 
 | 항목 | 버전 |
 |------|------|
-| Node.js | **24 이상** (`node:sqlite` 필요) |
-| pnpm | **10 이상** |
-| API 키 | YouTube 리서치: `YOUTUBE_API_KEY` (`.env.example` 참고) |
-
-## 설치 패턴 (두 가지)
-
-### A. 단일 폴더 — clone 후 프로젝트명으로 폴더 이름 변경 (권장: 채널 1개 = 폴더 1개)
-
-가장 흔한 유저 흐름입니다. 레포를 **처음부터 채널/프로젝트 이름으로 clone** 하면 `mv` 없이 끝납니다.
-
-```bash
-mkdir -p ~/youpd && cd ~/youpd
-git clone https://github.com/ssota-labs/youpd-skills.git senior-cafe-tv
-cd senior-cafe-tv
-pnpm install
-cp .env.example .env.local
-# .env.local 에 YOUTUBE_API_KEY 등 입력 (에이전트에게 요청해도 됨 — 값은 채팅에 붙여넣지 말 것)
-pnpm tsx skills/youpd-skills/scripts/workspace/init.ts --label senior-cafe-tv
-```
-
-- `./.youpd/workspace.db` 가 **이 폴더(cwd)** 에 생성됩니다.
-- 스크립트·스킬·`pnpm` 의존성은 모두 이 디렉터리 안에 있습니다.
-- upstream(`ssota-labs/youpd-skills`) 업데이트를 받으려면 `git remote` 가 origin을 가리키므로 `git pull` 로 스킬 킷만 갱신할 수 있습니다. 채널 전용 커밋과 섞이지 않게 하려면 **B 패턴**을 쓰세요.
-
-### B. 툴킷 + 채널 분리 — 스킬 킷은 고정 이름, 채널은 형제 폴더
-
-스킬 킷 업데이트와 채널 데이터를 분리할 때 유용합니다.
-
-```bash
-mkdir -p ~/youpd && cd ~/youpd
-git clone https://github.com/ssota-labs/youpd-skills.git
-mkdir senior-cafe-tv && cd senior-cafe-tv
-# 워크스페이스 DB만 이 폴더에 둠
-export YOUPD_WORKSPACE_DB="$PWD/.youpd/workspace.db"
-pnpm tsx ../youpd-skills/skills/youpd-skills/scripts/workspace/init.ts --label senior-cafe-tv
-```
-
-이후 YouTube 라우트도 **같은 환경변수**를 쓰거나, `../youpd-skills` 에서 `pnpm tsx skills/youpd-skills/scripts/...` 를 실행할 때 `YOUPD_WORKSPACE_DB` 를 채널 폴더로 맞춥니다. `.env.local` 은 `youpd-skills` 쪽에 한 번만 두면 됩니다.
-
-## Cursor에서 열기
-
-1. 설치한 폴더(패턴 A면 `senior-cafe-tv`, 패턴 B면 작업할 채널 폴더 또는 `youpd-skills`)를 Cursor로 연다.
-2. Agent 채팅에 아래 **초기 설치 프롬프트** 또는 **일상 작업 프롬프트**를 붙여 넣는다.
-3. (선택) Rules → Skills 에 `youpd-skills` 가 보이는지 확인. 안 보이면 레포 루트의 `skills/youpd-skills/SKILL.md` 가 로드되는 워크스페이스인지 확인한다.
-
-## 채널 컨텍스트 문서
-
-레포 안의 예시는 [`docs/projects/senior-cafe-tv/`](./projects/senior-cafe-tv/README.md) 를 참고하세요. 설치가 끝난 뒤 채널 폴더에 `docs/channel-brief.md` 등으로 복사해 두면, 이후 에이전트가 시청자·포지셔닝을 잃지 않습니다.
+| Node.js | **24+** |
+| pnpm | **10+** |
+| git | sparse-checkout 지원 (2.25+) |
+| API 키 | `YOUTUBE_API_KEY` (`.env.example`) |
 
 ---
 
-## 에이전트에게 맡기는 초기 설치 프롬프트
+## 권장: 런타임 + 채널 (동적)
 
-아래 블록을 **그대로** Agent 채팅에 붙여 넣으세요. `{...}` 만 본인 환경에 맞게 바꿉니다.
+### 1) 툴킷만 설치 (개발 파일 제외)
 
-### 패턴 A — 프로젝트 폴더 하나로 운영 (clone 이름 = 프로젝트명)
+```bash
+mkdir -p ~/youpd
+# 레포 안에서:
+bash scripts/install-youpd-runtime.sh --dir ~/youpd/youpd-skills
+# 또는 clone 후 해당 레포에서 동일 명령
 
-```text
-나는 YouTube 채널 프로젝트 "{PROJECT_NAME}" 을 youpd-skills 로 시작하려고 해.
-
-저장소: https://github.com/ssota-labs/youpd-skills.git
-설치 위치: {PARENT_DIR} (예: ~/youpd)
-프로젝트 폴더 이름: {PROJECT_NAME} (예: senior-cafe-tv — clone 할 때 이 이름을 쓸 것)
-채널 설명: {CHANNEL_ONE_LINER}
-
-다음을 순서대로 직접 실행하고, 각 단계 결과를 한국어로 짧게 보고해줘.
-
-1. Node 24+ 와 pnpm 10+ 설치 여부 확인 (`node --version`, `pnpm --version`). 부족하면 설치 방법 안내.
-2. `{PARENT_DIR}` 가 없으면 만들고, 그 안에
-   `git clone https://github.com/ssota-labs/youpd-skills.git {PROJECT_NAME}` 실행.
-   (이미 clone 되어 있으면 pull 만.)
-3. `cd {PARENT_DIR}/{PROJECT_NAME}` 후 `pnpm install`.
-4. `.env.local` 이 없으면 `.env.example` 을 복사. `YOUTUBE_API_KEY` 가 비어 있으면 나에게 .env.local 편집을 요청 (키 값은 채팅에 출력하지 말 것).
-5. 워크스페이스 초기화:
-   `pnpm tsx skills/youpd-skills/scripts/workspace/init.ts --label {PROJECT_NAME}`
-   stdout JSON 한 줄을 파싱해 성공 여부 보고.
-6. 레포에 `docs/projects/{PROJECT_NAME}/` 예시가 있으면 읽고, 채널 루트에 `docs/channel-brief.md` 를 만들어 요약해 넣어줘 (없는 필드는 채널 설명으로 채움).
-7. 마지막에: Cursor에서 이 폴더를 연 상태로 쓸 때의 다음 한 가지 작업(예: 키워드 등록)을 제안해줘.
-
-스크립트는 반드시 `skills/youpd-skills/references/` 계약과 `skills/youpd-skills/SKILL.md` 라우터를 따를 것. 임의 SQL·미문서화 스크립트 금지.
+# Cursor 로컬 플러그인 등록 (선택)
+bash scripts/install-youpd-runtime.sh --dir ~/youpd/youpd-skills --cursor-link
 ```
 
-**senior-cafe-tv 예시 값**
+`AGENTS.md`, `.cursor/skills`, `evals/` 등은 **체크아웃되지 않습니다**.
 
-| placeholder | 값 |
-|-------------|-----|
-| `{PROJECT_NAME}` | `senior-cafe-tv` |
-| `{PARENT_DIR}` | `~/youpd` (원하는 경로) |
-| `{CHANNEL_ONE_LINER}` | 시니어와 4050 자녀를 위한 유튜브 채널. 건강·일상·가족 소통 콘텐츠. |
+### 2) 채널 워크스페이스 생성
 
-### 패턴 B — youpd-skills 고정 + 채널 폴더만 분리
+`senior-cafe-tv` 같은 이름은 **예시일 뿐** — 본인 `--id` 로 바꿉니다.
+
+```bash
+bash scripts/install-youpd-project.sh \
+  --dir ~/youpd/senior-cafe-tv \
+  --id senior-cafe-tv \
+  --name "Senior Cafe TV" \
+  --one-liner "시니어와 4050 자녀를 위한 유튜브" \
+  --toolkit ~/youpd/youpd-skills \
+  --audiences "senior-55-75,children-40-50"
+```
+
+생성물:
+
+- `~/youpd/senior-cafe-tv/.youpd/project.json` — 에이전트·스크립트가 읽는 메타
+- `~/youpd/senior-cafe-tv/docs/channel-brief.md`
+
+### 3) DB 초기화 · 키
+
+```bash
+cd ~/youpd/youpd-skills
+cp -n .env.example .env.local   # 키 입력
+YOUPD_WORKSPACE_DB=~/youpd/senior-cafe-tv/.youpd/workspace.db \
+  pnpm tsx skills/youpd-skills/scripts/workspace/init.ts --label senior-cafe-tv
+```
+
+### 4) Cursor
+
+**`~/youpd/senior-cafe-tv` 만 연다** (툴킷 레포 루트를 채널 이름으로 열지 않음).
+
+---
+
+## 에이전트에게 맡기기 (동적 프롬프트)
+
+고정 채널명 없이 쓰려면 아래 파일 **본문**을 복사하세요.
+
+→ [`distribution/templates/agent-bootstrap.prompt.md`](../distribution/templates/agent-bootstrap.prompt.md)
+
+에이전트는 대화에서 받은 값으로 `install-youpd-*.sh` 를 실행하고 `.youpd/project.json` 을 채웁니다.
+
+### 설치 후 (짧은 프롬프트)
 
 ```text
-youpd-skills 툴킷은 {TOOLKIT_DIR}/youpd-skills 에 두고,
-채널 데이터만 {CHANNEL_DIR}/{PROJECT_NAME} 에 두고 싶어.
-
-1. {TOOLKIT_DIR}/youpd-skills clone + pnpm install + .env.local 설정 (키는 채팅에 노출 금지).
-2. mkdir -p {CHANNEL_DIR}/{PROJECT_NAME} && cd 그 폴더.
-3. YOUPD_WORKSPACE_DB="$PWD/.youpd/workspace.db" 로 init 스크립트 실행
-   (스크립트 경로는 youpd-skills 레포의 skills/youpd-skills/scripts/workspace/init.ts).
-4. 이후 모든 youpd 스크립트는 같은 YOUPD_WORKSPACE_DB 를 유지할 것.
-5. docs/projects/{PROJECT_NAME}/ 가 있으면 channel-brief 를 채널 폴더에 생성.
+.youpd/project.json 과 docs/channel-brief.md 를 읽고 youpd 절차로 진행해줘.
+지금 할 일: <의도>
 ```
 
 ---
 
-## 설치 후 일상 작업 프롬프트 (짧은 버전)
+## 대안: full clone (비권장 · 운영자)
 
-설치가 끝난 뒤에는 이렇게만 말해도 됩니다.
-
-```text
-이 워크스페이스는 youpd-skills 프로젝트 "{PROJECT_NAME}" 이야.
-youpd SKILL.md → 해당 references → pnpm tsx 스크립트 순으로 처리해줘.
-
-지금 하고 싶은 일: {USER_INTENT}
-예: "키워드 '시니어 건강' 등록해줘" / "이 키워드로 영상 수집해줘" / "레퍼런스 폴더 만들어줘"
+```bash
+git clone https://github.com/ssota-labs/youpd-skills.git my-channel
 ```
+
+개발용 `AGENTS.md`·Notion 워크플로 스킬이 함께 옵니다. Cursor에서 **반드시 채널 전용 하위 폴더만** 열거나, 위 **런타임 스크립트**를 쓰세요.
+
+---
+
+## Cursor 플러그인 JSON (정식 마켓 없이)
+
+런타임 디렉터리의 [`.cursor-plugin/plugin.json`](../.cursor-plugin/plugin.json):
+
+```json
+{ "name": "youpd-skills", "skills": ["skills/youpd-skills"] }
+```
+
+`--cursor-link` 는 `~/.cursor/plugins/local/youpd-skills` → 런타임 경로 심볼릭 링크입니다. 상세: [distribution.md](./distribution.md).
+
+---
+
+## 예시 데이터
+
+| 파일 | 용도 |
+|------|------|
+| [`distribution/templates/youpd.project.example.json`](../distribution/templates/youpd.project.example.json) | `project.json` 예시 |
+| [`docs/projects/senior-cafe-tv/`](../docs/projects/senior-cafe-tv/README.md) | 예시 시나리오 설명 (정적 복사본 대신 템플릿 권장) |
 
 ---
 
 ## 자주 하는 실수
 
-| 증상 | 원인 | 해결 |
-|------|------|------|
-| `node:sqlite` / ExperimentalWarning 외 실패 | Node 22 이하 | Node 24+ 사용 |
-| DB가 엉뚱한 폴더에 생김 | cwd 와 `YOUPD_WORKSPACE_DB` 불일치 | init 전에 `pwd` 확인, B 패턴이면 env 고정 |
-| `pnpm init` 이 package.json 을 덮어씀 | pnpm 내장 init 과 충돌 | `pnpm tsx skills/youpd-skills/scripts/workspace/init.ts` 사용 |
-| API 호출 실패 | `.env.local` 미설정 | 레포 루트에 키 입력 후 같은 셸/에이전트 세션에서 재시도 |
+| 증상 | 해결 |
+|------|------|
+| 에이전트가 Notion·YPDS 언급 | full clone 루트를 연 상태 → 채널 폴더만 열기 또는 runtime 설치 |
+| 스크립트를 찾을 수 없음 | `project.json` 의 `toolkit.path` 확인 |
+| DB 위치 혼동 | 채널 폴더에서 `YOUPD_WORKSPACE_DB` 또는 `project.json` 의 `workspace.dbPath` |
 
 ---
 
-## 관련 문서
+## 관련
 
-- [README.md](../README.md) — 레포 개요
-- [senior-cafe-tv 예시 프로젝트](./projects/senior-cafe-tv/README.md)
-- 스킬 라우터: `skills/youpd-skills/SKILL.md`
+- [distribution.md](./distribution.md) — dev vs runtime, sparse, Cursor JSON
+- [README.md](../README.md)

@@ -8,50 +8,32 @@
 - **결과 적재**: 사용자 작업 디렉터리 하위 `./.youpd/workspace.db` (SQLite 단일 파일, SSOT)
 - **배포 모델**: GitHub clone (현재) · Claude Code Plugin Marketplace · Cursor 호환
 
-## 유저 설치 (에이전트에게 맡기기)
+## 유저 설치
 
-마켓플레이스 없이 쓰려면 **GitHub에서 clone** 하면 됩니다. 보통 **폴더 이름 = 채널/프로젝트 이름**으로 clone 합니다.
+마켓플레이스 없이 쓸 때 **full clone은 개발 파일(`AGENTS.md`, `.cursor/skills` …)까지 같이 옵니다.** 채널 운영자는 **런타임만** 받는 것을 권장합니다.
 
 ```bash
-mkdir -p ~/youpd && cd ~/youpd
-git clone https://github.com/ssota-labs/youpd-skills.git senior-cafe-tv
-cd senior-cafe-tv
-pnpm install
-cp .env.example .env.local   # YOUTUBE_API_KEY 등 입력
-pnpm tsx skills/youpd-skills/scripts/workspace/init.ts --label senior-cafe-tv
+# 1) 툴킷 (스킬·스크립트만, sparse)
+bash scripts/install-youpd-runtime.sh --dir ~/youpd/youpd-skills --cursor-link
+
+# 2) 채널 폴더 (본인 id·한 줄 소개로 바꿈)
+bash scripts/install-youpd-project.sh \
+  --dir ~/youpd/my-channel --id my-channel --name "My Channel" \
+  --one-liner "채널 한 줄 소개" --toolkit ~/youpd/youpd-skills
+
+# 3) DB + 키 (툴킷 디렉터리에서)
+cd ~/youpd/youpd-skills && cp -n .env.example .env.local
+YOUPD_WORKSPACE_DB=~/youpd/my-channel/.youpd/workspace.db \
+  pnpm tsx skills/youpd-skills/scripts/workspace/init.ts --label my-channel
 ```
 
-Cursor(또는 다른 에이전트)에 **설치 전체를 맡기려면** 아래 프롬프트를 채팅에 붙여 넣으세요. 상세·패턴 B(툴킷/채널 분리)는 [docs/installation.md](docs/installation.md) 를 보세요.
+**Cursor에서는 `~/youpd/my-channel` 만 연다.** 플러그인 JSON: [`.cursor-plugin/plugin.json`](.cursor-plugin/plugin.json).
 
-<details>
-<summary><strong>초기 설치 프롬프트 (복사용)</strong></summary>
-
-```text
-나는 YouTube 채널 프로젝트 "senior-cafe-tv" 을 youpd-skills 로 시작하려고 해.
-
-저장소: https://github.com/ssota-labs/youpd-skills.git
-설치 위치: ~/youpd
-프로젝트 폴더 이름: senior-cafe-tv (clone 할 때 이 이름을 쓸 것)
-채널 설명: 시니어와 4050 자녀를 위한 유튜브 채널. 건강·일상·가족 소통 콘텐츠.
-
-다음을 순서대로 직접 실행하고, 각 단계 결과를 한국어로 짧게 보고해줘.
-
-1. Node 24+ 와 pnpm 10+ 설치 여부 확인. 부족하면 설치 방법 안내.
-2. ~/youpd 가 없으면 만들고,
-   git clone https://github.com/ssota-labs/youpd-skills.git senior-cafe-tv 실행.
-3. cd ~/youpd/senior-cafe-tv 후 pnpm install.
-4. .env.local 이 없으면 .env.example 복사. YOUTUBE_API_KEY 가 비어 있으면 .env.local 편집 요청 (키 값은 채팅에 출력하지 말 것).
-5. pnpm tsx skills/youpd-skills/scripts/workspace/init.ts --label senior-cafe-tv
-6. docs/projects/senior-cafe-tv/channel-brief.md 를 읽고, 프로젝트 루트에 docs/channel-brief.md 생성.
-7. 다음에 할 만한 youpd 작업 한 가지 제안.
-
-스크립트는 skills/youpd-skills/SKILL.md 와 references/ 계약만 따를 것.
-```
-
-</details>
-
-- **예시 채널 문서**: [docs/projects/senior-cafe-tv/](docs/projects/senior-cafe-tv/README.md)
-- **설치 가이드 전문**: [docs/installation.md](docs/installation.md)
+| 문서 | 내용 |
+|------|------|
+| [docs/installation.md](docs/installation.md) | 설치 절차 |
+| [docs/distribution.md](docs/distribution.md) | dev vs runtime, Cursor 로컬 플러그인 |
+| [distribution/templates/agent-bootstrap.prompt.md](distribution/templates/agent-bootstrap.prompt.md) | **동적** 에이전트 초기 프롬프트 |
 
 ## 빠른 시작 (개발자)
 
