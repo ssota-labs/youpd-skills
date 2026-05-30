@@ -11,6 +11,7 @@
   "packageManager": "pnpm@10.33.2",
   "scripts": {
     "bootstrap": "tsx scripts/setup/bootstrap.ts",
+    "project:init": "tsx scripts/setup/project-init.ts",
     "setup:env": "tsx scripts/setup/env.ts",
     "init": "tsx scripts/workspace/init.ts",
     "test": "node --test --experimental-test-coverage --import tsx/esm scripts/__tests__/*.test.ts",

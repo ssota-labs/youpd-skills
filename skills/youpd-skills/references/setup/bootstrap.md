@@ -6,6 +6,7 @@
 ## 언제
 
 - 채널 프로젝트에서 youpd 를 **처음** 쓸 때
+- (권장) `setup/channel-project` 로 `.youpd/project.json` 생성 후
 - `workspace/init` 또는 YouTube API 라우트 진입 전
 - `node_modules` 가 없거나 `YOUTUBE_API_KEY` 가 없을 때
 

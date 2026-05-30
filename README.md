@@ -6,14 +6,28 @@
 
 - **레포 정체성**: BYOK + 로컬 완결 + 사설 백엔드 0
 - **결과 적재**: 사용자 작업 디렉터리 하위 `./.youpd/workspace.db` (SQLite 단일 파일, SSOT)
-- **배포 모델**: Claude Code Plugin Marketplace + Codex 플러그인 + Cursor 호환
+- **배포 모델**: [skills.sh](https://skills.sh) / `npx skills add` + Claude Code Plugin + Cursor
 
-## 빠른 시작 (개발자)
+## 유저 설치 (skills.sh)
+
+**별도 등록 폼 없음** — 공개 GitHub + `npx skills add` 설치 통계로 [skills.sh](https://skills.sh)에 노출됩니다. 자세히: [docs/skills-sh.md](docs/skills-sh.md)
+
+```bash
+npx skills add ssota-labs/youpd-skills --skill youpd-skills -g -y
+```
+
+채널 폴더를 Cursor로 연 뒤, 에이전트에「youpd 초기 설정해줘」→ `bootstrap`(자동 `pnpm install`) → env HTML로 YouTube 키 → `workspace/init`.  
+가이드: [docs/installation.md](docs/installation.md)
+
+[![skills.sh](https://skills.sh/b/ssota-labs/youpd-skills)](https://skills.sh/ssota-labs/youpd-skills)
+
+## 빠른 시작 (기여자 · full clone)
 
 ```bash
 pnpm install
-pnpm test:smoke      # workspace/init 멱등성 + 마이그레이션 ledger 검증
-pnpm init            # 현재 디렉터리에 ./.youpd/workspace.db 생성
+pnpm test:smoke      # skills/youpd-skills 기준
+pnpm -C skills/youpd-skills bootstrap
+pnpm -C skills/youpd-skills init   # cwd에 ./.youpd/workspace.db
 ```
 
 **Git worktree** (`.cursor/worktrees/...` 등): ignored 파일은 복사되지 않으므로 메인 클론의 `.env.local`을 링크한다.
@@ -23,7 +37,7 @@ pnpm install
 pnpm worktree:env    # .env.local ← main worktree symlink
 ```
 
-메인 클론 최초 1회: `cp .env.example .env.local` 후 키 입력. 워크트리마다 `pnpm worktree:env`만 실행하면 된다.
+메인 클론: `cp skills/youpd-skills/.env.example skills/youpd-skills/.env.local` 후 키 입력, 또는 `pnpm -C skills/youpd-skills exec tsx scripts/setup/env.ts --mode serve`. 워크트리: `pnpm worktree:env`.
 
 ## 디렉터리 구조
 
@@ -42,9 +56,13 @@ youpd-skills/
           add-keyword.md
           search-by-keyword.md
           ... 등
-      scripts/                       # 에이전트가 호출하는 실행 스크립트
+      scripts/                       # 자급자족 런타임 (package.json 동일 폴더)
+        setup/bootstrap.ts           # pnpm install + BYOK
+        setup/env.ts                 # HTML 키 입력
+        setup/project-init.ts        # 채널 .youpd/project.json
         workspace/init.ts
-        research/youtube/...         # P1.1+
+        research/youtube/...
+      package.json                   # 유저 설치 단위 (npx skills add)
         lib/
           db/                        # node:sqlite 클라이언트 + 마이그레이션 러너
           migrations/                # 손으로 쓴 .sql, lex 순 forward-only

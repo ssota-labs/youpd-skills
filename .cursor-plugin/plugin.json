@@ -1,0 +1,11 @@
+{
+  "name": "youpd-skills",
+  "version": "0.1.0-dev.0",
+  "description": "YouTube·콘텐츠 리서치 워크플로. 로컬 SQLite, BYOK(YouTube만), 에이전트 스킬.",
+  "author": { "name": "ssota-labs" },
+  "license": "MIT",
+  "homepage": "https://github.com/ssota-labs/youpd-skills",
+  "repository": "https://github.com/ssota-labs/youpd-skills",
+  "keywords": ["youtube", "content-creation", "research", "agent-skills"],
+  "skills": ["skills/youpd-skills"]
+}
