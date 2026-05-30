@@ -1,6 +1,6 @@
 # Route: `research/youtube/analyze-thumbnail`
 
-> **상태**: 🚧 P1.4 — 스크립트 stub. **선행 작업**: 분류 축 v0 ADR + `glossary` seed.
+> **상태**: 준비 중 — 분류 축·용어집 시드가 확정되기 전까지 실행할 수 없다.
 
 레퍼런스 영상의 썸네일을 멀티모달 LLM 으로 분석. 시각 구성, 텍스트 배치, 인물 유무, 색상 톤, 표정·포즈 등.
 
@@ -15,7 +15,7 @@
 
 ## DB 영향
 
-- write: `youtube_thumbnail_analyses` (P1.4 신규), `youtube_reference_classifications`
+- write: `youtube_thumbnail_analyses` (향후 마이그레이션), `youtube_reference_classifications`
 - read: `youtube_references` JOIN `youtube_videos.thumbnail_url`, `glossary_*`
 
 ## 외부 의존

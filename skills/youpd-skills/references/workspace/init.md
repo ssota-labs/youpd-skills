@@ -78,7 +78,7 @@ interface WorkspaceInitError {
 
 - **재실행 안전**: 같은 디렉터리에서 두 번 호출하면 `appliedMigrations: []`, `workspaceMetaCreated: false` 가 반환되어야 한다 (smoke test 의 핵심).
 - **부분 실패 복구**: 한 파일이 트랜잭션 도중 실패하면 그 파일은 ledger 에 기록되지 않으므로, 원인 수정 후 재호출하면 그 파일부터 다시 시도한다. 그러나 이전 파일이 만든 테이블은 그대로 남아 있을 수 있으므로, **DDL 순서가 바뀌는 fix** 는 새 마이그레이션 파일로만 추가할 것.
-- **DB 파일 손상**: `node:sqlite` 가 파일을 못 열면 즉시 `code: 'UNKNOWN'` + 사용자에게 수동 삭제 안내. 자동 백업/복구는 P1.0 범위 밖.
+- **DB 파일 손상**: `node:sqlite` 가 파일을 못 열면 즉시 `code: 'UNKNOWN'` + 사용자에게 수동 삭제 안내. 자동 백업/복구는 제공하지 않는다.
 
 ## 에이전트 호출 절차 (이 reference 를 읽은 LLM 이 따라야 할 단계)
 
@@ -95,5 +95,5 @@ interface WorkspaceInitError {
 
 ## 변경 이력
 
-- 2026-05-27: P1.0 scope 정리 — migration은 `000_bootstrap.sql`, `001_workspace.sql` 2개만 적용. YouTube/glossary domain schema는 Phase 1 Blueprint 및 후속 milestone D3에서 도입.
-- 2026-05-26: P1.0 초기 작성.
+- 2026-05-27: 워크스페이스 부트스트랩 마이그레이션 정리. YouTube·용어집 스키마는 별도 마이그레이션으로 추가됨.
+- 2026-05-26: 초기 작성.

@@ -1,6 +1,6 @@
 # Route: `research/youtube/create-reference-folder`
 
-> **상태**: ✅ P1.2
+> **상태**: 사용 가능
 
 Reference folder group과 자유 child folder를 생성/재사용한다.
 

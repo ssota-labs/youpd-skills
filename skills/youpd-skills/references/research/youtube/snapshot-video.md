@@ -1,6 +1,6 @@
 # Route: `research/youtube/snapshot-video`
 
-> **상태**: 🚧 P1.2 — 스크립트 stub.
+> **상태**: 미지원 — 단독 스냅샷 라우트는 제공하지 않는다. `search-by-keyword` / `fetch-channel-videos` 수집 경로에 통합됨.
 
 지정 영상의 현 시점 수치(view/like/comment)를 `youtube_video_snapshots` 에 1행 INSERT.
 

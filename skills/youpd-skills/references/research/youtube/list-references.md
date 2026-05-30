@@ -1,6 +1,6 @@
 # Route: `research/youtube/list-references`
 
-> **상태**: ✅ P1.2
+> **상태**: 사용 가능
 
 Folder group 또는 child folder에 큐레이션된 레퍼런스를 조회한다. score 정렬은 `youtube_video_scores` JOIN으로 수행한다.
 

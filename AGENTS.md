@@ -47,6 +47,28 @@ skills/youpd-skills/
 3. **Run** the script path specified in that reference via shell.
 4. Parse **one JSON line** from stdout and summarize for the user (Korean OK for user-facing text).
 
+### Shipped skill content (no dev vocabulary)
+
+`skills/youpd-skills/SKILL.md` and `skills/youpd-skills/references/**` ship with the plugin and are loaded by end-user agents. Use **product / user vocabulary** there only.
+
+**Do not use** internal development labels or process terms, including:
+
+- Milestone or phase labels (`P1.0`, `P1.1`, `Phase 1`, `Phase 2-3`, …)
+- Engineering process words (`stub`, `ADR`, `D3`, `Blueprint`, `milestone`, `dogfood`, Notion as dev SSOT)
+- Phase-style scope jargon (`out-of-scope` tied to a version — prefer **미지원** or **아직 제공하지 않음**)
+
+**Do use** for route availability in `SKILL.md` and references:
+
+| Label | Meaning |
+|---|---|
+| **사용 가능** | Script exists; agents may run the route |
+| **준비 중** | Contract documented; not runnable yet — tell the user it is not available |
+| **미지원** | Intentionally not offered (e.g. trending → route to `list-hot-videos`) |
+
+When reporting to users, never cite phase numbers or internal version names. Say what works today and what is not available yet.
+
+Implementation status, phase plans, and milestone tracking belong in **AGENTS.md**, Notion, and `scripts/**` / tests — not in shipped skill markdown. After changing route behavior, update references with the labels above (not `P1.x`).
+
 ### Implementation Status (Phase 1)
 
 | Milestone | Status |
@@ -207,7 +229,7 @@ Code-level tests are necessary but not sufficient because **youpd-skills ships a
 
 Minimum testing layers:
 1. **Code-level tests** — `pnpm typecheck`, `pnpm test:smoke`, `pnpm test`.
-2. **Route/reference contract checks** — `SKILL.md`, route references, script inputs, stdout contracts, and milestone labels stay aligned.
+2. **Route/reference contract checks** — `SKILL.md`, route references, script inputs, stdout contracts, and user-facing availability labels (`사용 가능` / `준비 중` / `미지원`) stay aligned.
 3. **Subagent skill evals** — independent clean-context agents execute representative user workflows and are graded on trajectory plus final output.
 
 ---
@@ -225,8 +247,8 @@ Minimum testing layers:
 
 | Path | Purpose |
 |---|---|
-| `skills/youpd-skills/SKILL.md` | Router only; link to references, don't duplicate full contracts |
-| `skills/youpd-skills/references/**` | Progressive disclosure docs for agents |
+| `skills/youpd-skills/SKILL.md` | Router only; link to references, don't duplicate full contracts; no dev phase vocabulary (see [Shipped skill content](#shipped-skill-content-no-dev-vocabulary)) |
+| `skills/youpd-skills/references/**` | Progressive disclosure docs for agents; same voice rules as `SKILL.md` |
 | `skills/youpd-skills/scripts/**` | Runnable code (must ship with plugin) |
 | `.claude-plugin/` | Marketplace + plugin manifest |
 | Repo root `package.json` | Dev/build only; runtime deps = `zod` + Node 24 built-ins |

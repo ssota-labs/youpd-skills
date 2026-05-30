@@ -1,8 +1,8 @@
 # Route: `research/youtube/fetch-comments`
 
-> **상태**: ✅ P1.2
+> **상태**: 사용 가능
 
-Score-ranked 레퍼런스 후보 영상의 top-level 댓글을 capped fetch로 가져와 `youtube_comments`에 저장한다. P1.2에서는 고객 언어 회수가 목적이며 댓글 감성/반응 분석은 하지 않는다.
+Score-ranked 레퍼런스 후보 영상의 top-level 댓글을 capped fetch로 가져와 `youtube_comments`에 저장한다. 고객 언어 회수가 목적이며 댓글 감성/반응 분석은 하지 않는다.
 
 ## 사전 조건
 
