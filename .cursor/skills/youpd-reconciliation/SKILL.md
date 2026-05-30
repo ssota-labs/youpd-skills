@@ -43,13 +43,19 @@ Apply [references/checklist.md](references/checklist.md) across **all** loaded t
 
 Do **not** audit shipped product skill contracts (`skills/youpd-skills/SKILL.md` Layer B) unless the user or a linked VERF task explicitly requests it — point to `docs/testing/skill-evaluation.md` instead.
 
-### 3. Produce report
+### 3. File run log in Notion (required)
 
-Fill [references/report-template.md](references/report-template.md). Save durable copy to Notion (`태그` = `리서치`) when findings include any **P0** or **P1**, or when the user asked to file a report.
+After every reconciliation run, create **one** page in [유PD 프로덕트 팀 문서](https://www.notion.so/5ac346dac45682cf98ed815c25b32d38) per [references/report-template.md](references/report-template.md):
 
-### 4. Report back
+- `태그` = **`정합성`**
+- Title `정합성 체크 — YYYY-MM-DD`
+- Body: scope, `main` SHA, which axes (A/B/C/E) ran, row count, one-line P0–P3 counts
 
-Summarize P0/P1 counts, top fixes, and suggested Notion task moves (`보류` / doc tasks). Do **not** set tasks to `완료` unless the user asked.
+**Do not** write reconciliation reports to the repo. Notion is the only durable log.
+
+### 4. Report back in chat
+
+Share the Notion URL, P0/P1 counts, top fixes, and suggested task moves (`보류` / doc tasks). Do **not** set tasks to `완료` unless the user asked.
 
 ## P0 policy
 
